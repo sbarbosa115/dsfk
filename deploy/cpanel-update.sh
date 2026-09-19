@@ -7,11 +7,11 @@
 #   ~/dsfk-src/deploy/cpanel-update.sh v1.2.0     # deploys a tag, branch or commit
 #
 # Settings (environment variables, all optional):
-#   APP_DIR    where the app is served from           (default /home/lentti/public_html/dsfk)
-#   BUILD_DIR  staging area and lock file              (default $HOME/dsfk-build)
-#   PHP        PHP 8.4 CLI                             (default ea-php84 if installed, else `php`)
-#   NODE_DIR   folder containing node/npm 20.19+       (default: auto-detected)
-#   COMPOSER_BIN  Composer executable                  (default: `composer` from PATH)
+#   APP_DIR       where the app is served from   (default /home/lentti/public_html/dsfk)
+#   BUILD_DIR     staging area and lock file     (default $HOME/dsfk-build)
+#   PHP           PHP 8.4 CLI                    (default ea-php84 if installed, else `php`)
+#   NODE_DIR      folder with node/npm 20.19+    (default: auto-detected)
+#   COMPOSER_BIN  Composer executable            (default: `composer` from PATH)
 
 # Everything lives in main(): bash reads the whole function before running it, so `git checkout`
 # can safely replace this file while it runs.
@@ -75,10 +75,16 @@ main() {
 
   mkdir -p "$app_dir"
   if [ ! -f "$app_dir/.env.local" ]; then
+    # Near-misses (env.local, .env.local.txt, trailing spaces...) usually come from cPanel File Manager.
+    local similar; similar="$(cd "$app_dir" && ls -1A | grep -i 'env' | grep -vx '\.env' | sed 's/.*/"&"/' | tr '\n' ' ' || true)"
+    [ -z "$similar" ] || die "$app_dir/.env.local not found (running as $(id -un)); found instead: $similar- rename it to exactly .env.local"
     cp "$src/deploy/server/env.local.example" "$app_dir/.env.local"
     chmod 600 "$app_dir/.env.local"
     die "first deployment: fill in $app_dir/.env.local (database, mailer, APP_URL=https://omaha.lentti.shop), then run this again"
   fi
+  local placeholders
+  placeholders="$(grep -nE '^[^#]*(change-me|:PASSWORD@|yourdomain)' "$app_dir/.env.local" | cut -d= -f1 | tr '\n' ' ' || true)"
+  [ -z "$placeholders" ] || die "$app_dir/.env.local still has template values on lines: $placeholders(was the edit saved?)"
 
   # --- Frontend (compiled into backend/public/app) ---------------------------------------------
   log "Building frontend"
