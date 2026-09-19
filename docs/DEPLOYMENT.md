@@ -8,7 +8,7 @@ There is no other way to deploy.
 | App folder | `/home/lentti/public_html/dsfk` |
 | Web root (`omaha.lentti.shop` → Document Root) | `/home/lentti/public_html/dsfk/public` |
 | Build clone (outside `public_html`) | `/home/lentti/dsfk-src` |
-| Build workspace (staging, Composer) | `/home/lentti/dsfk-build` |
+| Build workspace (staging) | `/home/lentti/dsfk-build` |
 | Backups | `/home/lentti/backups/control-proyectos` |
 
 The app folder is inside `public_html`, but its `.htaccess` refuses all web access. Only `public/`
@@ -25,12 +25,13 @@ is served.
 | PHP extensions: `pdo_mysql`, `intl`, `mbstring`, `fileinfo`, `ctype`, `iconv`, `openssl`, `xml`, `opcache` (recommended) | *Select PHP Version → Extensions* (CloudLinux) or ask the host |
 | `upload_max_filesize` and `post_max_size` ≥ **12M** | *MultiPHP INI Editor* |
 | **Node.js 20.19+ or 22.12+** (for building the frontend) | *Setup Node.js App* (installs under `/opt/alt/alt-nodejsNN`) |
+| **Composer** 2 on the command line (`composer`) | Usually preinstalled on cPanel; otherwise ask the host |
 | A MySQL/MariaDB database | *MySQL® Databases* |
 | An email account for sending notifications | *Email Accounts* |
 | Cron jobs (every minute is best; every 5 minutes also works) | *Cron Jobs* |
 
-The script finds PHP 8.4 (`/opt/cpanel/ea-php84/root/usr/bin/php`) and Node on its own. It also
-downloads Composer. To use other binaries, set `PHP=...`, `NODE_DIR=...` or `COMPOSER=...`. In the
+The script finds PHP 8.4 (`/opt/cpanel/ea-php84/root/usr/bin/php`) and Node on its own, and runs
+Composer on that PHP. To use other binaries, set `PHP=...`, `NODE_DIR=...` or `COMPOSER=...`. In the
 cron jobs below, if `php -v` shows a version older than 8.4, use the full PHP path.
 
 ---
@@ -145,6 +146,7 @@ deploy outside working hours. Only one deployment can run at a time.
 
 | Symptom | Check |
 |---|---|
+| Deployment stops at "Composer not found" | Set `COMPOSER` to the full path of the `composer` executable (`which composer`) |
 | Deployment stops at "Node.js … not found" | Install Node in *Setup Node.js App*, or set `NODE_DIR` to the folder with `node` |
 | Frontend build is killed (out of memory) | The host's per-account memory limit is too low: ask the host to raise it |
 | `git fetch` asks for a password or is denied | The deploy key (1.3) is missing on GitHub, or not in `~/.ssh/config` |

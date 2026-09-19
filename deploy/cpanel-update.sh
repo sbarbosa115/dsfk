@@ -8,10 +8,10 @@
 #
 # Settings (environment variables, all optional):
 #   APP_DIR    where the app is served from           (default /home/lentti/public_html/dsfk)
-#   BUILD_DIR  staging area, composer.phar, lock file  (default $HOME/dsfk-build)
+#   BUILD_DIR  staging area and lock file              (default $HOME/dsfk-build)
 #   PHP        PHP 8.4 CLI                             (default ea-php84 if installed, else `php`)
 #   NODE_DIR   folder containing node/npm 20.19+       (default: auto-detected)
-#   COMPOSER   path to composer.phar                   (default: downloaded into BUILD_DIR)
+#   COMPOSER   Composer executable                     (default: `composer` from PATH)
 
 # Everything lives in main(): bash reads the whole function before running it, so `git checkout`
 # can safely replace this file while it runs.
@@ -53,18 +53,13 @@ main() {
     || die "Node.js 20.19+ or 22.12+ not found. Enable it in cPanel (Setup Node.js App) or set NODE_DIR=/folder/with/node"
   export PATH="$node_dir:$PATH"
 
-  local composer="${COMPOSER:-$build_dir/composer.phar}"
-  if [ ! -f "$composer" ]; then
-    log "Downloading Composer"
-    local url=https://getcomposer.org/download/latest-stable/composer.phar
-    "$php" -r "copy('$url', '$composer.tmp') && copy('$url.sha256sum', '$composer.sha256') || exit(1);" \
-      || die "could not download Composer; set COMPOSER=/path/to/composer.phar"
-    [ "$("$php" -r "echo hash_file('sha256', '$composer.tmp');")" = "$(cut -d' ' -f1 "$composer.sha256")" ] \
-      || { rm -f "$composer.tmp" "$composer.sha256"; die "Composer download failed its checksum"; }
-    mv "$composer.tmp" "$composer" && rm -f "$composer.sha256"
-  fi
+  local composer_bin="${COMPOSER:-$(command -v composer || true)}"
+  [ -f "$composer_bin" ] || die "Composer not found. Set COMPOSER=/path/to/composer"
+  # Composer must run on PHP 8.4 (the lock file requires it), not on whatever PHP its shebang picks.
+  local -a composer=("$composer_bin")
+  if head -n1 "$composer_bin" | grep -q php; then composer=("$php" "$composer_bin"); fi
 
-  log "PHP $("$php" -r 'echo PHP_VERSION;'), Node $(node -v), $("$php" "$composer" --version --no-ansi 2>/dev/null | head -n1)"
+  log "PHP $("$php" -r 'echo PHP_VERSION;'), Node $(node -v), $("${composer[@]}" --version --no-ansi 2>/dev/null | head -n1)"
 
   # --- Source ----------------------------------------------------------------------------------
   log "Fetching $ref from GitHub"
@@ -103,7 +98,7 @@ main() {
   echo "$version" > "$stage/VERSION"
 
   log "Installing PHP dependencies (no dev packages)"
-  (cd "$stage" && COMPOSER_HOME="$build_dir/composer-home" "$php" "$composer" install \
+  (cd "$stage" && "${composer[@]}" install \
     --no-dev --no-scripts --no-interaction --no-progress --optimize-autoloader --classmap-authoritative -q)
   (cd "$stage" && "$php" -r 'require "vendor/autoload.php";') || die "PHP dependencies do not load on this PHP"
 
