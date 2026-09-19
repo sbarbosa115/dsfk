@@ -3,8 +3,8 @@
 # Run it from a git clone kept OUTSIDE public_html (the clone is a build workspace; local changes are discarded):
 #
 #   git clone git@github.com:sbarbosa115/dsfk.git ~/dsfk-src
-#   ~/dsfk-src/deploy/deploy.sh            # deploys origin/main
-#   ~/dsfk-src/deploy/deploy.sh v1.2.0     # deploys a tag, branch or commit
+#   ~/dsfk-src/deploy/cpanel-update.sh            # deploys origin/main
+#   ~/dsfk-src/deploy/cpanel-update.sh v1.2.0     # deploys a tag, branch or commit
 #
 # Settings (environment variables, all optional):
 #   APP_DIR    where the app is served from           (default /home/lentti/public_html/dsfk)

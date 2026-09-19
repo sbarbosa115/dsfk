@@ -24,7 +24,7 @@ make admin EMAIL=admin@example.com NAME="Administrador"
 Deployed on cPanel by pulling from GitHub and building on the server:
 
 ```bash
-~/dsfk-src/deploy/deploy.sh          # latest main (or pass a tag, branch or commit)
+~/dsfk-src/deploy/cpanel-update.sh          # latest main (or pass a tag, branch or commit)
 ```
 
 Setup, cron jobs and backups: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).

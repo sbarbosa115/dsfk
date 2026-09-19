@@ -1,6 +1,6 @@
 # Deployment on cPanel
 
-The server pulls the code from GitHub and builds it itself with `deploy/deploy.sh`.
+The server pulls the code from GitHub and builds it itself with `deploy/cpanel-update.sh`.
 There is no other way to deploy.
 
 | | Path |
@@ -59,7 +59,7 @@ The clone is only a build workspace. Every deployment resets it, so never edit f
 
 ### 1.4 Configuration
 ```bash
-~/dsfk-src/deploy/deploy.sh
+~/dsfk-src/deploy/cpanel-update.sh
 ```
 The first run creates `public_html/dsfk/.env.local` (permissions 600) and stops. Edit it:
 
@@ -73,7 +73,7 @@ The first run creates `public_html/dsfk/.env.local` (permissions 600) and stops.
 
 ### 1.5 Install
 ```bash
-~/dsfk-src/deploy/deploy.sh
+~/dsfk-src/deploy/cpanel-update.sh
 ```
 It ends with the checklist from `app:doctor`, where everything must be **OK**. The OPcache line is
 informational only.
@@ -110,8 +110,8 @@ arrive up to 5 minutes later.
 
 Push to GitHub, then on the server:
 ```bash
-~/dsfk-src/deploy/deploy.sh           # latest main
-~/dsfk-src/deploy/deploy.sh v1.2.0    # a tag, branch or commit
+~/dsfk-src/deploy/cpanel-update.sh           # latest main
+~/dsfk-src/deploy/cpanel-update.sh v1.2.0    # a tag, branch or commit
 ```
 It does, in order:
 1. fetches the ref and builds the frontend (`npm ci`, `tsc`, `vite build`);

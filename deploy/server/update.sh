@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run by deploy/deploy.sh after it copies a new release into the app folder.
+# Run by deploy/cpanel-update.sh after it copies a new release into the app folder.
 # Can be re-run by hand from the app folder:
 #
 #   PHP=/opt/cpanel/ea-php84/root/usr/bin/php  (if plain `php` on the command line is not 8.4+)
