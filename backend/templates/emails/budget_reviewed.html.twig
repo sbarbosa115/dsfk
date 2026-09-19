@@ -1,0 +1,11 @@
+{% extends 'emails/layout.html.twig' %}
+{% set link = '/projects/' ~ project.id %}
+{% block content %}
+{% if approved %}
+<p><strong>{{ by.fullName }}</strong> aprobó el presupuesto del proyecto <strong>{{ project.name }}</strong>. Ya se pueden registrar depósitos y gastos.</p>
+{% else %}
+<p><strong>{{ by.fullName }}</strong> devolvió el presupuesto del proyecto <strong>{{ project.name }}</strong> con estas observaciones:</p>
+<blockquote style="margin:0;padding:8px 12px;border-left:4px solid #c77c02;background:#fff8ec;">{{ comment }}</blockquote>
+<p>Haz los ajustes y vuelve a enviarlo.</p>
+{% endif %}
+{% endblock %}

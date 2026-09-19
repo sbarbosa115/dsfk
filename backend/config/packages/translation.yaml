@@ -1,0 +1,6 @@
+framework:
+    # The UI is Spanish, so validation messages are returned in Spanish.
+    default_locale: es
+    translator:
+        default_path: '%kernel.project_dir%/translations'
+        fallbacks: ['en']

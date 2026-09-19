@@ -1,0 +1,6 @@
+{% extends 'emails/layout.html.twig' %}
+{% set link = '/projects/' ~ project.id %}
+{% block content %}
+<p><strong>{{ by.fullName }}</strong> envió el presupuesto del proyecto <strong>{{ project.name }}</strong> para tu aprobación.</p>
+<p>Revísalo y apruébalo o devuélvelo con observaciones.</p>
+{% endblock %}

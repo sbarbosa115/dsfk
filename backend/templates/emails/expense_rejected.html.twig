@@ -1,0 +1,7 @@
+{% extends 'emails/layout.html.twig' %}
+{% set link = '/projects/' ~ project.id %}
+{% block content %}
+<p>Tu gasto “{{ expense.description }}” por <strong>{{ amount }}</strong> en <strong>{{ project.name }}</strong> fue rechazado:</p>
+<blockquote style="margin:0;padding:8px 12px;border-left:4px solid #c62828;background:#fdecea;">{{ expense.rejectionReason }}</blockquote>
+<p>Corrígelo y vuelve a enviarlo.</p>
+{% endblock %}

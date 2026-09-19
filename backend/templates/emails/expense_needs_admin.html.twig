@@ -1,0 +1,6 @@
+{% extends 'emails/layout.html.twig' %}
+{% set link = '/projects/' ~ project.id %}
+{% block content %}
+<p>Un gasto de <strong>{{ expense.paidBy.fullName }}</strong> por <strong>{{ amount }}</strong> en <strong>{{ project.name }}</strong> supera el límite de los líderes de equipo. El gerente de proyecto ya lo aprobó y ahora requiere tu aprobación:</p>
+<p>{{ expense.description }} · {{ expense.stage.name }} · {{ expense.category.name }}</p>
+{% endblock %}

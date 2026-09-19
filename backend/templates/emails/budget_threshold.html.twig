@@ -1,0 +1,6 @@
+{% extends 'emails/layout.html.twig' %}
+{% set link = '/projects/' ~ project.id %}
+{% block content %}
+<p>El gasto de {{ what }} en <strong>{{ project.name }}</strong> alcanzó el <strong>{{ executed }}%</strong> de su presupuesto (umbral de alerta: {{ percent }}%).</p>
+<p>Ejecutado: <strong>{{ spent }}</strong> de {{ budget }} presupuestados.</p>
+{% endblock %}

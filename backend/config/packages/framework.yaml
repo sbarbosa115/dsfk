@@ -1,0 +1,17 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    session:
+        # Stored inside the app so other sites on a shared server cannot garbage-collect them.
+        handler_id: session.handler.native_file
+        save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
+        cookie_secure: auto
+        cookie_httponly: true
+        cookie_samesite: lax
+        # A working day of inactivity logs the user out.
+        gc_maxlifetime: 36000
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

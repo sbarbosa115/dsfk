@@ -1,0 +1,7 @@
+{% extends 'emails/layout.html.twig' %}
+{% set link = '/projects/' ~ project.id %}
+{% block content %}
+<p><strong>{{ cycle.closedBy.fullName }}</strong> cerró el ciclo {{ cycle.number }} de la caja menor de <strong>{{ project.name }}</strong> con un saldo de <strong>{{ balance }}</strong>.</p>
+{% if cycle.closingNote %}<p>Nota: “{{ cycle.closingNote }}”</p>{% endif %}
+<p>Revisa los movimientos y soportes y aprueba el cierre.</p>
+{% endblock %}

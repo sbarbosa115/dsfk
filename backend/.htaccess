@@ -1,0 +1,3 @@
+# The web root is public/. If this folder is ever reachable from the web
+# (e.g. uploaded inside public_html by mistake), refuse to serve anything from it.
+Require all denied

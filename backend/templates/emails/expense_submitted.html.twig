@@ -1,0 +1,6 @@
+{% extends 'emails/layout.html.twig' %}
+{% set link = '/projects/' ~ project.id %}
+{% block content %}
+<p><strong>{{ expense.paidBy.fullName }}</strong> registró un gasto por <strong>{{ amount }}</strong> en <strong>{{ project.name }}</strong> que espera tu aprobación:</p>
+<p>{{ expense.description }} · {{ expense.stage.name }} · {{ expense.category.name }}</p>
+{% endblock %}

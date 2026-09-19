@@ -1,0 +1,17 @@
+parameters:
+    app.upload_dir: '%kernel.project_dir%/var/uploads'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            bool $debug: '%kernel.debug%'
+            string $projectDir: '%kernel.project_dir%'
+
+    App\:
+        resource: '../src/'
+
+when@test:
+    parameters:
+        app.upload_dir: '%kernel.project_dir%/var/test_uploads'

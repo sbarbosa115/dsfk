@@ -1,0 +1,6 @@
+{% extends 'emails/layout.html.twig' %}
+{% set link = '/projects/' ~ project.id %}
+{% block content %}
+<p>Se te reembolsaron <strong>{{ total }}</strong> de la caja menor de <strong>{{ project.name }}</strong> por estos gastos:</p>
+<ul>{% for e in expenses %}<li>{{ e.description }}</li>{% endfor %}</ul>
+{% endblock %}

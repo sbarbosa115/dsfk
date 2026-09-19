@@ -1,0 +1,6 @@
+{% extends 'emails/layout.html.twig' %}
+{% set link = '/projects/' ~ project.id %}
+{% block content %}
+<p>La caja menor de <strong>{{ project.name }}</strong> quedó en <strong>{{ balance }}</strong>, por debajo del nivel de alerta (la última recarga fue de {{ lastTopUp }}).</p>
+<p>Considera cerrar el ciclo y solicitar una recarga.</p>
+{% endblock %}
