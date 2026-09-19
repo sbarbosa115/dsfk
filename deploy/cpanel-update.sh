@@ -11,7 +11,7 @@
 #   BUILD_DIR  staging area and lock file              (default $HOME/dsfk-build)
 #   PHP        PHP 8.4 CLI                             (default ea-php84 if installed, else `php`)
 #   NODE_DIR   folder containing node/npm 20.19+       (default: auto-detected)
-#   COMPOSER   Composer executable                     (default: `composer` from PATH)
+#   COMPOSER_BIN  Composer executable                  (default: `composer` from PATH)
 
 # Everything lives in main(): bash reads the whole function before running it, so `git checkout`
 # can safely replace this file while it runs.
@@ -53,8 +53,8 @@ main() {
     || die "Node.js 20.19+ or 22.12+ not found. Enable it in cPanel (Setup Node.js App) or set NODE_DIR=/folder/with/node"
   export PATH="$node_dir:$PATH"
 
-  local composer_bin="${COMPOSER:-$(command -v composer || true)}"
-  [ -f "$composer_bin" ] || die "Composer not found. Set COMPOSER=/path/to/composer"
+  local composer_bin="${COMPOSER_BIN:-$(command -v composer || true)}"
+  [ -f "$composer_bin" ] || die "Composer not found. Set COMPOSER_BIN=/path/to/composer"
   # Composer must run on PHP 8.4 (the lock file requires it), not on whatever PHP its shebang picks.
   local -a composer=("$composer_bin")
   if head -n1 "$composer_bin" | grep -q php; then composer=("$php" "$composer_bin"); fi

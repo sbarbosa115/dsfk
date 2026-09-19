@@ -31,7 +31,7 @@ is served.
 | Cron jobs (every minute is best; every 5 minutes also works) | *Cron Jobs* |
 
 The script finds PHP 8.4 (`/opt/cpanel/ea-php84/root/usr/bin/php`) and Node on its own, and runs
-Composer on that PHP. To use other binaries, set `PHP=...`, `NODE_DIR=...` or `COMPOSER=...`. In the
+Composer on that PHP. To use other binaries, set `PHP=...`, `NODE_DIR=...` or `COMPOSER_BIN=...`. In the
 cron jobs below, if `php -v` shows a version older than 8.4, use the full PHP path.
 
 ---
@@ -146,7 +146,7 @@ deploy outside working hours. Only one deployment can run at a time.
 
 | Symptom | Check |
 |---|---|
-| Deployment stops at "Composer not found" | Set `COMPOSER` to the full path of the `composer` executable (`which composer`) |
+| Deployment stops at "Composer not found" | Set `COMPOSER_BIN` to the full path of the `composer` executable (`which composer`) |
 | Deployment stops at "Node.js … not found" | Install Node in *Setup Node.js App*, or set `NODE_DIR` to the folder with `node` |
 | Frontend build is killed (out of memory) | The host's per-account memory limit is too low: ask the host to raise it |
 | `git fetch` asks for a password or is denied | The deploy key (1.3) is missing on GitHub, or not in `~/.ssh/config` |
