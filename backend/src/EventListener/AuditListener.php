@@ -22,6 +22,7 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 
 /**
  * Records who changed what on planning and money entities. Changes are collected in
@@ -81,6 +82,12 @@ class AuditListener
 
         $connection = $args->getObjectManager()->getConnection();
         $user = $this->security->getUser();
+        $userName = $user instanceof User ? $user->getFullName() : null;
+        // While an admin views the app as someone else, record both.
+        $token = $this->security->getToken();
+        if ($token instanceof SwitchUserToken && ($original = $token->getOriginalToken()->getUser()) instanceof User) {
+            $userName .= ' (vía '.$original->getFullName().')';
+        }
         $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
         $table = $args->getObjectManager()->getClassMetadata(AuditLog::class)->getTableName();
 
@@ -89,7 +96,7 @@ class AuditListener
             $connection->insert($table, [
                 'project_id' => $this->projectIdOf($entity),
                 'user_id' => $user instanceof User ? $user->getId() : null,
-                'user_name' => $user instanceof User ? $user->getFullName() : null,
+                'user_name' => $userName,
                 'action' => $row['action'],
                 'entity_type' => (new \ReflectionClass($entity))->getShortName(),
                 'entity_id' => $row['id'] ?? $this->idOf($entity),

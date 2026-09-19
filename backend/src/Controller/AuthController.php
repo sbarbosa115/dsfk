@@ -47,6 +47,16 @@ class AuthController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * POST /api/impersonate?_switch_user=<email|_exit> is handled by the firewall (switch_user),
+     * which then redirects here without the parameter: the answer is the new current user.
+     */
+    #[Route('/api/impersonate', name: 'api_impersonate', methods: ['GET', 'POST'])]
+    public function impersonate(#[CurrentUser] User $user, CurrentUserPresenter $presenter): JsonResponse
+    {
+        return $this->json($presenter->present($user));
+    }
+
     #[Route('/api/me', name: 'api_me', methods: ['GET'])]
     public function me(#[CurrentUser] User $user, CurrentUserPresenter $presenter): JsonResponse
     {

@@ -153,7 +153,7 @@ Every create/update/state change on money-related entities stores: user, timesta
 - Local development and testing run in **Docker**. Every change is tested in Docker before it is considered done.
 
 ### 7.2 Stack
-- **Backend**: Symfony 7.4 LTS (PHP ≥ 8.2), Doctrine ORM + Migrations, Symfony Security (session-cookie auth, same origin), Validator, Serializer, Mailer, Messenger.
+- **Backend**: Symfony 8.1 (PHP ≥ 8.4.1), Doctrine ORM + Migrations, Symfony Security (session-cookie auth, same origin), Validator, Serializer, Mailer, Messenger.
 - **Database**: MySQL/MariaDB. Avoid engine-specific features so it runs on whatever the host provides.
 - **Money**: stored as `BIGINT` in minor units, using `brick/money` in PHP. Never floats.
 - **Frontend**: React + TypeScript + Vite, React Router, TanStack Query, react-i18next (Spanish), `Intl` formatting with the es-CO locale, a component library, and Recharts. Built locally into `public/app/` and served by Symfony, which avoids CORS and needs no Node on the server.
@@ -169,7 +169,7 @@ Every create/update/state change on money-related entities stores: user, timesta
 - A change is "done" only when the test suite passes in Docker.
 
 ### 7.5 Deployment (cPanel)
-See [DEPLOYMENT.md](DEPLOYMENT.md). `deploy/build-release.sh` produces a zip that is verified on PHP 8.2. On the server, `deploy/update.sh` backs up, removes files dropped from the release, warms the cache, migrates and runs `app:doctor`. It runs over SSH, cPanel Terminal or a one-time cron job, and supports a fixed `public_html` through `PUBLIC_DIR`.
+See [DEPLOYMENT.md](DEPLOYMENT.md). `deploy/build-release.sh` produces a zip that is verified on PHP 8.4. On the server, `deploy/update.sh` backs up, removes files dropped from the release, warms the cache, migrates and runs `app:doctor`. It runs over SSH, cPanel Terminal or a one-time cron job, and supports a fixed `public_html` through `PUBLIC_DIR`.
 
 ## 8. Delivery phases
 

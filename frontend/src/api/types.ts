@@ -13,6 +13,10 @@ export interface CurrentUser {
   fullName: string
   admin: boolean
   memberships: Membership[]
+  /** Set while an admin is viewing the app as this user. */
+  impersonator: { id: number; fullName: string } | null
+  /** Show the "Ver como" menu (admin, or already impersonating). */
+  canImpersonate: boolean
 }
 
 export interface User {
@@ -22,6 +26,7 @@ export interface User {
   admin: boolean
   active: boolean
   createdAt: string
+  memberships?: Membership[]
 }
 
 export interface Member {

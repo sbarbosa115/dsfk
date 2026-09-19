@@ -35,7 +35,7 @@ class DoctorCommand
             $rows[] = [$ok ? '<info>OK</info>' : '<error>FAIL</error>', $label, $detail];
         };
 
-        $check('PHP >= 8.2', \PHP_VERSION_ID >= 80200, \PHP_VERSION);
+        $check('PHP >= 8.4.1', \PHP_VERSION_ID >= 80401, \PHP_VERSION);
         foreach (self::EXTENSIONS as $extension) {
             $check("PHP extension $extension", \extension_loaded($extension));
         }

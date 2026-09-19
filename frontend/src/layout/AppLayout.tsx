@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import { useAuth } from '../auth/AuthContext'
 import { ChangePasswordDialog } from './ChangePasswordDialog'
+import { ImpersonationBanner, ImpersonationMenu } from './ImpersonationMenu'
 
 const DRAWER_WIDTH = 240
 
@@ -85,6 +86,7 @@ export function AppLayout() {
               {user?.admin ? t('roles.ADMIN') : user?.email}
             </Typography>
           </Box>
+          <ImpersonationMenu />
           <IconButton color="inherit" onClick={() => setChangingPassword(true)} title={t('account.changePassword')} aria-label={t('account.changePassword')}>
             <KeyIcon />
           </IconButton>
@@ -110,6 +112,7 @@ export function AppLayout() {
 
       <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 3 }, minWidth: 0 }}>
         <Toolbar />
+        <ImpersonationBanner />
         {changingPassword && <ChangePasswordDialog onClose={() => setChangingPassword(false)} />}
         <Suspense fallback={<Typography color="text.secondary">{t('common.loading')}</Typography>}>
           <Outlet />

@@ -2,7 +2,7 @@
 # Builds an upload-ready release for cPanel shared hosting:
 #   build/control-proyectos-<version>.zip
 # Frontend is compiled, PHP dependencies are installed without dev packages and
-# verified against PHP 8.2 (the minimum supported on the host).
+# verified against PHP 8.4 (the version required on the host).
 #
 # Usage: deploy/build-release.sh [version]
 set -euo pipefail
@@ -13,7 +13,7 @@ VERSION="${VERSION//\//-}"
 NAME="control-proyectos"
 BUILD="$ROOT/build"
 STAGE="$BUILD/$NAME"
-PHP_IMAGE="dsfk-php82"
+PHP_IMAGE="dsfk-php84"
 
 echo "==> Release $VERSION"
 rm -rf "$STAGE" && mkdir -p "$STAGE"
@@ -32,8 +32,8 @@ cp -r "$ROOT/deploy/server" "$STAGE/deploy"
 chmod +x "$STAGE/deploy/"*.sh
 echo "$VERSION" > "$STAGE/VERSION"
 
-echo "==> Installing PHP dependencies on PHP 8.2 (no dev packages)"
-docker build -q -t "$PHP_IMAGE" --build-arg PHP_VERSION=8.2 "$ROOT/docker/php" >/dev/null
+echo "==> Installing PHP dependencies on PHP 8.4 (no dev packages)"
+docker build -q -t "$PHP_IMAGE" --build-arg PHP_VERSION=8.4 "$ROOT/docker/php" >/dev/null
 docker run --rm -u "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$STAGE":/app -w /app "$PHP_IMAGE" sh -c '
   composer install --no-dev --no-scripts --no-interaction --no-progress --optimize-autoloader --classmap-authoritative -q &&
   php -r "require \"vendor/autoload.php\"; echo \"platform check ok (PHP \", PHP_VERSION, \")\n\";"'

@@ -67,7 +67,7 @@ afterEach(() => vi.unstubAllGlobals())
 
 describe('ExpensesTab', () => {
   it('shows a team lead what they are owed and records out-of-pocket expenses', async () => {
-    currentUser = { id: 3, email: 'lead@x.co', fullName: 'Carlos', admin: false, memberships: [{ projectId: 1, projectName: 'Torre', role: 'TEAM_LEAD' }] }
+    currentUser = { id: 3, email: 'lead@x.co', fullName: 'Carlos', admin: false, memberships: [{ projectId: 1, projectName: 'Torre', role: 'TEAM_LEAD' }], impersonator: null, canImpersonate: false }
     const fetchMock = renderTab({ items: [expense({ status: 'REJECTED', rejectionReason: 'Falta la factura', permissions: { ...noPermissions, edit: true, attach: true } })], summary })
 
     expect(await screen.findByText('Te deben')).toBeInTheDocument()
@@ -86,7 +86,7 @@ describe('ExpensesTab', () => {
   })
 
   it('lets the PM approve and reimburse selected expenses', async () => {
-    currentUser = { id: 2, email: 'pm@x.co', fullName: 'PM', admin: false, memberships: [{ projectId: 1, projectName: 'Torre', role: 'PROJECT_MANAGER' }] }
+    currentUser = { id: 2, email: 'pm@x.co', fullName: 'PM', admin: false, memberships: [{ projectId: 1, projectName: 'Torre', role: 'PROJECT_MANAGER' }], impersonator: null, canImpersonate: false }
     const fetchMock = renderTab({
       items: [
         expense({ id: 1, permissions: { ...noPermissions, approve: true, reject: true } }),

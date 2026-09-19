@@ -2,7 +2,7 @@
 # Run on the server after extracting a release over the app folder (first install or update).
 # Works from SSH, cPanel "Terminal", or a one-time cPanel cron job.
 #
-#   PHP=/opt/cpanel/ea-php82/root/usr/bin/php  (if plain `php` on the command line is not 8.2+)
+#   PHP=/opt/cpanel/ea-php84/root/usr/bin/php  (if plain `php` on the command line is not 8.4+)
 #   PUBLIC_DIR=$HOME/public_html               (only if the domain cannot point to <app>/public)
 #
 # Steps: backup → remove files deleted in this version → cache → migrations → checks.
@@ -17,7 +17,7 @@ if [ ! -f .env.local ]; then
   echo "Missing $APP/.env.local — copy deploy/env.local.example to .env.local and fill it in." >&2
   exit 1
 fi
-"$PHP" -r 'exit(PHP_VERSION_ID >= 80200 ? 0 : 1);' || { echo "PHP 8.2+ required on the command line ($("$PHP" -r 'echo PHP_VERSION;')). Set PHP=/path/to/php8.2" >&2; exit 1; }
+"$PHP" -r 'exit(PHP_VERSION_ID >= 80401 ? 0 : 1);' || { echo "PHP 8.4.1+ required on the command line ($("$PHP" -r 'echo PHP_VERSION;')). Set PHP=/opt/cpanel/ea-php84/root/usr/bin/php" >&2; exit 1; }
 
 log "Version $(cat VERSION 2>/dev/null || echo unknown)"
 

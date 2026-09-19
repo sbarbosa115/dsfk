@@ -3,7 +3,7 @@
 The app is one folder, `control-proyectos/`, placed **outside** `public_html`. Only its `public/`
 subfolder is exposed to the web. Everything below uses menu names from the cPanel interface.
 
-Tested setups: PHP 8.2 and 8.3; MySQL 8.0 and MariaDB 10.6; with or without SSH; with the domain
+Requires **PHP 8.4** (8.4.1 or newer). Tested setups: PHP 8.4; MySQL 8.0 and MariaDB 10.6; with or without SSH; with the domain
 pointing to `public/`, or with a fixed `public_html`.
 
 ---
@@ -12,7 +12,7 @@ pointing to `public/`, or with a fixed `public_html`.
 
 | Requirement | Where to check in cPanel |
 |---|---|
-| PHP **8.2 or newer** for the domain | *MultiPHP Manager* |
+| PHP **8.4** for the domain (select *PHP 8.4 (ea-php84)*) | *MultiPHP Manager* |
 | PHP extensions: `pdo_mysql`, `intl`, `mbstring`, `fileinfo`, `ctype`, `iconv`, `openssl`, `xml`, `opcache` (recommended) | *Select PHP Version → Extensions* (CloudLinux) or ask the host |
 | A MySQL/MariaDB database | *MySQL® Databases* |
 | An email account for sending notifications | *Email Accounts* |
@@ -20,9 +20,9 @@ pointing to `public/`, or with a fixed `public_html`.
 | A way to run commands: **SSH**, **Terminal**, or a **one-time cron job** | *Terminal* / *SSH Access* |
 
 > **PHP on the command line.** The `php` command in Terminal or cron may be a different version
-> from the one the website uses. Check it with `php -v`. If it's older than 8.2, use the full
-> path instead, usually `/opt/cpanel/ea-php82/root/usr/bin/php` (or `ea-php83`). The scripts
-> read it from the `PHP` variable: `PHP=/opt/cpanel/ea-php82/root/usr/bin/php deploy/update.sh`.
+> from the one the website uses. Check it with `php -v`. If it's older than 8.4, use the full
+> path instead, usually `/opt/cpanel/ea-php84/root/usr/bin/php`. The scripts
+> read it from the `PHP` variable: `PHP=/opt/cpanel/ea-php84/root/usr/bin/php deploy/update.sh`.
 
 ---
 
@@ -34,7 +34,7 @@ deploy/build-release.sh 1.0.0
 ```
 
 The script builds the React app, installs the PHP dependencies without development tools, and
-checks that they run on PHP 8.2. It also writes a `MANIFEST` listing every file it ships, which
+checks that they run on PHP 8.4. It also writes a `MANIFEST` listing every file it ships, which
 `update.sh` uses later to delete files a newer version no longer has.
 
 ---

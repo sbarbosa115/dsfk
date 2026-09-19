@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Dto\UserInput;
 use App\Entity\User;
+use App\Repository\ProjectMemberRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -28,10 +30,21 @@ class UserController extends AbstractController
     ) {
     }
 
+    /** Users plus their project roles (shown in the users table and the "Ver como" menu). */
     #[Route('', methods: ['GET'])]
-    public function list(): JsonResponse
+    public function list(NormalizerInterface $normalizer, ProjectMemberRepository $members): JsonResponse
     {
-        return $this->json($this->users->findBy([], ['fullName' => 'ASC']), context: self::CONTEXT);
+        $roles = [];
+        foreach ($members->findAll() as $member) {
+            $roles[$member->getUser()->getId()][] = ['projectId' => $member->getProject()->getId(), 'projectName' => $member->getProject()->getName(), 'role' => $member->getRole()->value];
+        }
+
+        $rows = [];
+        foreach ($this->users->findBy([], ['fullName' => 'ASC']) as $user) {
+            $rows[] = $normalizer->normalize($user, null, self::CONTEXT) + ['memberships' => $roles[$user->getId()] ?? []];
+        }
+
+        return $this->json($rows);
     }
 
     #[Route('', methods: ['POST'])]

@@ -4,7 +4,7 @@ NODE = $(DC) run --rm --no-deps node
 
 .PHONY: up down install migrate admin test test-backend test-frontend build
 
-up:            ## Start the stack (app: :8080, vite: :5173, mailpit: :8025)
+up:            ## Start the stack (app: :8081, vite: :5173, mailpit: :8025)
 	$(DC) up -d --build
 
 down:

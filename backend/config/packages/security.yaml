@@ -25,6 +25,9 @@ security:
                 failure_handler: App\Security\LoginFailureHandler
             logout:
                 path: api_logout
+            # "Ver como" for admins (see ImpersonationVoter and SwitchUserGuardListener).
+            switch_user:
+                role: CAN_SWITCH_USER
             login_throttling:
                 max_attempts: 5
                 interval: '15 minutes'
