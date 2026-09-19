@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Database dump + uploaded files, kept for $KEEP_DAYS days (default 14).
-# Daily cPanel cron:  30 2 * * *  $HOME/control-proyectos/deploy/backup.sh >/dev/null 2>&1
+# Daily cPanel cron:  30 2 * * *  $HOME/public_html/dsfk/deploy/backup.sh >/dev/null 2>&1
 set -euo pipefail
 
 APP="$(cd "$(dirname "$0")/.." && pwd)"

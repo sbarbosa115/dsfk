@@ -169,7 +169,7 @@ Every create/update/state change on money-related entities stores: user, timesta
 - A change is "done" only when the test suite passes in Docker.
 
 ### 7.5 Deployment (cPanel)
-See [DEPLOYMENT.md](DEPLOYMENT.md). `deploy/build-release.sh` produces a zip that is verified on PHP 8.4. On the server, `deploy/update.sh` backs up, removes files dropped from the release, warms the cache, migrates and runs `app:doctor`. It runs over SSH, cPanel Terminal or a one-time cron job, and supports a fixed `public_html` through `PUBLIC_DIR`.
+See [DEPLOYMENT.md](DEPLOYMENT.md). On the server, `deploy/deploy.sh` fetches a branch, tag or commit from GitHub, builds the frontend and a production `vendor/` on PHP 8.4, and copies the release into the app folder. Then `deploy/update.sh` backs up, removes files dropped from the release, warms the cache, migrates and runs `app:doctor`.
 
 ## 8. Delivery phases
 

@@ -19,13 +19,15 @@ make admin EMAIL=admin@example.com NAME="Administrador"
 - Production-like (built app served by Symfony/Apache): `make build`, then http://localhost:8081
 - Captured emails: http://localhost:8025
 
-## Release and deployment
+## Deployment
+
+Deployed on cPanel by pulling from GitHub and building on the server:
 
 ```bash
-deploy/build-release.sh 1.0.0   # → build/control-proyectos-1.0.0.zip (verified on PHP 8.4)
+~/dsfk-src/deploy/deploy.sh          # latest main (or pass a tag, branch or commit)
 ```
 
-Installation, updates, cron jobs and backups on cPanel: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Setup, cron jobs and backups: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Tests
 
