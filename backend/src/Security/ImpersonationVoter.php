@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 /**
  * Who may "view as" another user (Symfony switch_user). Symfony asks with the admin's own
  * token, even when already impersonating someone. Only when IMPERSONATION_ENABLED is on
- * (dev/test by default); only admins; only active, non-admin targets.
+ * (dev/test by default); only super admins; only active, non-admin targets.
  *
  * @extends Voter<string, User>
  */
@@ -38,7 +38,7 @@ class ImpersonationVoter extends Voter
         $admin = $token->getUser();
 
         return $this->enabled
-            && $admin instanceof User && $admin->isAdmin()
+            && $admin instanceof User && $admin->isSuperAdmin()
             && $subject->isActive() && !$subject->isAdmin()
             && $subject->getId() !== $admin->getId();
     }

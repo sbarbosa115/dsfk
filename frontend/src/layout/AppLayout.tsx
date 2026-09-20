@@ -1,5 +1,6 @@
 import DashboardIcon from '@mui/icons-material/DashboardOutlined'
 import FolderIcon from '@mui/icons-material/FolderOutlined'
+import HelpIcon from '@mui/icons-material/HelpOutlineOutlined'
 import HistoryIcon from '@mui/icons-material/HistoryOutlined'
 import KeyIcon from '@mui/icons-material/KeyOutlined'
 import LogoutIcon from '@mui/icons-material/Logout'
@@ -45,6 +46,7 @@ export function AppLayout() {
     { to: '/users', label: t('nav.users'), icon: <PeopleIcon />, admin: true },
     { to: '/settings', label: t('nav.settings'), icon: <SettingsIcon />, admin: true },
     { to: '/audit', label: t('nav.audit'), icon: <HistoryIcon />, admin: true },
+    { to: '/help', label: t('nav.help'), icon: <HelpIcon /> },
   ]
 
   const handleLogout = async () => {

@@ -64,7 +64,15 @@ export function UsersPage() {
               {users.data.map((u) => (
                 <TableRow key={u.id} hover>
                   <TableCell>
-                    {u.fullName} {u.admin && <Chip size="small" color="primary" label={t('roles.ADMIN')} sx={{ ml: 1 }} />}
+                    {u.fullName}{' '}
+                    {u.admin && (
+                      <Chip
+                        size="small"
+                        color="primary"
+                        label={u.superAdmin ? t('roles.SUPER_ADMIN') : t('roles.ADMIN')}
+                        sx={{ ml: 1 }}
+                      />
+                    )}
                   </TableCell>
                   <TableCell>{u.email}</TableCell>
                   <TableCell>
@@ -96,6 +104,7 @@ function UserDialog({ user, onClose }: { user: User | null; onClose: () => void 
     email: user?.email ?? '',
     password: '',
     admin: user?.admin ?? false,
+    superAdmin: user?.superAdmin ?? false,
     active: user?.active ?? true,
   })
 
@@ -140,9 +149,36 @@ function UserDialog({ user, onClose }: { user: User | null; onClose: () => void 
               {...text('password')}
             />
             <FormControlLabel
-              control={<Switch checked={form.admin} disabled={isSelf} onChange={(e) => setForm((f) => ({ ...f, admin: e.target.checked }))} />}
+              control={
+                <Switch
+                  checked={form.admin}
+                  disabled={isSelf}
+                  onChange={(e) => setForm((f) => ({ ...f, admin: e.target.checked, superAdmin: e.target.checked && f.superAdmin }))}
+                />
+              }
               label={t('users.admin')}
             />
+            {/* Granting "Ver como" is itself a super admin power, so ordinary admins never see this. */}
+            {me?.superAdmin && (
+              <FormControlLabel
+                sx={{ alignItems: 'flex-start' }}
+                control={
+                  <Switch
+                    checked={form.superAdmin}
+                    disabled={isSelf}
+                    onChange={(e) => setForm((f) => ({ ...f, superAdmin: e.target.checked, admin: e.target.checked || f.admin }))}
+                  />
+                }
+                label={
+                  <>
+                    {t('users.superAdmin')}
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                      {t('users.superAdminHint')}
+                    </Typography>
+                  </>
+                }
+              />
+            )}
             {user && (
               <FormControlLabel
                 control={<Switch checked={form.active} disabled={isSelf} onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))} />}

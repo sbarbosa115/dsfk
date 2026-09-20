@@ -16,13 +16,13 @@ class ImpersonationTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->admin = $this->createUser('admin@example.com', admin: true);
+        $this->admin = $this->createUser('admin@example.com', admin: true, superAdmin: true);
         $this->pm = $this->createUser('pm@example.com');
         $this->lead = $this->createUser('lead@example.com');
         $this->createProject('Torre', [[$this->pm, ProjectRole::ProjectManager], [$this->lead, ProjectRole::TeamLead]]);
     }
 
-    public function testAdminViewsTheAppAsAnotherUserAndComesBack(): void
+    public function testSuperAdminViewsTheAppAsAnotherUserAndComesBack(): void
     {
         $this->loginAs($this->admin);
         self::assertTrue($this->request('GET', '/api/me')['canImpersonate']);
@@ -72,7 +72,7 @@ class ImpersonationTest extends ApiTestCase
         self::assertSame('admin@example.com', $this->request('GET', '/api/me')['email']);
     }
 
-    public function testOnlyAdminsSwitchAndOnlyToActiveNonAdminUsers(): void
+    public function testOnlySuperAdminsSwitchAndOnlyToActiveNonAdminUsers(): void
     {
         $this->createUser('admin2@example.com', admin: true);
         $this->createUser('old@example.com', active: false);
@@ -87,6 +87,19 @@ class ImpersonationTest extends ApiTestCase
             $this->request('POST', '/api/impersonate?_switch_user='.$target);
             $this->assertStatus(403);
         }
+    }
+
+    public function testAnOrdinaryAdminCannotSwitchOrSeeTheMenu(): void
+    {
+        $plainAdmin = $this->createUser('admin3@example.com', admin: true);
+
+        $this->loginAs($plainAdmin);
+        $me = $this->request('GET', '/api/me');
+        self::assertFalse($me['superAdmin']);
+        self::assertFalse($me['canImpersonate'], 'the "Ver como" menu is for super admins only');
+
+        $this->request('POST', '/api/impersonate?_switch_user=pm@example.com');
+        $this->assertStatus(403);
     }
 
     public function testDisabledOutsideDevAndTestUnlessConfigured(): void

@@ -17,6 +17,8 @@ const DashboardPage = lazy(() => import('./pages/DashboardPage').then((m) => ({ 
 const AuditPage = lazy(() => import('./pages/AuditPage').then((m) => ({ default: m.AuditPage })))
 const UsersPage = lazy(() => import('./pages/UsersPage').then((m) => ({ default: m.UsersPage })))
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then((m) => ({ default: m.SettingsPage })))
+const HelpPage = lazy(() => import('./pages/help/HelpPage').then((m) => ({ default: m.HelpPage })))
+const HelpTopicPage = lazy(() => import('./pages/help/HelpTopicPage').then((m) => ({ default: m.HelpTopicPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +50,8 @@ const router = createBrowserRouter([
           { path: 'dashboard', element: <DashboardPage /> },
           { path: 'projects', element: <ProjectsPage /> },
           { path: 'projects/:id', element: <ProjectDetailPage /> },
+          { path: 'help', element: <HelpPage /> },
+          { path: 'help/:topicId', element: <HelpTopicPage /> },
           {
             element: <RequireAdmin />,
             children: [

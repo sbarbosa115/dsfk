@@ -48,12 +48,14 @@ class CreateAdminCommand
         }
 
         $user = new User($email, $fullName);
-        $user->setAdmin(true);
+        // The first admin of an install is a super admin: only a super admin can grant that
+        // level to anyone else, so without this nobody could ever hand it out.
+        $user->setSuperAdmin(true);
         $user->setPassword($this->hasher->hashPassword($user, $password));
         $this->em->persist($user);
         $this->em->flush();
 
-        $io->success(\sprintf('Admin %s created.', $email));
+        $io->success(\sprintf('Super admin %s created.', $email));
         if ($generatePassword) {
             $io->writeln(\sprintf('Temporary password: %s  (change it from "Cambiar contraseña" after logging in)', $password));
         }

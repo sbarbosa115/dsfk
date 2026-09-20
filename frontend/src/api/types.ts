@@ -12,6 +12,8 @@ export interface CurrentUser {
   email: string
   fullName: string
   admin: boolean
+  /** Admins who may also use "Ver como"; only they can grant it. */
+  superAdmin: boolean
   memberships: Membership[]
   /** Set while an admin is viewing the app as this user. */
   impersonator: { id: number; fullName: string } | null
@@ -24,6 +26,7 @@ export interface User {
   email: string
   fullName: string
   admin: boolean
+  superAdmin: boolean
   active: boolean
   createdAt: string
   memberships?: Membership[]

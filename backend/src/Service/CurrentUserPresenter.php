@@ -34,6 +34,7 @@ class CurrentUserPresenter
             'email' => $user->getEmail(),
             'fullName' => $user->getFullName(),
             'admin' => $user->isAdmin(),
+            'superAdmin' => $user->isSuperAdmin(),
             'memberships' => array_map(static fn (ProjectMember $m) => [
                 'projectId' => $m->getProject()->getId(),
                 'projectName' => $m->getProject()->getName(),
@@ -41,7 +42,7 @@ class CurrentUserPresenter
             ], $this->members->findBy(['user' => $user])),
             // Set while an admin is viewing the app as this user.
             'impersonator' => $original instanceof User ? ['id' => $original->getId(), 'fullName' => $original->getFullName()] : null,
-            'canImpersonate' => $this->impersonation->isEnabled() && ($user->isAdmin() || null !== $original),
+            'canImpersonate' => $this->impersonation->isEnabled() && ($user->isSuperAdmin() || null !== $original),
         ];
     }
 }

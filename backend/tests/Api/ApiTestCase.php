@@ -24,10 +24,11 @@ abstract class ApiTestCase extends WebTestCase
         $this->em = static::getContainer()->get(EntityManagerInterface::class);
     }
 
-    protected function createUser(string $email, bool $admin = false, bool $active = true): User
+    protected function createUser(string $email, bool $admin = false, bool $active = true, bool $superAdmin = false): User
     {
         $user = new User($email, ucfirst(strstr($email, '@', true)));
         $user->setAdmin($admin);
+        $user->setSuperAdmin($superAdmin);
         $user->setActive($active);
         $user->setPassword(static::getContainer()->get(UserPasswordHasherInterface::class)->hashPassword($user, self::PASSWORD));
         $this->em->persist($user);

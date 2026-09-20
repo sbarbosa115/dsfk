@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -55,6 +56,10 @@ class UserController extends AbstractController
         $user = new User($input->email, $input->fullName);
         $user->setPassword($this->hasher->hashPassword($user, $input->password));
         $user->setAdmin($input->admin ?? false);
+        if ($input->superAdmin ?? false) {
+            $this->assertMayGrantSuperAdmin();
+            $user->setSuperAdmin(true);
+        }
         $this->em->persist($user);
         $this->em->flush();
 
@@ -64,7 +69,7 @@ class UserController extends AbstractController
     #[Route('/{id}', methods: ['PATCH'], requirements: ['id' => '\d+'])]
     public function update(User $user, #[MapRequestPayload] UserInput $input, #[CurrentUser] User $me): JsonResponse
     {
-        if ($user === $me && (false === $input->admin || false === $input->active)) {
+        if ($user === $me && (false === $input->admin || false === $input->active || false === $input->superAdmin)) {
             throw new UnprocessableEntityHttpException('You cannot remove your own admin access or disable yourself.');
         }
 
@@ -78,6 +83,10 @@ class UserController extends AbstractController
         if (null !== $input->password) {
             $user->setPassword($this->hasher->hashPassword($user, $input->password));
         }
+        if (null !== $input->superAdmin && $input->superAdmin !== $user->isSuperAdmin()) {
+            $this->assertMayGrantSuperAdmin();
+            $user->setSuperAdmin($input->superAdmin);
+        }
         if (null !== $input->admin) {
             $user->setAdmin($input->admin);
         }
@@ -87,6 +96,14 @@ class UserController extends AbstractController
         $this->em->flush();
 
         return $this->json($user, context: self::CONTEXT);
+    }
+
+    /** Only a super admin hands out "Ver como" access, so an ordinary admin cannot promote itself. */
+    private function assertMayGrantSuperAdmin(): void
+    {
+        if (!$this->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new AccessDeniedHttpException('Only a super admin can grant or revoke super admin.');
+        }
     }
 
     private function assertEmailAvailable(string $email): void

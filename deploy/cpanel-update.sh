@@ -27,6 +27,17 @@ main() {
   log() { echo "[$(date '+%F %T')] $*"; }
   die() { echo "ERROR: $*" >&2; exit 1; }
 
+  # The clone is reset and cleaned on every run: if it were the app folder, .env.local would be deleted.
+  mkdir -p "$app_dir"
+  app_dir="$(cd "$app_dir" && pwd -P)"
+  local src_real; src_real="$(cd "$src" && pwd -P)"
+  case "$app_dir/" in "$src_real/"*)
+    die "the git clone ($src_real) must not be the app folder or contain it. Clone into ~/dsfk-src instead (see docs/DEPLOYMENT.md 1.3)" ;;
+  esac
+  case "$src_real/" in "$app_dir/"*)
+    die "the git clone ($src_real) must not be inside the app folder ($app_dir). Clone into ~/dsfk-src instead" ;;
+  esac
+
   mkdir -p "$build_dir"
   if command -v flock >/dev/null; then
     exec 9>"$build_dir/.lock"
@@ -113,7 +124,8 @@ main() {
   # --- Install into the app folder -------------------------------------------------------------
   log "Copying release into $app_dir"
   # No --delete: .env.local, var/ (uploads, logs, sessions) stay; update.sh removes code files dropped from MANIFEST.
-  rsync -a "$stage/" "$app_dir/"
+  # --chmod: Apache runs as another user (nobody), so code must be readable whatever the shell's umask is.
+  rsync -a --chmod=Dgo+rx,Fgo+r "$stage/" "$app_dir/"
 
   log "Running update"
   PHP="$php" "$app_dir/deploy/update.sh"

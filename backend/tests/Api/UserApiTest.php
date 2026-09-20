@@ -71,4 +71,37 @@ class UserApiTest extends ApiTestCase
         $this->request('PATCH', '/api/users/'.$admin->getId(), ['admin' => false]);
         $this->assertStatus(422);
     }
+
+    public function testOnlyASuperAdminGrantsSuperAdmin(): void
+    {
+        $admin = $this->createUser('admin@example.com', admin: true);
+        $pm = $this->createUser('pm@example.com');
+        $this->loginAs($admin);
+
+        // An ordinary admin can neither promote someone else nor promote itself.
+        $this->request('PATCH', '/api/users/'.$pm->getId(), ['admin' => true, 'superAdmin' => true]);
+        $this->assertStatus(403);
+        $this->request('PATCH', '/api/users/'.$admin->getId(), ['superAdmin' => true]);
+        $this->assertStatus(403);
+        $this->request('POST', '/api/users', ['email' => 'new@example.com', 'fullName' => 'New', 'password' => 'password123', 'superAdmin' => true]);
+        $this->assertStatus(403);
+
+        $this->loginAs($this->createUser('root@example.com', admin: true, superAdmin: true));
+        $data = $this->request('PATCH', '/api/users/'.$pm->getId(), ['superAdmin' => true]);
+        $this->assertStatus(200);
+        self::assertTrue($data['superAdmin']);
+        self::assertTrue($data['admin'], 'super admin implies admin');
+    }
+
+    public function testDroppingAdminAlsoDropsSuperAdmin(): void
+    {
+        $root = $this->createUser('root@example.com', admin: true, superAdmin: true);
+        $other = $this->createUser('other@example.com', admin: true, superAdmin: true);
+        $this->loginAs($root);
+
+        $data = $this->request('PATCH', '/api/users/'.$other->getId(), ['admin' => false]);
+        $this->assertStatus(200);
+        self::assertFalse($data['admin']);
+        self::assertFalse($data['superAdmin'], 'you cannot keep "Ver como" without being an admin');
+    }
 }

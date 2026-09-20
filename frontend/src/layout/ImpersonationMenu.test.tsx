@@ -7,9 +7,9 @@ import type { CurrentUser } from '../api/types'
 import { AuthProvider } from '../auth/AuthContext'
 import { ImpersonationBanner, ImpersonationMenu } from './ImpersonationMenu'
 
-const admin: CurrentUser = { id: 1, email: 'admin@x.co', fullName: 'Administrador', admin: true, memberships: [], impersonator: null, canImpersonate: true }
+const admin: CurrentUser = { id: 1, email: 'admin@x.co', fullName: 'Administrador', admin: true, superAdmin: true, memberships: [], impersonator: null, canImpersonate: true }
 const pm: CurrentUser = {
-  id: 2, email: 'pm@x.co', fullName: 'Laura Gómez', admin: false,
+  id: 2, email: 'pm@x.co', fullName: 'Laura Gómez', admin: false, superAdmin: false,
   memberships: [{ projectId: 1, projectName: 'Torre', role: 'PROJECT_MANAGER' }],
   impersonator: { id: 1, fullName: 'Administrador' }, canImpersonate: true,
 }

@@ -2,9 +2,9 @@ DC = docker compose
 PHP = $(DC) exec -u www-data php
 NODE = $(DC) run --rm --no-deps node
 
-.PHONY: up down install migrate admin test test-backend test-frontend build
+.PHONY: up down install migrate admin seed test test-backend test-frontend build
 
-up:            ## Start the stack (app: :8081, vite: :5173, mailpit: :8025)
+up:            ## Start the stack (app: :18081, vite: :15173, mailpit: :18025)
 	$(DC) up -d --build
 
 down:
@@ -20,6 +20,9 @@ migrate:       ## Run migrations on the dev and test databases
 
 admin:         ## Create an admin: make admin EMAIL=you@example.com NAME="Your Name"
 	$(DC) exec -it -u www-data php bin/console app:create-admin "$(EMAIL)" "$(NAME)"
+
+seed:          ## Replace the local database with demo data (asks for confirmation)
+	$(DC) exec -it -u www-data php bin/console doctrine:fixtures:load
 
 test: test-backend test-frontend  ## Full test suite (required before marking work done)
 

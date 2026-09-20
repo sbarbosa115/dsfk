@@ -9,15 +9,37 @@ Functional and technical specification: [docs/SPEC.md](docs/SPEC.md).
 ## Local development (Docker)
 
 ```bash
-make up                 # php/apache :8081, mysql :3307, vite :5173, mailpit :8025
+make up                 # php/apache :18081, mysql :13306, vite :15173, mailpit :18025
 make install
 make migrate
 make admin EMAIL=admin@example.com NAME="Administrador"
 ```
 
-- Dev UI with hot reload: http://localhost:5173 (proxies `/api` to the PHP container)
-- Production-like (built app served by Symfony/Apache): `make build`, then http://localhost:8081
-- Captured emails: http://localhost:8025
+Or skip creating users by hand and load the demo data instead:
+
+```bash
+make seed               # ⚠ replaces everything in the local database
+```
+
+It seeds three projects at different stages — one running with money, expenses and a
+closed caja menor cycle, one budget still in draft and one waiting for approval — plus
+these accounts, all with the password `demo1234`:
+
+| Correo | Rol |
+| --- | --- |
+| `admin@demo.test` | Administrador (super administrador: ve "Ver como") |
+| `admin2@demo.test` | Administrador corriente (sin "Ver como") |
+| `pm@demo.test`, `pm2@demo.test` | Gerente de proyecto |
+| `lider@demo.test`, `lider2@demo.test` | Líder de equipo |
+| `inactivo@demo.test` | Usuario desactivado |
+
+- Dev UI with hot reload: http://localhost:15173 (proxies `/api` to the PHP container)
+- Production-like (built app served by Symfony/Apache): `make build`, then http://localhost:18081
+- Captured emails: http://localhost:18025
+
+Ports are overridable so the stack can sit next to other Docker projects — export
+`APP_PORT`, `MYSQL_PORT`, `VITE_PORT` or `MAILPIT_PORT`, or set them in a `.env`
+file next to `compose.yaml`.
 
 ## Deployment
 

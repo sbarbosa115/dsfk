@@ -22,6 +22,8 @@ class UserInput
 
         public ?bool $admin = null,
 
+        public ?bool $superAdmin = null,
+
         public ?bool $active = null,
     ) {
     }

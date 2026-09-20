@@ -35,6 +35,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read'])]
     private bool $admin = false;
 
+    /** Super admins are admins who may also "view as" another user. Only they can grant this. */
+    #[ORM\Column]
+    #[Groups(['user:read'])]
+    private bool $superAdmin = false;
+
     #[ORM\Column]
     #[Groups(['user:read'])]
     private bool $active = true;
@@ -85,6 +90,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getRoles(): array
     {
+        if ($this->superAdmin) {
+            return ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'];
+        }
+
         return $this->admin ? ['ROLE_USER', 'ROLE_ADMIN'] : ['ROLE_USER'];
     }
 
@@ -96,6 +105,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setAdmin(bool $admin): void
     {
         $this->admin = $admin;
+        if (!$admin) {
+            // Super admin is a level of admin: losing one loses the other.
+            $this->superAdmin = false;
+        }
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->superAdmin;
+    }
+
+    public function setSuperAdmin(bool $superAdmin): void
+    {
+        $this->superAdmin = $superAdmin;
+        if ($superAdmin) {
+            $this->admin = true;
+        }
     }
 
     public function isActive(): bool
