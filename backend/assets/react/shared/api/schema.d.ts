@@ -128,6 +128,287 @@ export interface paths {
         patch: operations["patch_api_users_update"];
         trace?: never;
     };
+    "/api/budget-lines/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["put_api_lines_update"];
+        post?: never;
+        delete: operations["delete_api_lines_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Only a category nothing uses. */
+        delete: operations["delete_api_categories_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["patch_api_categories_rename"];
+        trace?: never;
+    };
+    "/api/milestones/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete_api_milestones_delete"];
+        options?: never;
+        head?: never;
+        /** While the budget is editable. Fields sent change; null clears the planned date. */
+        patch: operations["patch_api_milestones_update"];
+        trace?: never;
+    };
+    "/api/milestones/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** PM or Admin, once the budget is approved. */
+        post: operations["post_api_milestones_complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/milestones/{id}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin only: undoes a completion. */
+        post: operations["post_api_milestones_reopen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Any member; Team Leads get it without money. */
+        get: operations["get_api_plan_show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** PM or Admin, also after approval. */
+        post: operations["post_api_plan_categories_add"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/stages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_plan_stages_add"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/stages/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["put_api_plan_stages_order"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/budget/contingency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["put_api_plan_contingency"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/budget/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_plan_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/budget/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin only: back to the PM with what to change. */
+        post: operations["post_api_plan_return"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/budget/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin only: locks the budget and activates the project. */
+        post: operations["post_api_plan_approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stages/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete_api_stages_delete"];
+        options?: never;
+        head?: never;
+        /** The name can always be fixed; planned dates only while the budget is editable. Fields sent change. */
+        patch: operations["patch_api_stages_update"];
+        trace?: never;
+    };
+    "/api/stages/{id}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_stages_start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stages/{id}/lines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_stages_lines_add"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stages/{id}/milestones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_stages_milestones_add"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects": {
         parameters: {
             query?: never;
@@ -255,6 +536,106 @@ export interface components {
             /** @default null */
             active: boolean | null;
         };
+        LineInput: {
+            /** @default 0 */
+            categoryId: number;
+            /** @default  */
+            description: string;
+            /**
+             * m², m³, kg, día, global…
+             * @default
+             */
+            unit: string;
+            /**
+             * Up to 3 decimals.
+             * @default
+             */
+            quantity: string;
+            /**
+             * Major units, e.g. "35000.50".
+             * @default
+             */
+            unitPrice: string;
+        };
+        CategoryInput: {
+            /** @default  */
+            name: string;
+        };
+        UpdateMilestoneInput: {
+            /** @default null */
+            name: string | null;
+            /** @default null */
+            weight: string | null;
+            /** @default null */
+            plannedDate: string | null;
+        };
+        CompleteMilestoneInput: {
+            /**
+             * YYYY-MM-DD, not in the future.
+             * @default
+             */
+            completedAt: string;
+            /** @default null */
+            notes: string | null;
+        };
+        CreateStageInput: {
+            /** @default  */
+            name: string;
+            /**
+             * YYYY-MM-DD
+             * @default null
+             */
+            plannedStart: string | null;
+            /**
+             * YYYY-MM-DD
+             * @default null
+             */
+            plannedEnd: string | null;
+        };
+        ReorderInput: {
+            /** @default [] */
+            ids: number[];
+        };
+        ContingencyInput: {
+            /**
+             * Major units.
+             * @default
+             */
+            contingency: string;
+        };
+        ReturnBudgetInput: {
+            /**
+             * What the PM should change.
+             * @default
+             */
+            comment: string;
+        };
+        UpdateStageInput: {
+            /** @default null */
+            name: string | null;
+            /** @default null */
+            plannedStart: string | null;
+            /** @default null */
+            plannedEnd: string | null;
+        };
+        StartStageInput: {
+            /**
+             * YYYY-MM-DD, not in the future.
+             * @default
+             */
+            actualStart: string;
+        };
+        CreateMilestoneInput: {
+            /** @default  */
+            name: string;
+            /**
+             * Percentage of the stage, e.g. "25" or "12.5".
+             * @default
+             */
+            weight: string;
+            /** @default null */
+            plannedDate: string | null;
+        };
         /** @enum {string} */
         ProjectStatus: "DRAFT" | "ACTIVE" | "COMPLETED" | "ARCHIVED";
         CreateProjectInput: {
@@ -350,6 +731,129 @@ export interface components {
             total: number;
             page: number;
             perPage: number;
+        };
+        PlanProjectOutput: {
+            id: number;
+            name: string;
+            currency: string;
+            /** @enum {string} */
+            status: "DRAFT" | "ACTIVE" | "COMPLETED" | "ARCHIVED";
+        };
+        PlanPermissionsOutput: {
+            /** Amounts are shown (PM and Admin). */
+            viewFinancials: boolean;
+            /** Stages, lines, milestones and contingency can be edited (the budget is a draft or was returned). */
+            edit: boolean;
+            /** Categories can be added and renamed (also after approval). */
+            manageCategories: boolean;
+            submit: boolean;
+            /** The Admin may approve or return it (it is submitted). */
+            review: boolean;
+            /** Stages can be started and milestones met (the budget is approved). */
+            track: boolean;
+            reopenMilestones: boolean;
+        };
+        PersonOutput: {
+            id: number;
+            fullName: string;
+        };
+        MilestoneOutput: {
+            id: number;
+            name: string;
+            /** Basis points of the stage (10000 = 100 %) */
+            weight: number;
+            /** Format: date */
+            plannedDate?: string | null;
+            /** Format: date */
+            completedAt?: string | null;
+            completedBy?: components["schemas"]["PersonOutput"] | null;
+            completionNotes?: string | null;
+            /** Not met and its planned date has gone by */
+            overdue: boolean;
+        };
+        LineOutput: {
+            id: number;
+            categoryId: number;
+            description: string;
+            unit: string;
+            /** "12.5" */
+            quantity: string;
+            /** Major units */
+            unitPrice: string;
+            /** Major units: quantity × unit price, rounded half up */
+            total: string;
+        };
+        StageOutput: {
+            id: number;
+            name: string;
+            position: number;
+            /** @enum {string} */
+            status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+            /** Format: date */
+            plannedStart?: string | null;
+            /** Format: date */
+            plannedEnd?: string | null;
+            /** Format: date */
+            actualStart?: string | null;
+            /** Format: date */
+            actualEnd?: string | null;
+            /** Basis points met */
+            progress: number;
+            /** Basis points: must be 10000 to submit */
+            milestoneWeightTotal: number;
+            milestones: components["schemas"]["MilestoneOutput"][];
+            /** Major units; null for Team Leads */
+            budgetTotal?: string | null;
+            /** Share of the budget in basis points; null for Team Leads */
+            weight?: number | null;
+            /** null for Team Leads */
+            lines?: components["schemas"]["LineOutput"][] | null;
+        };
+        CategoryOutput: {
+            id: number;
+            name: string;
+        };
+        CategoryTotalOutput: {
+            categoryId: number;
+            /** Major units budgeted in the category */
+            total: string;
+        };
+        BudgetEventOutput: {
+            /** @enum {string} */
+            status: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED";
+            user: components["schemas"]["PersonOutput"];
+            comment?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        BudgetOutput: {
+            contingency: string;
+            /** Sum of the stages (contingency excluded) */
+            stagesTotal: string;
+            total: string;
+            /** Format: date-time */
+            approvedAt?: string | null;
+            byCategory: components["schemas"]["CategoryTotalOutput"][];
+            events: components["schemas"]["BudgetEventOutput"][];
+        };
+        PlanIssueOutput: {
+            /** @enum {string} */
+            code: "no_stages" | "stage_without_lines" | "milestone_weights";
+            stageId?: number | null;
+        };
+        PlanOutput: {
+            project: components["schemas"]["PlanProjectOutput"];
+            permissions: components["schemas"]["PlanPermissionsOutput"];
+            /** @enum {string} */
+            budgetStatus: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED";
+            /** Project progress: stages weighted by their share of the budget */
+            progress: number;
+            stages: components["schemas"]["StageOutput"][];
+            categories: components["schemas"]["CategoryOutput"][];
+            /** null for Team Leads */
+            budget?: components["schemas"]["BudgetOutput"] | null;
+            /** What blocks submitting, while editable; null for Team Leads */
+            issues?: components["schemas"]["PlanIssueOutput"][] | null;
         };
         MemberUserOutput: {
             id: number;
@@ -714,6 +1218,790 @@ export interface operations {
             };
             /** @description validation_failed, email_taken or cannot_change_own_access */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    put_api_lines_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LineInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description budget_locked */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    delete_api_lines_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description budget_locked */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    delete_api_categories_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description category_in_use */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    patch_api_categories_rename: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+        };
+    };
+    delete_api_milestones_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description budget_locked, budget_not_approved, milestone_already_completed, stage_completed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    patch_api_milestones_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMilestoneInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description budget_locked, budget_not_approved, milestone_already_completed, stage_completed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_milestones_complete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteMilestoneInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description budget_locked, budget_not_approved, milestone_already_completed, stage_completed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_milestones_reopen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description budget_locked, budget_not_approved, milestone_already_completed, stage_completed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_plan_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description project_not_found (also when not a member) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_plan_categories_add: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description project_not_found (also when not a member) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed (name taken) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_plan_stages_add: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStageInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description project_not_found (also when not a member) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_locked */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    put_api_plan_stages_order: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description project_not_found (also when not a member) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed: ids must be every stage once */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    put_api_plan_contingency: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContingencyInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description project_not_found (also when not a member) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_plan_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description project_not_found (also when not a member) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_incomplete, with `issues` */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_plan_return: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReturnBudgetInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description project_not_found (also when not a member) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_not_submitted */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_plan_approve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description project_not_found (also when not a member) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    delete_api_stages_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description stage_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_locked, budget_not_approved, stage_already_started */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    patch_api_stages_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStageInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description stage_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_locked, budget_not_approved, stage_already_started */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_stages_start: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartStageInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description stage_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_locked, budget_not_approved, stage_already_started */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_stages_lines_add: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LineInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description stage_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_locked, budget_not_approved, stage_already_started */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_stages_milestones_add: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMilestoneInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOutput"];
+                };
+            };
+            /** @description stage_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_locked, budget_not_approved, stage_already_started */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
