@@ -182,6 +182,80 @@ final readonly class DoctrineLedgerRepository implements LedgerRepository, Finan
             ->getResult();
     }
 
+    public function fundingTotals(int $projectId): array
+    {
+        $b = $this->balances($projectId);
+        /** @var list<array{account: LedgerAccount|string, stageId: int|string|null}> $keys */
+        $keys = $this->em->createQueryBuilder()
+            ->select('DISTINCT e.account AS account', 'e.stageId AS stageId')
+            ->from(LedgerEntry::class, 'e')
+            ->where('e.projectId = :project')
+            ->setParameter('project', $projectId)
+            ->getQuery()
+            ->getArrayResult();
+        $deposited = 0;
+        $available = 0;
+        foreach ($keys as $row) {
+            $account = $row['account'] instanceof LedgerAccount ? $row['account'] : LedgerAccount::from($row['account']);
+            $key = Balances::key($account, null === $row['stageId'] ? null : (int) $row['stageId']);
+            $deposited += $b->in($key, MovementType::Deposit);
+            $available += $b->balance($key);
+        }
+
+        return ['deposited' => $deposited, 'available' => $available, 'pettyCash' => $b->of(LedgerAccount::PettyCash)];
+    }
+
+    public function monthlyDeposits(int $projectId, \DateTimeImmutable $from): array
+    {
+        /** @var list<array{date: \DateTimeImmutable, amount: int|string}> $rows */
+        $rows = $this->em->createQueryBuilder()
+            ->select('m.date AS date', 'm.amount AS amount')
+            ->from(FundMovement::class, 'm')
+            ->where('m.projectId = :project')
+            ->andWhere('m.type = :type')
+            ->andWhere('m.voidedAt IS NULL')
+            ->andWhere('m.date >= :from')
+            ->setParameter('project', $projectId)
+            ->setParameter('type', MovementType::Deposit)
+            ->setParameter('from', $from->format('Y-m-d'))
+            ->getQuery()
+            ->getArrayResult();
+        $months = [];
+        foreach ($rows as $row) {
+            $month = $row['date']->format('Y-m');
+            $months[$month] = ($months[$month] ?? 0) + (int) $row['amount'];
+        }
+
+        return $months;
+    }
+
+    public function unsignedCycles(int $projectId): int
+    {
+        return $this->em->getRepository(PettyCashCycle::class)->count(['projectId' => $projectId, 'status' => CycleStatus::Closed]);
+    }
+
+    public function lastPettyCashTopUp(int $projectId): int
+    {
+        $amount = $this->em->createQueryBuilder()
+            ->select('e.amount')
+            ->from(LedgerEntry::class, 'e')
+            ->join('e.movement', 'm')
+            ->where('e.projectId = :project')
+            ->andWhere('e.account = :account')
+            ->andWhere('m.type = :type')
+            ->andWhere('m.voidedAt IS NULL')
+            ->setParameter('project', $projectId)
+            ->setParameter('account', LedgerAccount::PettyCash)
+            ->setParameter('type', MovementType::Deposit)
+            ->orderBy('m.date', 'DESC')
+            ->addOrderBy('e.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult(\Doctrine\ORM\AbstractQuery::HYDRATE_SINGLE_SCALAR);
+
+        return (int) $amount;
+    }
+
     public function usesCategory(int $categoryId): bool
     {
         return null !== $this->em->getRepository(LedgerEntry::class)->findOneBy(['categoryId' => $categoryId]);

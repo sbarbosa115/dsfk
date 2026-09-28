@@ -64,6 +64,13 @@ deptrac:
         - type: bool
           must: [{ type: directory, value: src/Audit/.* }]
           must_not: [{ type: directory, value: src/Audit/(Application|Domain/Event)/.* }]
+    - name: ReportingApi
+      collectors: [{ type: directory, value: src/Reporting/(Application|Domain/Event)/.* }]
+    - name: Reporting
+      collectors:
+        - type: bool
+          must: [{ type: directory, value: src/Reporting/.* }]
+          must_not: [{ type: directory, value: src/Reporting/(Application|Domain/Event)/.* }]
   ruleset:
     Shared: ~
     IdentityApi: [Shared, Identity]
@@ -95,3 +102,6 @@ deptrac:
     AuditApi: [Shared, Audit]
     # Every Audited entity is recorded through the Shared interface; project names come from Project.
     Audit: [Shared, AuditApi, ProjectApi]
+    ReportingApi: [Shared, Reporting]
+    # Read side only: it asks every context that holds a figure.
+    Reporting: [Shared, ReportingApi, PlanningApi, FinanceApi, ExpenseApi, ProjectApi, SettingsApi]

@@ -175,6 +175,7 @@ export const es = {
     tabs: {
       overview: 'Resumen',
       plan: 'Presupuesto y plan',
+      dashboard: 'Tablero',
       expenses: 'Gastos',
       finance: 'Fondos',
       pettyCash: 'Caja menor',
@@ -542,6 +543,75 @@ export const es = {
       Setting: 'Configuración',
       User: 'Usuario',
     },
+  },
+  charts: {
+    showTable: 'Ver como tabla',
+    showChart: 'Ver gráfica',
+  },
+  dashboard: {
+    title: 'Tablero',
+    subtitle:
+      'Cómo van las obras: presupuesto, gasto, avance y lo que necesita atención.',
+    empty: 'Aún no hay proyectos con dinero que puedas ver.',
+    intro:
+      'Si el gasto va de acuerdo con el avance, si la obra va a tiempo y qué necesita atención hoy.',
+    notApproved:
+      'Los indicadores se llenan cuando el presupuesto está aprobado y hay avance o gastos.',
+    budget: 'Presupuesto',
+    spent: 'Gastado',
+    deposited: 'Depositado',
+    ofBudget: '{{percent}} de {{budget}}',
+    progress: 'Avance',
+    plannedProgress: 'Avance planeado',
+    progressVsPlan: 'Según el plan debería ir en {{percent}}',
+    plannedShort: 'planeado {{percent}}',
+    executed: 'Ejecutado',
+    indices: 'Indicadores',
+    cpi: 'CPI (costo)',
+    spi: 'SPI (plazo)',
+    cpiHelp:
+      'Avance ganado ÷ gasto. 1 o más: el gasto va de acuerdo con el avance; menos de 1: se gasta más de lo que el avance justifica.',
+    spiHelp:
+      'Avance ganado ÷ avance planeado. 1 o más: a tiempo; menos de 1: atrasado.',
+    health: {good: 'Bien', warning: 'Atención', critical: 'Crítico'},
+    noData: 'Sin datos',
+    forecast: 'Costo final estimado',
+    forecastHelp: 'Presupuesto ÷ CPI: aparece cuando hay avance y gasto.',
+    variance: 'Diferencia con el presupuesto: {{amount}}',
+    alertsTitle: 'Lo que necesita atención',
+    noAlerts: 'Nada por ahora.',
+    alertCount_one: '{{count}} alerta',
+    alertCount_other: '{{count}} alertas',
+    alerts: {
+      stage_over_budget:
+        'La etapa “{{stage}}” ya gastó el {{executed}} de su presupuesto.',
+      stage_near_budget:
+        'La etapa “{{stage}}” va en el {{executed}} de su presupuesto.',
+      stage_delayed: 'La etapa “{{stage}}” debía terminar el {{plannedEnd}}.',
+      milestones_overdue_one:
+        '{{count}} hito pasó su fecha planeada sin cumplirse.',
+      milestones_overdue_other:
+        '{{count}} hitos pasaron su fecha planeada sin cumplirse.',
+      expenses_pending_one: '{{count}} gasto espera aprobación.',
+      expenses_pending_other: '{{count}} gastos esperan aprobación.',
+      expenses_to_reimburse_one:
+        '{{count}} gasto aprobado falta por reembolsar.',
+      expenses_to_reimburse_other:
+        '{{count}} gastos aprobados faltan por reembolsar.',
+      cycles_unsigned_one:
+        '{{count}} ciclo de caja menor espera la firma del administrador.',
+      cycles_unsigned_other:
+        '{{count}} ciclos de caja menor esperan la firma del administrador.',
+    },
+    stageChart: 'Avance y gasto por etapa',
+    stageChartHint:
+      'En % de cada etapa: el avance real, el que debería llevar y lo que ha gastado.',
+    monthlyChart: 'Dinero por mes',
+    month: 'Mes',
+    stagesTitle: 'Etapas',
+    planned: 'Planeado',
+    actual: 'Real',
+    delayed: 'Atrasada',
   },
   members: {
     title: 'Equipo del proyecto',

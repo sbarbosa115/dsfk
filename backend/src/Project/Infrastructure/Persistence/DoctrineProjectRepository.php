@@ -108,6 +108,13 @@ final readonly class DoctrineProjectRepository implements ProjectRepository, Pro
         return array_map(static fn (Project $p): ProjectInfo => new ProjectInfo((int) $p->getId(), $p->getName(), $p->getCurrency(), $p->getStatus()->value), $projects);
     }
 
+    public function all(): array
+    {
+        $projects = $this->em->getRepository(Project::class)->findBy([], ['name' => 'ASC']);
+
+        return array_map(static fn (Project $p): ProjectInfo => new ProjectInfo((int) $p->getId(), $p->getName(), $p->getCurrency(), $p->getStatus()->value), $projects);
+    }
+
     /**
      * @return array<int, list<array{projectId: int, projectName: string, role: string}>>
      */

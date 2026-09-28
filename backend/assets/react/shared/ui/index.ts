@@ -7,3 +7,4 @@ export * from './ui';
 export {ConfirmModal} from './ConfirmModal';
 export {ThemePicker} from './ThemePicker';
 export {ProgressBar, Stat} from './Progress';
+export {ChartCard} from './ChartCard';

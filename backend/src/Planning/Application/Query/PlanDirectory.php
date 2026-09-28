@@ -21,4 +21,14 @@ interface PlanDirectory
 
     /** Contingency reserve, minor units (0 before a budget is written). */
     public function contingency(int $projectId): int;
+
+    /**
+     * Stages with their dates, progress and milestones, in their order (for the dashboards).
+     *
+     * @return list<StageSchedule>
+     */
+    public function schedule(int $projectId): array;
+
+    /** Physical progress of the project in basis points (stages weighted by their budget). */
+    public function progress(int $projectId): int;
 }

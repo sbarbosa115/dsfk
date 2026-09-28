@@ -19,6 +19,9 @@ const ProjectDetailPage = lazy(() =>
     default: m.ProjectDetailPage,
   })),
 );
+const DashboardPage = lazy(() =>
+  import('@/pages/dashboard').then((m) => ({default: m.DashboardPage})),
+);
 const AuditPage = lazy(() =>
   import('@/pages/audit').then((m) => ({default: m.AuditPage})),
 );
@@ -35,6 +38,7 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           {index: true, element: <HomeRedirect />},
+          {path: 'dashboard', element: <DashboardPage />},
           {path: 'projects', element: <ProjectsPage />},
           {path: 'projects/:id', element: <ProjectDetailPage />},
           {
