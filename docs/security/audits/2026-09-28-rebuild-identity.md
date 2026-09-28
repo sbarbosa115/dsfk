@@ -23,8 +23,8 @@
 
 | # | Severity | Category | Where | What an attacker could do | Status |
 |---|---|---|---|---|---|
-| 1 | High | A01 Access control | `PATCH /api/users/{id}` | An ordinary admin could reset a super admin's password or email and then sign in as them, gaining "Ver como" and the power to grant super admin. (The previous implementation had the same hole.) | Fixed in `1c6ecae`: `User::assertEditableBy()`; tests `testAnOrdinaryAdminCannotTakeOverASuperAdminAccount`, `UserTest::testOnlyASuperAdminEditsAnotherSuperAdmin`; the edit button is disabled for them in the UI |
-| 2 | Low | A09 Logging | login | Failed sign-ins were not logged, so a password-guessing run left no trace beyond the throttle. | Fixed in `1c6ecae`: warning with code, email and IP (never the password) |
+| 1 | High | A01 Access control | `PATCH /api/users/{id}` | An ordinary admin could reset a super admin's password or email and then sign in as them, gaining "Ver como" and the power to grant super admin. (The previous implementation had the same hole.) |Fixed in `1c6ecae`: `User::assertEditableBy()`; tests `testAnOrdinaryAdminCannotTakeOverASuperAdminAccount`, `UserTest::testOnlyASuperAdminEditsAnotherSuperAdmin`; the edit button is disabled for them in the UI |
+| 2 | Low | A09 Logging | login | Failed sign-ins were not logged, so a password-guessing run left no trace beyond the throttle. |Fixed in `1c6ecae`: warning with code, email and IP (never the password) |
 
 ## Checked, nothing found
 
