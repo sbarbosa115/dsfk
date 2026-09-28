@@ -14,4 +14,11 @@ interface AttachmentQueries
      * @return array<int, list<AttachmentView>> by movement id, oldest first
      */
     public function ofMovements(array $movementIds): array;
+
+    /**
+     * @param list<int> $expenseIds
+     *
+     * @return array<int, list<AttachmentView>> by expense id, oldest first
+     */
+    public function ofExpenses(array $expenseIds): array;
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Finance\UI\Http\Controller;
 
-use App\Document\Application\Command\AttachToMovement;
+use App\Document\Application\Command\AttachFile;
 use App\Document\Application\Command\Upload;
 use App\Finance\Application\Command\VoidMovement;
 use App\Finance\Application\Query\FinanceQueries;
@@ -71,7 +71,7 @@ final class MovementController extends AbstractController
         if (!$file->isValid()) {
             throw InvalidValue::field('file', \UPLOAD_ERR_INI_SIZE === $file->getError() || \UPLOAD_ERR_FORM_SIZE === $file->getError() ? 'El archivo supera el máximo de 10 MB.' : 'No se pudo subir el archivo.');
         }
-        $this->bus->dispatch(new AttachToMovement($project, $id, new Upload($file->getPathname(), $file->getClientOriginalName(), (int) $file->getSize()), $actor->getId()));
+        $this->bus->dispatch(AttachFile::toMovement($project, $id, new Upload($file->getPathname(), $file->getClientOriginalName(), (int) $file->getSize()), $actor->getId()));
 
         return $this->json($this->presenter->movement($this->ledger->movement($id)), 201);
     }

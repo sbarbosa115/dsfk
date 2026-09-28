@@ -12,8 +12,15 @@ use Symfony\Component\Mime\MimeTypes;
 /** Files under var/uploads (outside public/), one folder per project. */
 final readonly class LocalFileStore implements FileStore
 {
-    public function __construct(#[Autowire('%app.upload_dir%')] private string $directory, private Filesystem $filesystem = new Filesystem())
-    {
+    private int $directoryMode;
+
+    public function __construct(
+        #[Autowire('%app.upload_dir%')] private string $directory,
+        /* Octal, e.g. "0750" (production: only the app's user and group). */
+        #[Autowire('%env(UPLOAD_DIR_MODE)%')] string $directoryMode = '0750',
+        private Filesystem $filesystem = new Filesystem(),
+    ) {
+        $this->directoryMode = (int) octdec($directoryMode);
     }
 
     public function mimeTypeOf(string $path): string
@@ -23,7 +30,7 @@ final readonly class LocalFileStore implements FileStore
 
     public function keep(string $path, string $storedName): void
     {
-        $this->filesystem->mkdir(\dirname($this->path($storedName)), 0o750);
+        $this->filesystem->mkdir(\dirname($this->path($storedName)), $this->directoryMode);
         $this->filesystem->rename($path, $this->path($storedName));
         $this->filesystem->chmod($this->path($storedName), 0o640);
     }
