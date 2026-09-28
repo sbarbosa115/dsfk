@@ -28,3 +28,8 @@
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
+
+# The document root's .htaccess belongs to the server: cPanel writes its PHP handler there, and
+# deploy/cpanel-update.sh appends deploy/htaccess-symfony.conf to it once.
+/public/.htaccess
+/public/.htaccess.before-dsfk

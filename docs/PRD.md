@@ -293,15 +293,16 @@ expenses, caja menor, dashboard), `/help`, `/help/:topicId`, and Admin-only `/us
 - **Local:** Docker Compose with `php` (Apache + mod_php, like cPanel), `mysql` 8.0, `node` 22 (Encore watch),
   `worker` (Messenger) and `mailpit`. `make up | install | migrate | admin | seed | test | build`. `make seed` loads three demo
   projects and demo accounts (password `demo1234`).
-- **Production (cPanel):** `deploy/cpanel-update.sh [ref]` pulls a branch, tag or commit from GitHub,
-  builds the frontend and a production `vendor/` on PHP 8.4, writes a `MANIFEST`, copies the release,
-  then `deploy/server/update.sh` backs up, removes dropped files, warms the cache, migrates and runs `app:doctor`.
-  `.env.local` and `var/` are never touched.
-- **Cron:** every minute `messenger:consume async --time-limit=50`; daily 07:00 `app:alerts:daily`;
+- **Production (cPanel):** the app is a git clone (`~/dsfk`, document root `backend/public`, settings in
+  `backend/.env.local`). `deploy/cpanel-update.sh` pulls `--ff-only`, installs `vendor/` without dev packages,
+  builds the frontend, checks `serverVersion` against the database server, dumps the database before any pending
+  migration, keeps its rules in the document root's `.htaccess` beside cPanel's, and runs `app:doctor`.
+- **Cron:** every minute `messenger:consume async --time-limit=55` under `flock`; daily 07:00 `app:alerts:daily`;
   daily 02:30 `backup.sh` (database + `var/uploads`, 14 days kept).
 - **Commands:** `app:create-admin` (first admin = super admin), `app:alerts:daily`, `app:doctor`
   (checks PHP version, extensions, env, writable folders, frontend build, DB connection and migrations).
-- Rollback = deploy the previous tag; migrations are not reverted, so restore the pre-deploy backup if needed.
+- Rollback = `git reset --hard <previous>` and `SKIP_PULL=1 ./deploy/cpanel-update.sh` (the script prints it); migrations
+  are not reverted, so restore the pre-migration dump if one ran.
 
 ## 9. Open questions and gaps
 

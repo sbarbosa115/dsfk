@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Database dump + uploaded files, kept for $KEEP_DAYS days (default 14).
-# Daily cPanel cron:  30 2 * * *  $HOME/public_html/dsfk/deploy/backup.sh >/dev/null 2>&1
+# Daily cPanel cron (deploy/cpanel-update.sh prints the exact line with this account's PHP):
+#   30 2 * * *  PHP=/opt/cpanel/ea-php84/root/usr/bin/php $HOME/dsfk/deploy/backup.sh >/dev/null 2>&1
 set -euo pipefail
 
-APP="$(cd "$(dirname "$0")/.." && pwd)"
+APP="$(cd "$(dirname "$0")/../backend" && pwd)"
 PHP="${PHP:-php}"
 DEST="${BACKUP_DIR:-$HOME/backups/control-proyectos}"
 KEEP_DAYS="${KEEP_DAYS:-14}"

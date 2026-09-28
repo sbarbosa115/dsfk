@@ -159,12 +159,18 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
 
 ## Deployment
 
-Deployed on cPanel by pulling from GitHub and building on the server:
+The app is a git clone on the cPanel account (`~/dsfk`, the domain's document root is `backend/public`), updated
+in place:
 
 ```bash
-~/dsfk-src/deploy/cpanel-update.sh          # latest main (or pass a tag, branch or commit)
+cd ~/dsfk && ./deploy/cpanel-update.sh          # the usual update
+SKIP_PULL=1 ./deploy/cpanel-update.sh           # rebuild without pulling
 ```
 
-The script ends with `php bin/console app:doctor`, a checklist of the server (PHP and its extensions, the
-configuration, writable folders, the built frontend, the database) where every row must be OK.
+It pulls with `--ff-only` (and refuses to run over local changes to tracked files), installs the PHP dependencies
+without the dev ones, builds the UI, checks `serverVersion` against the real database server, dumps the database
+before any pending migration (and migrates only if the dump is complete), keeps its front-controller rules in the
+document root's `.htaccess` next to cPanel's own lines, restarts the queue workers, warns about missing cron jobs,
+and ends with `app:doctor`, a checklist of the server where every row must be OK. The local Docker stack serves
+the app with the same Apache rules (`deploy/htaccess-symfony.conf`).
 Setup, cron jobs and backups: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
