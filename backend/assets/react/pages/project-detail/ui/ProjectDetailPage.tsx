@@ -24,11 +24,15 @@ import {
   TabPanel,
   Tabs,
 } from '@/shared/ui';
+import {FinanceBoard} from '@/widgets/finance-board';
 import {PlanBoard} from '@/widgets/plan-board';
 
-const TABS = ['plan', 'overview'] as const;
+type Tab = 'plan' | 'finance' | 'overview';
+// Team Leads see no money: a link to ?tab=finance lands them on the plan.
+const MANAGER_TABS: readonly Tab[] = ['plan', 'finance', 'overview'];
+const TEAM_LEAD_TABS: readonly Tab[] = ['plan', 'overview'];
 
-/** One project: its plan and budget first, then what it is and who is in it (more tabs come with the money). */
+/** One project: its plan and budget first, its money (for the Admins and the PM), then who is in it. */
 export function ProjectDetailPage() {
   const {id = ''} = useParams();
   const project = useQuery({
@@ -54,9 +58,10 @@ export function ProjectDetailPage() {
 }
 
 function ProjectView({project}: {project: Project}) {
-  const [tab, setTab] = useTabParam(TABS);
-  const [editing, setEditing] = useState(false);
   const admin = project.myRole === 'ADMIN';
+  const manager = admin || project.myRole === 'PROJECT_MANAGER';
+  const [tab, setTab] = useTabParam(manager ? MANAGER_TABS : TEAM_LEAD_TABS);
+  const [editing, setEditing] = useState(false);
 
   return (
     <>
@@ -82,6 +87,15 @@ function ProjectView({project}: {project: Project}) {
         onChange={setTab}
         options={[
           {value: 'plan', label: t('projects.tabs.plan'), icon: 'clipboard'},
+          ...(manager
+            ? [
+                {
+                  value: 'finance' as const,
+                  label: t('projects.tabs.finance'),
+                  icon: 'wallet' as const,
+                },
+              ]
+            : []),
           {
             value: 'overview',
             label: t('projects.tabs.overview'),
@@ -91,6 +105,7 @@ function ProjectView({project}: {project: Project}) {
       />
       <TabPanel id="project" value={tab}>
         {tab === 'plan' && <PlanBoard projectId={project.id} />}
+        {tab === 'finance' && <FinanceBoard projectId={project.id} />}
         {tab === 'overview' && <Overview project={project} admin={admin} />}
       </TabPanel>
       {editing && (
