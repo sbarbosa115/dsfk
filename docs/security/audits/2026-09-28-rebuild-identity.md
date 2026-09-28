@@ -1,98 +1,46 @@
 # Security audit — rebuild-identity — 2026-09-28
 
-- **Branch:** `feature/rebuild-identity` at `f48557c`, against `feature/rebuild`
-- **Scope:** <!-- routes, inputs, uploads, rendered content, jobs, dependencies this feature added or changed -->
-- **Tools:**
-  - `composer audit`: clean
-  - secrets in the diff: 5 found (see Findings)
+- **Branch:** `feature/rebuild-identity`, against `feature/rebuild`
+- **Scope:** `POST /api/login`, `POST /api/logout`, `GET /api/me`, `POST /api/me/password`,
+  `GET|POST /api/impersonate` (switch_user), `GET|POST /api/users`, `PATCH /api/users/{id}`,
+  `GET|PUT /api/settings`, `app:create-admin`; the security config (provider, json_login, throttling,
+  switch_user); the login, users, settings and "Ver como" screens.
+- **Tools:** `composer audit` clean, `npm audit --omit=dev` 0 vulnerabilities, secrets grep 0 found,
+  `debug:firewall main` reviewed.
 
 ## Leads from audit.py
 
-Each one checked against the checklist in `docs/security/README.md` and resolved into a finding or "nothing found".
-
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:24`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:32`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:35`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:43`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:50`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:58`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:65`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:67`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:70`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:86`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:90`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:99`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/AuthTest.php:101`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/ImpersonationTest.php:33`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/ImpersonationTest.php:48`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/ImpersonationTest.php:51`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/ImpersonationTest.php:64`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/ImpersonationTest.php:69`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/ImpersonationTest.php:79`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/UserApiTest.php:16`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/UserApiTest.php:18`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/UserApiTest.php:37`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/UserApiTest.php:70`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/UserApiTest.php:90`: server-side request: is the URL user-supplied?
-- [ ] [A10 SSRF] `backend/tests/Functional/Api/UserApiTest.php:120`: server-side request: is the URL user-supplied?
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/AuthController.php:31`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/AuthController.php:45`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/AuthController.php:52`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/AuthController.php:63`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/AuthController.php:73`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/UserController.php:28`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/UserController.php:42`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/UserController.php:54`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/UserController.php:66`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Settings/UI/Http/Controller/SettingsController.php:20`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Settings/UI/Http/Controller/SettingsController.php:28`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/src/Settings/UI/Http/Controller/SettingsController.php:36`: new route: firewall, role and ownership checked, and a test for another tenant
-- [ ] [A01 Access control] `backend/config/packages/security.yaml:34`: access check removed or loosened?
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/UserController.php:25`: access check removed or loosened?
-- [ ] [A01 Access control] `backend/src/Identity/UI/Http/Controller/UserController.php:29`: access check removed or loosened?
-- [ ] [A01 Access control] `backend/src/Settings/UI/Http/Controller/SettingsController.php:18`: access check removed or loosened?
-- [ ] [A01 Access control] `backend/src/Settings/UI/Http/Controller/SettingsController.php:37`: access check removed or loosened?
-- [ ] [A05 Config] `backend/config/packages/security.yaml:3`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:6`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:7`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:15`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:16`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:17`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:18`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:19`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:20`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:21`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:22`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:23`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:24`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:25`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:26`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:27`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:28`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:29`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:30`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:31`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:34`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:37`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:38`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:39`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:40`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:41`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:42`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:43`: security/CORS/framework config changed
-- [ ] [A05 Config] `backend/config/packages/security.yaml:44`: security/CORS/framework config changed
-- [ ] [Frontend] `frontend/src/app/guards.tsx:7`: open redirect: only follow same-origin relative paths
-- [ ] [Frontend] `frontend/src/features/auth-login/ui/LoginForm.tsx:13`: open redirect: only follow same-origin relative paths
+- [x] [A05 Config] `security.yaml` (every line): reviewed as a whole. `/api/login` is the only public API
+      path; everything else under `/api` needs `ROLE_USER`; admin endpoints add `#[IsGranted('ROLE_ADMIN')]`;
+      switch_user needs `CAN_SWITCH_USER` (ImpersonationVoter: super admin, flag on, active non-admin target).
+      The weaker hasher config is under `when@test` only.
+- [x] [Frontend] `guards.tsx:7`, `LoginForm.tsx:13`: `from` comes from router state set by our own guard,
+      never from the URL. Tightened anyway to relative paths that do not start with `//` (`1c6ecae`).
 
 ## Findings
 
 | # | Severity | Category | Where | What an attacker could do | Status |
 |---|---|---|---|---|---|
+| 1 | High | A01 Access control | `PATCH /api/users/{id}` | An ordinary admin could reset a super admin's password or email and then sign in as them, gaining "Ver como" and the power to grant super admin. (The previous implementation had the same hole.) | Fixed in `1c6ecae`: `User::assertEditableBy()`; tests `testAnOrdinaryAdminCannotTakeOverASuperAdminAccount`, `UserTest::testOnlyASuperAdminEditsAnotherSuperAdmin`; the edit button is disabled for them in the UI |
+| 2 | Low | A09 Logging | login | Failed sign-ins were not logged, so a password-guessing run left no trace beyond the throttle. | Fixed in `1c6ecae`: warning with code, email and IP (never the password) |
 
 ## Checked, nothing found
 
-<!-- every checklist section that applies, with what was checked -->
+- **A01:** users and settings writes refuse non-admins (403, tested); users list likewise; an unknown user id
+  is 404 `user_not_found`; "Ver como" refused for plain admins, admins as targets, disabled users and
+  oneself (tested); switching by GET or without the CSRF header is refused (tested); acting as a PM closes
+  admin endpoints (tested). Nobody removes their own admin access or disables themselves (tested).
+- **A02:** passwords hashed with the `auto` hasher; `app:create-admin --generate-password` uses
+  `random_bytes`; nothing sensitive logged (the failure log has no password).
+- **A04:** Input DTOs list exactly the fields a user may set (`CreateUserInput`, `UpdateUserInput`,
+  `SettingsInput`); entities are never deserialised from the request. Login throttled at 5 attempts per
+  15 minutes per user and IP (tested).
+- **A07:** unknown email and wrong password get the same `invalid_credentials` (tested). The session id is
+  migrated on login (Symfony default). Changing a password, the roles or disabling a user ends that user's
+  other sessions (`SecurityUser::isEqualTo`; tested for disabling). State-changing calls need the CSRF header.
+- **A03:** no queries built from input (Doctrine `findOneBy`/`find` only), no HTML rendered from user input
+  (React escapes; no `dangerouslySetInnerHTML`).
 
 ## Not applicable
 
-<!-- sections that do not apply, and why -->
+- A08 uploads, A10 SSRF: none in this phase.
