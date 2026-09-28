@@ -22,9 +22,20 @@ deptrac:
         - type: bool
           must: [{ type: directory, value: src/Settings/.* }]
           must_not: [{ type: directory, value: src/Settings/(Application|Domain/Event)/.* }]
+    - name: ProjectApi
+      collectors: [{ type: directory, value: src/Project/(Application|Domain/Event)/.* }]
+    - name: Project
+      collectors:
+        - type: bool
+          must: [{ type: directory, value: src/Project/.* }]
+          must_not: [{ type: directory, value: src/Project/(Application|Domain/Event)/.* }]
   ruleset:
     Shared: ~
     IdentityApi: [Shared, Identity]
-    Identity: [Shared, IdentityApi]
+    # Identity shows each user's project roles.
+    Identity: [Shared, IdentityApi, ProjectApi]
     SettingsApi: [Shared, Settings]
     Settings: [Shared, SettingsApi]
+    ProjectApi: [Shared, Project]
+    # Members' names come from Identity, the default currency from Settings.
+    Project: [Shared, ProjectApi, IdentityApi, SettingsApi]
