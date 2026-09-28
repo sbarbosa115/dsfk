@@ -76,6 +76,14 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
 | `POST /projects/{id}/budget/{return {comment}\|approve}` | admin | the plan; approving activates the project | 409 `budget_not_submitted` |
 | `POST /stages/{id}/start {actualStart}` · `POST /milestones/{id}/complete {completedAt, notes}` | PM, admin, after approval | the plan | 409 `budget_not_approved`, `stage_already_started`, `milestone_already_completed`; 422 future date |
 | `POST /milestones/{id}/reopen` | admin | the plan | 409 `stage_completed` |
+| `GET /projects/{id}/finance` | PM, admin | funding per stage, category, caja menor and contingency next to the budget, with `permissions` | 403 Team Lead, 404 |
+| `GET /projects/{id}/movements?q=` | PM, admin | page of deposits, draws and carry-overs (voided included), newest first; `q` in reference and note | 403, 404 |
+| `POST /projects/{id}/deposits` `{date, method, reference?, note?, allocations: [{destination, amount, stageId?, categoryId?}]}` | admin, after approval | 201 movement | 409 `budget_not_approved`; 422 per part (`allocations[1].stageId`: other project's or completed stage), future date |
+| `POST /projects/{id}/contingency/draws` `{stageId, amount, date, reason}` | admin, after approval | 201 movement | 409 `budget_not_approved`; 422 `amount` above the contingency balance |
+| `POST /movements/{id}/void` `{reason}` | admin | 200 movement, kept with who, when and why | 409 `movement_not_voidable` (carry-overs), `movement_already_voided`, `void_would_overdraw`, `cycle_closed` |
+| `POST /movements/{id}/attachments` multipart `file` | admin | 201 movement with its files | 422 `file`: type by content (PDF, JPG, PNG, WEBP, HEIC), 10 MB |
+| `GET /attachments/{id}` | PM, admin | the file, inline, `nosniff`, sandboxed | 403 Team Lead, 404 `attachment_not_found`, `file_missing` |
+| `POST /stages/{id}/complete` `{actualEnd}` | admin, after approval | the funding summary; the stage's leftover moves to the next open stage, or to the contingency after the last | 409 `stage_not_in_progress`, `stage_milestones_pending` |
 | `GET /settings` | signed in | settings | |
 | `PUT /settings` (fields sent change) | admin | 200 settings | 403, 422 `validation_failed` |
 
@@ -95,6 +103,12 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   Project context, which knows nothing of budgets); reading a plan with no budget yet shows an empty draft.
 - **Pesos show centavos only when there are some** (`$ 35.000,50`, `$ 437.506`), so no amount is ever rounded
   on screen.
+- **Money moves only through the ledger.** A movement's entries are signed amounts per account (a stage, the caja
+  menor, the contingency); balances are sums of the entries of movements that are not voided, and movements are
+  never deleted. Every money write locks the project's row for its transaction, so two writes cannot spend the
+  same balance.
+- **Completing a stage is a Planning command that settles the stage's money through Finance** in the same
+  transaction; the endpoint answers with the funding summary.
 - **Handlers register through marker interfaces** (`CommandHandler`, `EventHandler`) wired in `services.yaml`,
   so the Application layer names no framework class.
 
@@ -106,6 +120,8 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   an admin cannot be added as a member.
 - The theme choice (Claro/Oscuro/Según el dispositivo) is kept in the browser, not on the user's account.
 - Light theme input borders are below 3:1 contrast (inherited from the MDX design; `styles.test.ts` lists it).
+- Until the Expense context exists (next phase) nothing is spent: "Gastado" is $ 0 everywhere, and the caja
+  menor has no close or sign-off yet (a deposit to it opens its first cycle).
 - `app:create-admin` asks for the password interactively or prints a generated one; there is no
   non-interactive `--password` option.
 
