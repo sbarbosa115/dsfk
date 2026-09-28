@@ -51,6 +51,14 @@ type Dialog =
 
 type Filters = {q: string; status: string; stageId: string};
 
+/** Offer "Adjuntar recibo" while the expense has none or is still being decided; the detail shows the rest. */
+function needsReceipt(e: Expense): boolean {
+  return (
+    e.attachments.length === 0 ||
+    ['SUBMITTED', 'PM_APPROVED', 'REJECTED'].includes(e.status)
+  );
+}
+
 /** The "Gastos" tab: every expense for the PM and Admins, a Team Lead's own for a Team Lead. */
 export function ExpenseBoard({
   projectId,
@@ -204,7 +212,7 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
               status={expenseTone(e.status)}
               label={expenseStatusLabel(e.status)}
             >
-              <td>{formatDate(e.date)}</td>
+              <td className="nowrap">{formatDate(e.date)}</td>
               <td>
                 <strong>{e.description}</strong>
                 {(e.supplier || e.invoiceNumber) && (
@@ -255,7 +263,7 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
                     onClick={() => setDialog({kind: 'reject', expense: e})}
                   />
                 )}
-                {e.permissions.attach && (
+                {e.permissions.attach && needsReceipt(e) && (
                   <ActionButton
                     action="setup"
                     onClick={() => setDialog({kind: 'attach', expense: e})}

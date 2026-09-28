@@ -65,7 +65,8 @@ export function StageCard({
               {t(`plan.stageStatus.${stage.status}`)}
             </Badge>
           </div>
-          <div className="small muted nowrap">
+          {/* Wraps: with its start and end, a finished stage's line is longer than its column. */}
+          <div className="small muted">
             {formatDate(stage.plannedStart)} – {formatDate(stage.plannedEnd)}
             {stage.actualStart &&
               ` · ${t('plan.started', {date: formatDate(stage.actualStart)})}`}

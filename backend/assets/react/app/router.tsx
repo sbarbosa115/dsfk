@@ -25,6 +25,12 @@ const DashboardPage = lazy(() =>
 const AuditPage = lazy(() =>
   import('@/pages/audit').then((m) => ({default: m.AuditPage})),
 );
+const HelpPage = lazy(() =>
+  import('@/pages/help').then((m) => ({default: m.HelpPage})),
+);
+const HelpTopicPage = lazy(() =>
+  import('@/pages/help').then((m) => ({default: m.HelpTopicPage})),
+);
 const NotFoundPage = lazy(() =>
   import('@/pages/not-found').then((m) => ({default: m.NotFoundPage})),
 );
@@ -41,6 +47,8 @@ export const router = createBrowserRouter([
           {path: 'dashboard', element: <DashboardPage />},
           {path: 'projects', element: <ProjectsPage />},
           {path: 'projects/:id', element: <ProjectDetailPage />},
+          {path: 'help', element: <HelpPage />},
+          {path: 'help/:id', element: <HelpTopicPage />},
           {
             element: <RequireAdmin />,
             children: [
