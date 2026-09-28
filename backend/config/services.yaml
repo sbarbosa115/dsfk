@@ -5,12 +5,13 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
-        bind:
-            bool $debug: '%kernel.debug%'
-            string $projectDir: '%kernel.project_dir%'
 
     App\:
         resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/*/Domain/{Model,Event,Error}/'
+            - '../src/*/UI/Http/{Input,Output}/'
 
 when@test:
     parameters:

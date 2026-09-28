@@ -1,0 +1,67 @@
+# CI: the same gate as the local loop (`make gate`) and the automated suites (`make test`), run in the project's
+# own Docker stack so CI and a laptop cannot disagree.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PHP: docker compose exec -T -u www-data php
+  NODE: docker compose run --rm --no-deps -T node
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start the stack
+        run: docker compose up -d --build --wait php mysql
+
+      - name: Install dependencies
+        run: |
+          $PHP composer install --no-interaction --no-progress --prefer-dist
+          $NODE npm ci --no-audit --no-fund
+
+      - name: Prepare the test database
+        run: $PHP bin/console doctrine:migrations:migrate --env=test -n
+
+      - name: Code style
+        run: |
+          $PHP vendor/bin/php-cs-fixer fix --dry-run --diff --show-progress=none
+          $NODE npx prettier --check .
+
+      - name: Static analysis
+        run: |
+          $PHP bin/console cache:warmup --env=dev
+          $PHP vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+          $PHP composer deptrac
+          $NODE npm run -s lint
+          $NODE npm run -s typecheck
+
+      - name: API contract is up to date
+        run: |
+          $PHP bin/console nelmio:apidoc:dump --format=json > frontend/src/shared/api/openapi.json
+          $NODE npm run -s api:types
+          git diff --exit-code -- frontend/src/shared/api
+
+      - name: Security (dependencies)
+        run: |
+          $PHP composer audit --no-interaction
+          $NODE npm audit --omit=dev --audit-level=high
+
+      - name: Tests
+        run: |
+          $PHP bin/phpunit
+          $NODE npm test
+
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --tail=200

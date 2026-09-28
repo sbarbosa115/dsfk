@@ -1,0 +1,12 @@
+# Bounded contexts (symfony-react-app skill, steps/04 §4.1). Each context is split in two layers: its public
+# face (<Context>Api: Application + Domain/Event) and its insides (<Context>: Domain, Infrastructure, UI). A
+# context reaches another only through the other's public face. Shared is the kernel everyone may use.
+# A context is added here when it is created.
+deptrac:
+  paths: [./src]
+  exclude_files: ['#Kernel\.php$#']
+  layers:
+    - name: Shared
+      collectors: [{ type: directory, value: src/Shared/.* }]
+  ruleset:
+    Shared: ~

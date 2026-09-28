@@ -2,11 +2,9 @@ security:
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
+    # Replaced by the Identity context's user provider.
     providers:
-        app_user_provider:
-            entity:
-                class: App\Entity\User
-                property: email
+        users_in_memory: { memory: null }
 
     firewalls:
         dev:
@@ -14,33 +12,7 @@ security:
             security: false
         main:
             lazy: true
-            provider: app_user_provider
-            user_checker: App\Security\UserChecker
-            entry_point: App\Security\JsonAuthenticationEntryPoint
-            json_login:
-                check_path: api_login
-                username_path: email
-                password_path: password
-                success_handler: App\Security\LoginSuccessHandler
-                failure_handler: App\Security\LoginFailureHandler
-            logout:
-                path: api_logout
-            # "Ver como" for admins (see ImpersonationVoter and SwitchUserGuardListener).
-            switch_user:
-                role: CAN_SWITCH_USER
-            login_throttling:
-                max_attempts: 5
-                interval: '15 minutes'
+            provider: users_in_memory
 
     access_control:
-        - { path: ^/api/login$, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }
-
-when@test:
-    security:
-        password_hashers:
-            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-                algorithm: auto
-                cost: 4
-                time_cost: 3
-                memory_cost: 10

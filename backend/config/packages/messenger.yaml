@@ -1,6 +1,19 @@
 framework:
     messenger:
         failure_transport: failed
+        default_bus: messenger.bus.default
+
+        buses:
+            # Mail and other async messages.
+            messenger.bus.default: ~
+            # Writes: one handler per command, wrapped in a transaction (handlers never flush).
+            command.bus:
+                middleware:
+                    - doctrine_transaction
+            # Domain events: handled after the command that published them has committed.
+            event.bus:
+                default_middleware:
+                    allow_no_handlers: true
 
         transports:
             # Shared hosting has no workers: a cPanel cron runs messenger:consume every minute.

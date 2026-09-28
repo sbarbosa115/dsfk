@@ -1,0 +1,22 @@
+# The API contract: `bin/console nelmio:apidoc:dump` → ../frontend/src/shared/api/openapi.json → TS types.
+# Dev/test only: the schema is generated at development time and never served.
+when@dev: &nelmio
+    nelmio_api_doc:
+        documentation:
+            info:
+                title: Control de Proyectos API
+                version: 1.0.0
+            components:
+                schemas:
+                    Error:
+                        type: object
+                        required: [error]
+                        properties:
+                            error: { type: string, description: 'Stable snake_case code the UI translates' }
+                            violations: { type: object, additionalProperties: { type: array, items: { type: string } } }
+        areas:
+            default:
+                path_patterns: ['^/api/']
+        type_info: true
+
+when@test: *nelmio

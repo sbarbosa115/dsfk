@@ -1,10 +1,11 @@
 DC = docker compose
 PHP = $(DC) exec -u www-data php
 NODE = $(DC) run --rm --no-deps node
+GATE = ~/.claude/skills/symfony-react-app/scripts/gate.sh
 
-.PHONY: up down install migrate admin seed test test-backend test-frontend build
+.PHONY: up down install migrate admin seed test test-backend test-frontend build api gate fix
 
-up:            ## Start the stack (app: :18081, vite: :15173, mailpit: :18025)
+up:            ## Start the stack (ports in .env; defaults app :18081, vite :15173, mailpit :18025)
 	$(DC) up -d --build
 
 down:
@@ -31,6 +32,18 @@ test-backend:
 
 test-frontend:
 	$(NODE) sh -c "npx tsc -b && npx vitest run"
+
+api:           ## Regenerate the OpenAPI schema and the UI's TypeScript types from the controllers
+	$(DC) exec -T -u www-data php bin/console nelmio:apidoc:dump --format=json > frontend/src/shared/api/openapi.json
+	$(DC) exec -T node npm run -s api:types
+
+gate:          ## Static analysis and code style: every check must pass
+	$(GATE) --skip=prettier,eslint,tsc
+
+fix:           ## Apply the formatters, then run the gate
+	$(PHP) vendor/bin/php-cs-fixer fix -q
+	$(DC) exec -T node npm run -s format
+	$(GATE) --skip=prettier,eslint,tsc
 
 build:         ## Build the React app into backend/public/app
 	$(NODE) npx vite build

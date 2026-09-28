@@ -31,6 +31,22 @@ services:
       timeout: 5s
       retries: 20
 
+  # Consumes the Messenger queue like the production cron does (emails).
+  worker:
+    build:
+      context: ./docker/php
+    user: www-data
+    volumes:
+      - ./backend:/var/www/backend
+    environment:
+      DATABASE_URL: "mysql://app:app@mysql:3306/app?serverVersion=8.0&charset=utf8mb4"
+      MAILER_DSN: "smtp://mailpit:1025"
+    command: sh -c "while [ ! -f vendor/autoload.php ]; do sleep 5; done; exec php bin/console messenger:consume async --time-limit=3600 -vv"
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+
   node:
     image: node:22-alpine
     user: "1000:1000"
