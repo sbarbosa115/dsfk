@@ -1,7 +1,7 @@
 {% extends 'emails/layout.html.twig' %}
 {% set link = '/projects/' ~ project.id ~ '?tab=petty-cash' %}
 {% block content %}
-<p><strong>{{ closedBy }}</strong> cerró el ciclo {{ cycle.number }} de la caja menor de <strong>{{ project.name }}</strong> con un saldo de <strong>{{ balance }}</strong>.</p>
-{% if cycle.note %}<p>Nota: “{{ cycle.note }}”</p>{% endif %}
-<p>Revisa sus movimientos y soportes y fírmalo.</p>
+<p>{{ 'cycle_closed.body'|trans({by: closedBy, number: cycle.number, project: project.name, balance: balance}, 'emails') }}</p>
+{% if cycle.note %}<p>{{ 'cycle_closed.note'|trans({note: cycle.note}, 'emails') }}</p>{% endif %}
+<p>{{ 'cycle_closed.next'|trans({}, 'emails') }}</p>
 {% endblock %}

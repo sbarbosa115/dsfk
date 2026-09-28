@@ -1,12 +1,12 @@
 {% extends 'emails/layout.html.twig' %}
 {% set link = '/projects/' ~ project.id ~ '?tab=dashboard' %}
 {% block content %}
-<p>Resumen diario de <strong>{{ project.name }}</strong>:</p>
+<p>{{ 'daily_digest.intro'|trans({project: project.name}, 'emails') }}</p>
 {% if overdue|length %}
-<p><strong>Hitos atrasados</strong></p>
-<ul>{% for m in overdue %}<li>{{ m.stage }} · {{ m.name }} (planeado para el {{ m.plannedDate|date('d/m/Y') }})</li>{% endfor %}</ul>
+<p><strong>{{ 'daily_digest.overdue'|trans({}, 'emails') }}</strong></p>
+<ul>{% for m in overdue %}<li>{{ 'daily_digest.overdue_item'|trans({stage: m.stage, milestone: m.name, date: m.plannedDate|date('d/m/Y')}, 'emails') }}</li>{% endfor %}</ul>
 {% endif %}
-{% if pending %}<p><strong>Gastos por aprobar:</strong> {{ pending }}</p>{% endif %}
-{% if toReimburse %}<p><strong>Gastos aprobados por reembolsar:</strong> {{ toReimburse }}</p>{% endif %}
-{% if unsigned %}<p><strong>Ciclos de caja menor por firmar:</strong> {{ unsigned }}</p>{% endif %}
+{% if pending %}<p>{{ 'daily_digest.pending'|trans({count: pending}, 'emails') }}</p>{% endif %}
+{% if toReimburse %}<p>{{ 'daily_digest.to_reimburse'|trans({count: toReimburse}, 'emails') }}</p>{% endif %}
+{% if unsigned %}<p>{{ 'daily_digest.unsigned'|trans({count: unsigned}, 'emails') }}</p>{% endif %}
 {% endblock %}

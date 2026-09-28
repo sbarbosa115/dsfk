@@ -11,7 +11,7 @@ use App\Notification\Application\Port\Recipients;
 use App\Shared\Application\Bus\EventHandler;
 use App\Shared\Domain\Money\MinorUnits;
 
-/** The Admins review and sign off a closed caja menor cycle. */
+/** The Admins review and sign off a closed petty cash cycle. */
 final readonly class NotifyCycleClosed implements EventHandler
 {
     public function __construct(private Recipients $recipients, private NotificationFacts $facts, private Outbox $outbox)
@@ -25,7 +25,7 @@ final readonly class NotifyCycleClosed implements EventHandler
             return;
         }
         $project = $this->facts->project($event->projectId);
-        $this->outbox->send($this->recipients->admins(), "Caja menor ciclo {$cycle['number']} cerrado: {$project['name']}", 'cycle_closed', [
+        $this->outbox->send($this->recipients->admins(), 'cycle_closed', ['number' => $cycle['number'], 'project' => $project['name']], [
             'project' => $project,
             'cycle' => $cycle,
             'closedBy' => null === $cycle['closedById'] ? '' : $this->facts->personName($cycle['closedById']),

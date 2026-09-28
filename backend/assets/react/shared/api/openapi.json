@@ -577,7 +577,7 @@
                 "tags": [
                     "Expenses"
                 ],
-                "summary": "An Admin voids an approved expense (not one paid back); its money goes back to the stage or caja menor.",
+                "summary": "An Admin voids an approved expense (not one paid back); its money goes back to the stage or petty cash.",
                 "operationId": "post_api_expenses_void",
                 "parameters": [
                     {
@@ -729,7 +729,7 @@
                 "tags": [
                     "Expenses"
                 ],
-                "summary": "The PM or an Admin pays approved Team Lead expenses back from the caja menor.",
+                "summary": "The PM or an Admin pays approved Team Lead expenses back from petty cash.",
                 "operationId": "post_api_expenses_reimburse",
                 "parameters": [
                     {
@@ -804,7 +804,7 @@
                 "tags": [
                     "Finance"
                 ],
-                "summary": "Balances per stage, caja menor and contingency next to the budget: for the Admins and the PM.",
+                "summary": "Balances per stage, petty cash and contingency next to the budget: for the Admins and the PM.",
                 "operationId": "get_api_finance_summary",
                 "parameters": [
                     {
@@ -1323,7 +1323,7 @@
         "/api/projects/{id}/petty-cash": {
             "get": {
                 "tags": [
-                    "Caja menor"
+                    "Petty cash"
                 ],
                 "operationId": "get_api_petty_cash",
                 "parameters": [
@@ -1339,7 +1339,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The caja menor",
+                        "description": "Petty cash",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1374,7 +1374,7 @@
         "/api/petty-cash-cycles/{id}": {
             "get": {
                 "tags": [
-                    "Caja menor"
+                    "Petty cash"
                 ],
                 "summary": "A cycle with its movements (e.g. a closed one under review).",
                 "operationId": "get_api_petty_cash_cycle",
@@ -1426,7 +1426,7 @@
         "/api/projects/{id}/petty-cash/close": {
             "post": {
                 "tags": [
-                    "Caja menor"
+                    "Petty cash"
                 ],
                 "summary": "The PM (or an Admin) closes the current cycle, usually when the money runs out.",
                 "operationId": "post_api_petty_cash_close",
@@ -1488,7 +1488,7 @@
         "/api/petty-cash-cycles/{id}/sign-off": {
             "post": {
                 "tags": [
-                    "Caja menor"
+                    "Petty cash"
                 ],
                 "operationId": "post_api_petty_cash_sign_off",
                 "parameters": [
@@ -3875,7 +3875,7 @@
                         "maxLength": 255
                     },
                     "unit": {
-                        "title": "m\u00b2, m\u00b3, kg, d\u00eda, global\u2026",
+                        "title": "m\u00b2, m\u00b3, kg, day, lump sum\u2026",
                         "type": "string",
                         "default": "",
                         "maxLength": 20
@@ -4227,7 +4227,7 @@
                         "nullable": true
                     },
                     "user": {
-                        "title": "\"Laura G\u00f3mez\", or \"Laura G\u00f3mez (v\u00eda Ana Admin)\" while an Admin viewed the app as her",
+                        "title": "The person, or the person and the Admin who viewed the app as them (audit translations, \"actor_via\")",
                         "type": "string",
                         "nullable": true
                     },
@@ -5117,7 +5117,7 @@
                         "format": "date"
                     },
                     "amount": {
-                        "title": "Major units, signed: what it put into (+) or took out of (\u2212) the caja menor.",
+                        "title": "Major units, signed: what it put into (+) or took out of (\u2212) petty cash.",
                         "type": "string"
                     },
                     "description": {
@@ -5165,7 +5165,7 @@
                 ],
                 "properties": {
                     "id": {
-                        "title": "null for a cycle that opens with the next use of the caja menor",
+                        "title": "null for a cycle that opens with the next use of petty cash",
                         "type": "integer",
                         "nullable": true
                     },
@@ -6355,7 +6355,7 @@
                         "type": "string"
                     },
                     "pettyCashLowBalancePercent": {
-                        "title": "Caja menor alert when the balance drops below this % of the last top-up",
+                        "title": "Petty cash alert when the balance drops below this % of the last top-up",
                         "type": "integer"
                     },
                     "budgetWarningPercents": {
@@ -6384,7 +6384,7 @@
             "name": "Finance"
         },
         {
-            "name": "Caja menor"
+            "name": "Petty cash"
         },
         {
             "name": "Auth"

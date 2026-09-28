@@ -13,6 +13,7 @@ use Doctrine\ORM\Events;
 use Psr\Clock\ClockInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Records who changed what on every `Audited` entity. Changes are collected in onFlush (when the change sets are
@@ -28,8 +29,11 @@ final class AuditTrail
     /** @var list<array{entity: Audited, action: string, changes: array<string, mixed>, id: ?int}> */
     private array $pending = [];
 
-    public function __construct(private readonly Security $security, private readonly ClockInterface $clock)
-    {
+    public function __construct(
+        private readonly Security $security,
+        private readonly ClockInterface $clock,
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     public function onFlush(OnFlushEventArgs $args): void
@@ -82,7 +86,8 @@ final class AuditTrail
     }
 
     /**
-     * The signed-in person; while an Admin views the app as someone else, both: "Laura Gómez (vía Ana Admin)".
+     * The signed-in person; while an Admin views the app as someone else, both, worded by the audit translations
+     * ("actor_via"). The label is stored as it reads, like the rest of the record.
      *
      * @return array{?int, ?string}
      */
@@ -95,7 +100,7 @@ final class AuditTrail
         $name = $user->getFullName();
         $token = $this->security->getToken();
         if ($token instanceof SwitchUserToken && ($original = $token->getOriginalToken()->getUser()) instanceof Actor) {
-            $name .= ' (vía '.$original->getFullName().')';
+            $name = $this->translator->trans('actor_via', ['person' => $name, 'admin' => $original->getFullName()], 'audit');
         }
 
         return [$user->getId(), mb_substr($name, 0, 150)];

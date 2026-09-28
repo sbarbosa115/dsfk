@@ -136,7 +136,7 @@ class Stage implements Audited
     public function rename(string $name): void
     {
         if ('' === trim($name)) {
-            throw InvalidValue::field('name', 'Este valor no debería estar vacío.');
+            throw InvalidValue::field('name', 'This value should not be blank.');
         }
         $this->name = trim($name);
     }
@@ -144,7 +144,7 @@ class Stage implements Audited
     public function schedule(?\DateTimeImmutable $plannedStart, ?\DateTimeImmutable $plannedEnd): void
     {
         if (null !== $plannedStart && null !== $plannedEnd && $plannedEnd < $plannedStart) {
-            throw InvalidValue::field('plannedEnd', 'La fecha de fin no puede ser anterior a la de inicio.');
+            throw InvalidValue::field('plannedEnd', 'The end date cannot be before the start date.');
         }
         $this->plannedStart = $plannedStart;
         $this->plannedEnd = $plannedEnd;
@@ -161,7 +161,7 @@ class Stage implements Audited
             throw new Conflict('stage_already_started');
         }
         if ($date->format('Y-m-d') > $today->format('Y-m-d')) {
-            throw InvalidValue::field('actualStart', 'La fecha no puede estar en el futuro.');
+            throw InvalidValue::field('actualStart', 'The date cannot be in the future.');
         }
         $this->status = StageStatus::InProgress;
         $this->actualStart = $date;
@@ -177,10 +177,10 @@ class Stage implements Audited
             throw new Conflict('stage_not_in_progress');
         }
         if ($date->format('Y-m-d') > $today->format('Y-m-d')) {
-            throw InvalidValue::field('actualEnd', 'La fecha no puede estar en el futuro.');
+            throw InvalidValue::field('actualEnd', 'The date cannot be in the future.');
         }
         if (null !== $this->actualStart && $date < $this->actualStart) {
-            throw InvalidValue::field('actualEnd', 'La fecha de fin no puede ser anterior al inicio de la etapa.');
+            throw InvalidValue::field('actualEnd', 'The end date cannot be before the stage started.');
         }
         foreach ($this->milestones as $milestone) {
             if (!$milestone->isCompleted()) {
@@ -269,20 +269,20 @@ class Stage implements Audited
     private function assertSameProject(Category $category): void
     {
         if ($category->getProjectId() !== $this->projectId) {
-            throw InvalidValue::field('categoryId', 'La categoría no es de este proyecto.');
+            throw InvalidValue::field('categoryId', 'The category belongs to another project.');
         }
     }
 
     private static function assertWeightInRange(int $weight): void
     {
         if ($weight < 1 || $weight > self::FULL_WEIGHT) {
-            throw InvalidValue::field('weight', 'El peso debe estar entre 0,01 % y 100 %.');
+            throw InvalidValue::field('weight', 'The weight must be between 0.01 % and 100 %.');
         }
     }
 
     private static function overweight(): InvalidValue
     {
-        return InvalidValue::field('weight', 'La suma de los pesos de la etapa no puede superar el 100 %.');
+        return InvalidValue::field('weight', 'The stage\'s milestone weights cannot add up to more than 100 %.');
     }
 
     /**

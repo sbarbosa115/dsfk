@@ -47,7 +47,7 @@ final readonly class RecordDepositHandler implements CommandHandler
             }
         }
         if ([] === $deposit->getEntries()) {
-            throw InvalidValue::field('allocations', 'Agrega al menos una distribución.');
+            throw InvalidValue::field('allocations', 'Add at least one allocation.');
         }
         if ($deposit->touchesPettyCash()) {
             $deposit->assignTo($this->ledger->openCycle($c->projectId, $this->clock->now()));

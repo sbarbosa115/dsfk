@@ -14,7 +14,7 @@ final class UpdateMilestoneInput
         #[Assert\NotBlank(allowNull: true)]
         #[Assert\Length(max: 200)]
         public ?string $name = null,
-        #[Assert\Regex(pattern: Patterns::PERCENT, message: 'Porcentaje inválido (máximo 2 decimales).')]
+        #[Assert\Regex(pattern: Patterns::PERCENT, message: 'Invalid percentage (2 decimals at most).')]
         public ?string $weight = null,
         #[Assert\Date]
         public ?string $plannedDate = null,

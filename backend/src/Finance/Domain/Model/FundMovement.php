@@ -51,7 +51,7 @@ class FundMovement implements Audited
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $voidReason = null;
 
-    /** Set when the movement touches the caja menor. */
+    /** Set when the movement touches petty cash. */
     #[ORM\ManyToOne]
     private ?PettyCashCycle $pettyCashCycle = null;
 
@@ -76,7 +76,7 @@ class FundMovement implements Audited
         private \DateTimeImmutable $createdAt,
     ) {
         if ($date->format('Y-m-d') > $createdAt->format('Y-m-d')) {
-            throw InvalidValue::field('date', 'La fecha no puede estar en el futuro.');
+            throw InvalidValue::field('date', 'The date cannot be in the future.');
         }
         $this->note = self::clean($note);
         $this->entries = new ArrayCollection();
@@ -96,7 +96,7 @@ class FundMovement implements Audited
     public static function contingencyDraw(int $projectId, int $stageId, int $amount, Balances $balances, \DateTimeImmutable $date, ?string $reason, int $by, \DateTimeImmutable $now): self
     {
         if ($amount > $balances->of(LedgerAccount::Contingency)) {
-            throw InvalidValue::field('amount', 'El monto supera el saldo disponible de la contingencia.');
+            throw InvalidValue::field('amount', 'The amount is more than the contingency has available.');
         }
         $movement = new self($projectId, MovementType::ContingencyDraw, $date, $reason, $by, $now);
         $movement->addEntry(LedgerAccount::Contingency, -$amount);
@@ -120,7 +120,7 @@ class FundMovement implements Audited
     }
 
     /**
-     * An expense paid from a stage (earmarked with its category) or from the caja menor. The account must hold the
+     * An expense paid from a stage (earmarked with its category) or from petty cash. The account must hold the
      * amount: money never goes below zero.
      *
      * @throws InvalidValue insufficient_funds, with the minor units `available`
@@ -128,7 +128,7 @@ class FundMovement implements Audited
     public static function spend(int $projectId, LedgerAccount $from, ?int $stageId, ?int $categoryId, int $amount, Balances $balances, \DateTimeImmutable $date, string $description, int $by, \DateTimeImmutable $now): self
     {
         if (LedgerAccount::Contingency === $from) {
-            throw new \LogicException('Expenses are paid from a stage or the caja menor.');
+            throw new \LogicException('Expenses are paid from a stage or petty cash.');
         }
         self::assertFunds($balances->balance(Balances::key($from, $stageId)), $amount);
         $movement = new self($projectId, MovementType::Expense, $date, $description, $by, $now);
@@ -139,7 +139,7 @@ class FundMovement implements Audited
     }
 
     /**
-     * Team Lead expenses paid back from the caja menor, as one movement.
+     * Team Lead expenses paid back from petty cash, as one movement.
      *
      * @throws InvalidValue insufficient_funds
      */
@@ -157,7 +157,7 @@ class FundMovement implements Audited
     public function allocate(LedgerAccount $account, int $amount, ?int $stageId = null, ?int $categoryId = null): void
     {
         if ($amount <= 0) {
-            throw InvalidValue::field('amount', 'Debe ser un monto positivo.');
+            throw InvalidValue::field('amount', 'It must be a positive amount.');
         }
         $this->addEntry($account, $amount, $stageId, $categoryId);
     }
@@ -165,7 +165,7 @@ class FundMovement implements Audited
     /**
      * Deposits and draws can be voided (with a reason), as long as no account ends up below zero, e.g. a deposit
      * whose money was already drawn or carried over. Carry-overs follow from completing a stage; expenses and
-     * reimbursements are voided through their expense. A movement of a closed caja menor cycle is final.
+     * reimbursements are voided through their expense. A movement of a closed petty cash cycle is final.
      *
      * @param Balances $current the project's balances with this movement still counted
      */
@@ -204,7 +204,7 @@ class FundMovement implements Audited
             }
         }
         if ('' === trim($reason)) {
-            throw InvalidValue::field('reason', 'Este valor no debería estar vacío.');
+            throw InvalidValue::field('reason', 'This value should not be blank.');
         }
         $this->voidedAt = $now;
         $this->voidedById = $by;

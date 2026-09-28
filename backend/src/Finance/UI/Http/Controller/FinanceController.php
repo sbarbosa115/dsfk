@@ -50,7 +50,7 @@ final class FinanceController extends AbstractController
     ) {
     }
 
-    /** Balances per stage, caja menor and contingency next to the budget: for the Admins and the PM. */
+    /** Balances per stage, petty cash and contingency next to the budget: for the Admins and the PM. */
     #[Route('/api/projects/{id}/finance', name: 'api_finance_summary', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[OA\Response(response: 200, description: 'The funding summary', content: new Model(type: FinanceOutput::class))]
     public function summary(int $id): JsonResponse

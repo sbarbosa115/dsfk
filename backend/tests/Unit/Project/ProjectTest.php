@@ -30,7 +30,7 @@ final class ProjectTest extends TestCase
             $this->project()->schedule(new \DateTimeImmutable('2027-01-01'), new \DateTimeImmutable('2026-01-01'));
             self::fail('an end before the start must be refused');
         } catch (InvalidValue $e) {
-            self::assertSame(['plannedEnd' => ['La fecha de fin no puede ser anterior a la de inicio.']], $e->extra['violations']);
+            self::assertSame(['plannedEnd' => ['The end date cannot be before the start date.']], $e->extra['violations']);
         }
     }
 

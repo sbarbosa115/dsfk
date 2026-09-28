@@ -54,7 +54,7 @@ final class NotificationTest extends ApiTestCase
         $this->request('POST', $this->base.'/budget/submit');
         $submitted = $this->mails();
         self::assertSame([['admin@example.com', 'Presupuesto enviado a aprobación: Torre']], array_column($submitted, 'head'), 'active admins only');
-        self::assertStringContainsString('<strong>Pm</strong> envió el presupuesto', $submitted[0]['html']);
+        self::assertStringContainsString('Pm envió el presupuesto del proyecto Torre para tu aprobación.', $submitted[0]['html']);
 
         $this->loginAs($this->admin);
         $this->request('POST', $this->base.'/budget/approve');
@@ -139,7 +139,7 @@ final class NotificationTest extends ApiTestCase
         $mails = $this->mails();
         self::assertSame(['admin@example.com', 'Resumen diario: Torre'], $mails[0]['head']);
         self::assertStringContainsString('Cimentación · Excavación (planeado para el 20/10/2026)', $mails[0]['html'], 'due Oct 20, not met');
-        self::assertStringContainsString('Gastos por aprobar:</strong> 1', $mails[0]['html']);
+        self::assertStringContainsString('Gastos por aprobar: 1', $mails[0]['html']);
     }
 
     /**

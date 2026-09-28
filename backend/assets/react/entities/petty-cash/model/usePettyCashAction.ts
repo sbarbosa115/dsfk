@@ -3,7 +3,7 @@ import {api} from '@/shared/api';
 import {useSubmit} from '@/shared/lib/forms';
 import type {Cycle} from '../api/pettyCashApi';
 
-/** A caja menor write (close, sign off): on success the caja menor and its cycles are reloaded. */
+/** A petty cash write (close, sign off): on success petty cash and its cycles are reloaded. */
 export function usePettyCashAction(projectId: number) {
   const queryClient = useQueryClient();
   const submit = useSubmit();

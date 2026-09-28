@@ -24,8 +24,8 @@ final readonly class NotifyBudgetReviewed implements EventHandler
         $approved = $event instanceof BudgetApproved;
         $this->outbox->send(
             [$this->recipients->projectManager($event->projectId)],
-            ($approved ? 'Presupuesto aprobado: ' : 'Presupuesto devuelto: ').$project['name'],
             'budget_reviewed',
+            ['outcome' => $approved ? 'approved' : 'returned', 'project' => $project['name']],
             [
                 'project' => $project,
                 'by' => $this->facts->personName($event->byUserId),

@@ -26,7 +26,7 @@ class BudgetLine implements Audited
     #[ORM\Column(length: 255)]
     private string $description;
 
-    /** Free text: m², m³, kg, día, global… */
+    /** Free text: m², m³, kg, day, lump sum… */
     #[ORM\Column(length: 20)]
     private string $unit;
 

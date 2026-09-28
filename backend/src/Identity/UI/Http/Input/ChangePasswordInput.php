@@ -13,7 +13,7 @@ final class ChangePasswordInput
         public string $currentPassword = '',
         #[Assert\NotBlank]
         #[Assert\Length(min: 8, max: 4096)]
-        #[Assert\NotEqualTo(propertyPath: 'currentPassword', message: 'La nueva contraseña debe ser diferente a la actual.')]
+        #[Assert\NotEqualTo(propertyPath: 'currentPassword', message: 'The new password must be different from the current one.')]
         public string $newPassword = '',
     ) {
     }

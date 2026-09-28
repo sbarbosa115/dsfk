@@ -19,7 +19,7 @@ final readonly class AddCategoryHandler implements CommandHandler
     {
         foreach ($this->plans->categoriesOf($command->projectId) as $category) {
             if ($category->isNamed($command->name)) {
-                throw InvalidValue::field('name', 'Ya existe una categoría con ese nombre.');
+                throw InvalidValue::field('name', 'A category with this name already exists.');
             }
         }
         $this->plans->addCategory(new Category($command->projectId, $command->name));

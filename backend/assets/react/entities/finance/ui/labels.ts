@@ -1,7 +1,7 @@
 import {t} from '@/shared/i18n';
 import type {LedgerEntry, Movement} from '../api/financeApi';
 
-/** Where an entry's money went (or came from): "Cimentación · Materiales", "Caja menor", "Contingencia". */
+/** Where an entry's money went (or came from): "<stage> · <category>", "Caja menor", "Contingencia". */
 export function entryLabel(entry: LedgerEntry): string {
   if (entry.account === 'STAGE') {
     const stage = entry.stageName ?? t('finance.unknownStage');

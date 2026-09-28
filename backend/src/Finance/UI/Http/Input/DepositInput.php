@@ -17,13 +17,13 @@ final class DepositInput
         #[Assert\NotBlank]
         #[Assert\Date]
         public string $date = '',
-        #[Assert\NotNull(message: 'Elige el medio de pago.')]
+        #[Assert\NotNull(message: 'Choose the payment method.')]
         public ?PaymentMethod $method = null,
         #[Assert\Length(max: 100)]
         public ?string $reference = null,
         #[Assert\Length(max: 2000)]
         public ?string $note = null,
-        #[Assert\Count(min: 1, max: 30, minMessage: 'Agrega al menos una distribución.')]
+        #[Assert\Count(min: 1, max: 30, minMessage: 'Add at least one allocation.')]
         #[Assert\Valid]
         public array $allocations = [],
     ) {

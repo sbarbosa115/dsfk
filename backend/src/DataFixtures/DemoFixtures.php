@@ -73,7 +73,7 @@ final class DemoFixtures extends Fixture
         $this->bus->dispatch(new AssignMember($bodega, $pm, ProjectRole::ProjectManager));
     }
 
-    /** Active: the first stage completed, the second under way, money in and out, a caja menor cycle signed off. */
+    /** Active: the first stage completed, the second under way, money in and out, a petty cash cycle signed off. */
     private function torreNorte(int $admin, int $pm, int $lead, int $lead2): void
     {
         $project = $this->id(new CreateProject('Torre Norte', 'Edificio de doce pisos.', null, ProjectStatus::Draft, $this->day(-120), $this->day(150)));
@@ -106,7 +106,7 @@ final class DemoFixtures extends Fixture
             $this->bus->dispatch(new CompleteMilestone((int) $milestone->getId(), $pm, $this->day(0 === $i ? -98 : -42), 0 === $i ? 'Sin novedades.' : null));
         }
 
-        // The first month: the PM pays from the stage and the caja menor, a Team Lead is paid back, the cycle closes.
+        // The first month: the PM pays from the stage and petty cash, a Team Lead is paid back, the cycle closes.
         $this->spend($project, $pm, PaidFrom::Stage, $foundation, $c['Materiales'], -110, '52000000', 'Concreto 3000 PSI', 'Concretos del Norte', 'FV-1021');
         $this->spend($project, $pm, PaidFrom::PettyCash, $foundation, $c['Materiales'], -90, '380000', 'Clavos y alambre', 'Ferretería El Tornillo', null);
         $paidBack = $this->spend($project, $lead, PaidFrom::OutOfPocket, $foundation, $c['Materiales'], -80, '240000', 'Transporte de materiales', null, null, $pm);

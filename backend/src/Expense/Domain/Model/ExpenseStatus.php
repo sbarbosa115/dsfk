@@ -12,7 +12,7 @@ enum ExpenseStatus: string
     case PmApproved = 'PM_APPROVED';
     case Approved = 'APPROVED';
     case Rejected = 'REJECTED';
-    /** A Team Lead's expense paid back from the caja menor. */
+    /** A Team Lead's expense paid back from petty cash. */
     case Reimbursed = 'REIMBURSED';
     case Voided = 'VOIDED';
 

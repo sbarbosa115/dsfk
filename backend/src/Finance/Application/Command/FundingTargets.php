@@ -42,10 +42,10 @@ final readonly class FundingTargets
     {
         $stage = null === $stageId ? null : ($this->stages[$stageId] ?? null);
         if (null === $stage) {
-            throw InvalidValue::field($field, 'Etapa inválida.');
+            throw InvalidValue::field($field, 'Invalid stage.');
         }
         if ($stage->isCompleted()) {
-            throw InvalidValue::field($field, 'La etapa ya está finalizada.');
+            throw InvalidValue::field($field, 'The stage is already completed.');
         }
 
         return $stage->id;
@@ -54,7 +54,7 @@ final readonly class FundingTargets
     public function category(?int $categoryId, string $field): ?int
     {
         if (null !== $categoryId && !isset($this->categories[$categoryId])) {
-            throw InvalidValue::field($field, 'Categoría inválida.');
+            throw InvalidValue::field($field, 'Invalid category.');
         }
 
         return $categoryId;
@@ -65,7 +65,7 @@ final readonly class FundingTargets
         try {
             return MinorUnits::fromMajor($amount, $currency);
         } catch (InvalidValue) {
-            throw InvalidValue::field($field, 'Monto inválido para la moneda del proyecto.');
+            throw InvalidValue::field($field, 'Invalid amount for the project\'s currency.');
         }
     }
 

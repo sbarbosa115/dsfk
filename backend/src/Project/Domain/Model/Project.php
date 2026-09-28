@@ -112,7 +112,7 @@ class Project implements Audited
     public function rename(string $name): void
     {
         if ('' === trim($name)) {
-            throw InvalidValue::field('name', 'Este valor no debería estar vacío.');
+            throw InvalidValue::field('name', 'This value should not be blank.');
         }
         $this->name = trim($name);
     }
@@ -125,7 +125,7 @@ class Project implements Audited
     public function schedule(?\DateTimeImmutable $plannedStart, ?\DateTimeImmutable $plannedEnd): void
     {
         if (null !== $plannedStart && null !== $plannedEnd && $plannedEnd < $plannedStart) {
-            throw InvalidValue::field('plannedEnd', 'La fecha de fin no puede ser anterior a la de inicio.');
+            throw InvalidValue::field('plannedEnd', 'The end date cannot be before the start date.');
         }
         $this->plannedStart = $plannedStart;
         $this->plannedEnd = $plannedEnd;
@@ -154,7 +154,7 @@ class Project implements Audited
 
     /**
      * Adds a person with a role, or changes the role of someone already in the project. A project has at
-     * most one Project Manager, who holds its caja menor.
+     * most one Project Manager, who holds its petty cash.
      */
     public function assign(int $userId, ProjectRole $role): void
     {

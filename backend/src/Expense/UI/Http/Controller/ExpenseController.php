@@ -71,7 +71,7 @@ final class ExpenseController extends AbstractController
         $viewer = $this->viewer($id, $actor);
         $statuses = [];
         foreach (null === $status || '' === $status ? [] : explode(',', $status) as $value) {
-            $statuses[] = ExpenseStatus::tryFrom($value) ?? throw InvalidValue::field('status', 'Estado inválido.');
+            $statuses[] = ExpenseStatus::tryFrom($value) ?? throw InvalidValue::field('status', 'Invalid status.');
         }
         $result = $this->queries->page($id, $viewer->manager ? null : $actor->getId(), $q, $statuses, $stageId, $page, $perPage);
 
@@ -133,7 +133,7 @@ final class ExpenseController extends AbstractController
         return $this->answer($id, $viewer);
     }
 
-    /** An Admin voids an approved expense (not one paid back); its money goes back to the stage or caja menor. */
+    /** An Admin voids an approved expense (not one paid back); its money goes back to the stage or petty cash. */
     #[Route('/api/expenses/{id}/void', name: 'api_expenses_void', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[OA\Response(response: 200, description: 'The expense', content: new Model(type: ExpenseOutput::class))]
     #[OA\Response(response: 409, description: 'expense_invalid_status, cycle_closed', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
@@ -156,17 +156,17 @@ final class ExpenseController extends AbstractController
         $viewer = $this->visible($id, $actor);
         $file = $request->files->get('file');
         if (!$file instanceof UploadedFile) {
-            throw InvalidValue::field('file', 'Selecciona un archivo.');
+            throw InvalidValue::field('file', 'Select a file.');
         }
         if (!$file->isValid()) {
-            throw InvalidValue::field('file', \UPLOAD_ERR_INI_SIZE === $file->getError() || \UPLOAD_ERR_FORM_SIZE === $file->getError() ? 'El archivo supera el máximo de 10 MB.' : 'No se pudo subir el archivo.');
+            throw InvalidValue::field('file', \UPLOAD_ERR_INI_SIZE === $file->getError() || \UPLOAD_ERR_FORM_SIZE === $file->getError() ? 'The file is larger than 10 MB.' : 'The file could not be uploaded.');
         }
         $this->bus->dispatch(new AddReceipt($id, $actor->getId(), $viewer->manager, $file->getPathname(), $file->getClientOriginalName(), (int) $file->getSize()));
 
         return $this->answer($id, $viewer, 201);
     }
 
-    /** The PM or an Admin pays approved Team Lead expenses back from the caja menor. */
+    /** The PM or an Admin pays approved Team Lead expenses back from petty cash. */
     #[Route('/api/projects/{id}/reimbursements', name: 'api_expenses_reimburse', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[OA\Response(response: 201, description: 'The expenses, now REIMBURSED', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: ExpenseOutput::class))))]
     #[OA\Response(response: 422, description: 'validation_failed on expenseIds; insufficient_funds', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]

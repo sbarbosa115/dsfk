@@ -79,12 +79,12 @@ class Attachment
     public static function accept(int $projectId, string $originalName, string $mimeType, int $size, string $random, int $by, \DateTimeImmutable $now): self
     {
         if ($size <= 0) {
-            throw InvalidValue::field('file', 'El archivo está vacío.');
+            throw InvalidValue::field('file', 'The file is empty.');
         }
         if ($size > self::MAX_SIZE) {
-            throw InvalidValue::field('file', 'El archivo supera el máximo de 10 MB.');
+            throw InvalidValue::field('file', 'The file is larger than 10 MB.');
         }
-        $extension = self::TYPES[$mimeType] ?? throw InvalidValue::field('file', 'Formato no permitido. Usa PDF, JPG, PNG, WEBP o HEIC.');
+        $extension = self::TYPES[$mimeType] ?? throw InvalidValue::field('file', 'File type not allowed. Use PDF, JPG, PNG, WEBP or HEIC.');
 
         return new self($projectId, \sprintf('%d/%s.%s', $projectId, $random, $extension), $originalName, $mimeType, $size, $by, $now);
     }

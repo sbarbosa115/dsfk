@@ -43,7 +43,7 @@ const MANAGER_TABS: readonly Tab[] = [
 ];
 const TEAM_LEAD_TABS: readonly Tab[] = ['plan', 'expenses', 'overview'];
 
-/** One project: its plan and budget, its expenses, its money and caja menor (Admins and the PM), then who is in it. */
+/** One project: its plan and budget, its expenses, its money and petty cash (Admins and the PM), then who is in it. */
 export function ProjectDetailPage() {
   const {id = ''} = useParams();
   const project = useQuery({

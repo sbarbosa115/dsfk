@@ -24,7 +24,7 @@ interface LedgerRepository
      */
     public function cycle(int $id): PettyCashCycle;
 
-    /** The open cycle, or null when the caja menor has not been used since the last one closed. */
+    /** The open cycle, or null when petty cash has not been used since the last one closed. */
     public function findOpenCycle(int $projectId): ?PettyCashCycle;
 
     /** Writes the cycle at once (inside the transaction) and answers its id. */
@@ -53,6 +53,6 @@ interface LedgerRepository
     /** From the stored movements that are not voided. */
     public function balances(int $projectId): Balances;
 
-    /** The caja menor's open cycle; the next one is opened (with the current balance) when there is none. */
+    /** Petty cash's open cycle; the next one is opened (with the current balance) when there is none. */
     public function openCycle(int $projectId, \DateTimeImmutable $now): PettyCashCycle;
 }

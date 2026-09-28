@@ -42,7 +42,7 @@ interface FinanceQueries
     public function cycleMovements(int $cycleId): array;
 
     /**
-     * Deposited (all accounts), available (all accounts) and in the caja menor, minor units, voids left out.
+     * Deposited (all accounts), available (all accounts) and in petty cash, minor units, voids left out.
      *
      * @return array{deposited: int, available: int, pettyCash: int}
      */
@@ -55,7 +55,7 @@ interface FinanceQueries
      */
     public function monthlyDeposits(int $projectId, \DateTimeImmutable $from): array;
 
-    /** Closed caja menor cycles waiting for an Admin's sign-off. */
+    /** Closed petty cash cycles waiting for an Admin's sign-off. */
     public function unsignedCycles(int $projectId): int;
 
     /**
@@ -65,7 +65,7 @@ interface FinanceQueries
      */
     public function cycleFacts(int $cycleId): ?array;
 
-    /** The caja menor's last top-up (a deposit's part for it), minor units; 0 if it never had one. */
+    /** Petty cash's last top-up (a deposit's part for it), minor units; 0 if it never had one. */
     public function lastPettyCashTopUp(int $projectId): int;
 
     /** Whether any ledger entry earmarks money for the category (so Planning keeps it). */

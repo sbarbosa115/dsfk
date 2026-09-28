@@ -115,7 +115,7 @@ class Milestone implements Audited
     public function rename(string $name): void
     {
         if ('' === trim($name)) {
-            throw InvalidValue::field('name', 'Este valor no debería estar vacío.');
+            throw InvalidValue::field('name', 'This value should not be blank.');
         }
         $this->name = trim($name);
     }
@@ -137,7 +137,7 @@ class Milestone implements Audited
             throw new Conflict('milestone_already_completed');
         }
         if ($date->format('Y-m-d') > $today->format('Y-m-d')) {
-            throw InvalidValue::field('completedAt', 'La fecha no puede estar en el futuro.');
+            throw InvalidValue::field('completedAt', 'The date cannot be in the future.');
         }
         $this->completedAt = $date;
         $this->completedById = $byUserId;

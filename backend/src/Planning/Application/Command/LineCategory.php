@@ -18,7 +18,7 @@ final class LineCategory
         try {
             return $plans->category($categoryId);
         } catch (NotFound) {
-            throw InvalidValue::field('categoryId', 'La categoría no existe.');
+            throw InvalidValue::field('categoryId', 'The category does not exist.');
         }
     }
 
@@ -27,7 +27,7 @@ final class LineCategory
         try {
             return MinorUnits::fromMajor($amount, $currency);
         } catch (InvalidValue) {
-            throw InvalidValue::field('unitPrice', 'Monto inválido para la moneda del proyecto.');
+            throw InvalidValue::field('unitPrice', 'Invalid amount for the project\'s currency.');
         }
     }
 }

@@ -31,11 +31,12 @@ final readonly class NotifyExpenseDecisions implements EventHandler
         }
         $project = $this->facts->project($event->projectId);
         $context = ['project' => $project, 'expense' => $expense, 'amount' => MinorUnits::format($expense['amount'], $project['currency'])];
+        $subject = ['expense' => $expense['description']];
 
         match (true) {
-            $event instanceof ExpenseSubmitted => $this->outbox->send([$this->recipients->projectManager($event->projectId)], 'Gasto por aprobar: '.$expense['description'], 'expense_submitted', $context),
-            $event instanceof ExpenseNeedsAdmin => $this->outbox->send($this->recipients->admins(), 'Gasto sobre el límite por aprobar: '.$expense['description'], 'expense_needs_admin', $context),
-            default => $this->outbox->send([$this->recipients->person($expense['paidById'])], 'Gasto rechazado: '.$expense['description'], 'expense_rejected', $context),
+            $event instanceof ExpenseSubmitted => $this->outbox->send([$this->recipients->projectManager($event->projectId)], 'expense_submitted', $subject, $context),
+            $event instanceof ExpenseNeedsAdmin => $this->outbox->send($this->recipients->admins(), 'expense_needs_admin', $subject, $context),
+            default => $this->outbox->send([$this->recipients->person($expense['paidById'])], 'expense_rejected', $subject, $context),
         };
     }
 }

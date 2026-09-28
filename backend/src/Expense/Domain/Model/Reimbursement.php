@@ -8,7 +8,7 @@ use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\ORM\Mapping as ORM;
 
-/** The PM (or an Admin) paying back approved Team Lead expenses from the caja menor, as one movement. */
+/** The PM (or an Admin) paying back approved Team Lead expenses from petty cash, as one movement. */
 #[ORM\Entity]
 #[ORM\Table(name: 'reimbursement')]
 class Reimbursement implements Audited

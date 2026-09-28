@@ -134,7 +134,7 @@ class Budget implements Audited
     {
         $this->assertSubmitted();
         if ('' === trim($comment)) {
-            throw InvalidValue::field('comment', 'Este valor no debería estar vacío.');
+            throw InvalidValue::field('comment', 'This value should not be blank.');
         }
         $this->status = BudgetStatus::Returned;
         $this->events->add(new BudgetEvent($this, BudgetStatus::Returned, $byUserId, $at, trim($comment)));

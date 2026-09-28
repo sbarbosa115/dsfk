@@ -12,7 +12,7 @@ final class ContingencyInput
     public function __construct(
         /** Major units. */
         #[Assert\NotBlank]
-        #[Assert\Regex(pattern: Patterns::AMOUNT, message: 'Debe ser un monto positivo.')]
+        #[Assert\Regex(pattern: Patterns::AMOUNT, message: 'It must be a positive amount.')]
         public string $contingency = '',
     ) {
     }

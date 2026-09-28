@@ -19,7 +19,7 @@ final readonly class ChangeOwnPasswordHandler implements CommandHandler
     {
         $user = $this->users->get($command->userId);
         if (!$this->hasher->verify($user->getPasswordHash(), $command->currentPassword)) {
-            throw InvalidValue::field('currentPassword', 'La contraseña actual no es correcta.');
+            throw InvalidValue::field('currentPassword', 'The current password is not correct.');
         }
 
         $user->changePassword($this->hasher->hash($command->newPassword));

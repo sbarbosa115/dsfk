@@ -1,0 +1,2 @@
+# The audit trail's "who" column (src/Audit/Infrastructure/Doctrine/AuditTrail.php), stored as written.
+actor_via: '{person} (vía {admin})'

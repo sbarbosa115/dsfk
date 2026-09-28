@@ -25,15 +25,15 @@ final readonly class CheckedDetails
         $stages = $plan->stages($projectId);
         $categories = $plan->categories($projectId);
         if (!isset($stages[$details->stageId])) {
-            throw InvalidValue::field('stageId', 'Etapa inválida.');
+            throw InvalidValue::field('stageId', 'Invalid stage.');
         }
         if (!isset($categories[$details->categoryId])) {
-            throw InvalidValue::field('categoryId', 'Categoría inválida.');
+            throw InvalidValue::field('categoryId', 'Invalid category.');
         }
         try {
             $amount = MinorUnits::fromMajor($details->amount, $limits->currency($projectId));
         } catch (InvalidValue) {
-            throw InvalidValue::field('amount', 'Monto inválido para la moneda del proyecto.');
+            throw InvalidValue::field('amount', 'Invalid amount for the project\'s currency.');
         }
 
         return new self($details, $amount, $stages, $categories);

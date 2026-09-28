@@ -15,7 +15,7 @@ use Psr\Clock\ClockInterface;
 
 /**
  * The money side of expenses, called by the Expense context inside its command's transaction: paying an expense
- * from a stage or the caja menor, giving it back when the expense is voided, and paying Team Leads back. Each
+ * from a stage or petty cash, giving it back when the expense is voided, and paying Team Leads back. Each
  * locks the project's money first, and refuses to take an account below zero.
  */
 final readonly class ExpensePayments
@@ -42,7 +42,7 @@ final readonly class ExpensePayments
         if (LedgerAccount::Stage === $from) {
             foreach ($this->plan->stages($projectId) as $stage) {
                 if ($stage->id === $stageId && $stage->isCompleted()) {
-                    throw InvalidValue::field('stageId', 'La etapa ya está finalizada y no tiene fondos.');
+                    throw InvalidValue::field('stageId', 'The stage is already completed and holds no money.');
                 }
             }
         }
@@ -54,7 +54,7 @@ final readonly class ExpensePayments
         return $this->ledger->addNow($movement);
     }
 
-    /** The expense was voided: its money goes back to the stage or the caja menor. */
+    /** The expense was voided: its money goes back to the stage or petty cash. */
     public function refund(int $movementId, int $actorId, string $reason): void
     {
         $movement = $this->ledger->movementForUpdate($movementId);
@@ -90,7 +90,7 @@ final readonly class ExpensePayments
             $currency = $this->currencies->of($projectId);
             $available = \is_int($e->extra['available'] ?? null) ? $e->extra['available'] : 0;
 
-            throw new InvalidValue('insufficient_funds', ['available' => MinorUnits::toMajor($available, $currency), 'violations' => [$field => ['Fondos insuficientes. Disponible: '.MinorUnits::format($available, $currency).'.']]]);
+            throw new InvalidValue('insufficient_funds', ['available' => MinorUnits::toMajor($available, $currency)] + InvalidValue::violation($field, 'Not enough funds. Available: %available%.', ['%available%' => MinorUnits::format($available, $currency)]));
         }
     }
 }

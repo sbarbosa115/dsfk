@@ -64,7 +64,9 @@ final class ExpenseApiTest extends ApiTestCase
         $this->assertError(422, 'insufficient_funds');
         self::assertIsArray($data);
         self::assertSame('0.00', $data['available']);
-        self::assertArrayHasKey('amount', $data['violations']);
+        // The translation fills in its placeholder, which never leaves the server.
+        self::assertSame(['Fondos insuficientes. Disponible: $ 0.'], $data['violations']['amount']);
+        self::assertArrayNotHasKey('violationParameters', $data);
 
         $expense = $this->json('POST', $this->base.'/expenses', $this->expense('300000.50', paidFrom: 'STAGE'));
         $this->assertStatus(201);

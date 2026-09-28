@@ -13,6 +13,23 @@ Product: [docs/PRD.md](docs/PRD.md) · detailed rules: [docs/SPEC.md](docs/SPEC.
   checked by `styles.test.ts`) and the kit in `shared/ui` (ListView, row tints with a legend, FilterBar,
   colour-coded actions, FormModal, DateInput, MoneyField).
 
+## Strings
+
+**PHP and TypeScript are written in English**: identifiers, comments, exception and validation messages, file
+names. Spanish lives only in translations:
+
+| What people read | Where the Spanish is |
+|---|---|
+| The interface | `backend/assets/react/shared/i18n/es.ts` (`t()`) |
+| The API's validation and field messages | `backend/translations/validators.es.yaml`, keyed by the English message (placeholders like `%available%`); the API sends them translated |
+| The notification emails and their subjects | `backend/translations/emails+intl-icu.es.yaml` (subject: `<template>.subject`) |
+| The audit trail's "who" | `backend/translations/audit+intl-icu.es.yaml` |
+| The Documentación pages | `backend/assets/react/pages/help/content/topics.es.json` |
+
+A new message in PHP needs its Spanish line, or the UI shows it in English. Quoting a screen's label in a comment
+("Ver como", "Caja menor") is fine; the domain term in code is petty cash. Demo data and test fixtures are sample
+Spanish input, not code, and tests assert the Spanish people see.
+
 ## Local development (Docker)
 
 ```bash

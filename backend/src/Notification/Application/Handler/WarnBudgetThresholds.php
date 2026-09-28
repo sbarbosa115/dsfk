@@ -28,14 +28,15 @@ final readonly class WarnBudgetThresholds implements EventHandler
             return;
         }
         $use = $this->facts->budgetUse($event->projectId, $expense['stageId'], $expense['categoryId']);
-        $this->check($event->projectId, 'la etapa “'.$expense['stage'].'”', $use['stage']['budget'], $use['stage']['spent'], $expense['amount']);
-        $this->check($event->projectId, 'la categoría “'.$expense['category'].'”', $use['category']['budget'], $use['category']['spent'], $expense['amount']);
+        $this->check($event->projectId, 'stage', $expense['stage'], $use['stage']['budget'], $use['stage']['spent'], $expense['amount']);
+        $this->check($event->projectId, 'category', $expense['category'], $use['category']['budget'], $use['category']['spent'], $expense['amount']);
     }
 
     /**
-     * @param int $after spending with the expense, minor units
+     * @param 'stage'|'category' $kind
+     * @param int                $after spending with the expense, minor units
      */
-    private function check(int $projectId, string $what, int $budget, int $after, int $amount): void
+    private function check(int $projectId, string $kind, string $name, int $budget, int $after, int $amount): void
     {
         if ($budget <= 0) {
             return;
@@ -46,9 +47,10 @@ final readonly class WarnBudgetThresholds implements EventHandler
         foreach ($percents as $percent) {
             if ($before * 100 < $budget * $percent && $after * 100 >= $budget * $percent) {
                 $project = $this->facts->project($projectId);
-                $this->outbox->send([...$this->recipients->admins(), $this->recipients->projectManager($projectId)], "Alerta de presupuesto ({$percent}%): {$project['name']}", 'budget_threshold', [
+                $this->outbox->send([...$this->recipients->admins(), $this->recipients->projectManager($projectId)], 'budget_threshold', ['percent' => $percent, 'project' => $project['name']], [
                     'project' => $project,
-                    'what' => $what,
+                    'kind' => $kind,
+                    'name' => $name,
                     'percent' => $percent,
                     'spent' => MinorUnits::format($after, $project['currency']),
                     'budget' => MinorUnits::format($budget, $project['currency']),

@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
-#[OA\Tag(name: 'Caja menor')]
+#[OA\Tag(name: 'Petty cash')]
 #[OA\Response(response: 403, description: 'forbidden: Team Leads see no money; only Admins sign off', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
 #[OA\Response(response: 404, description: 'cycle_not_found, or project_not_found outside the project', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
 final class PettyCashController extends AbstractController
@@ -39,7 +39,7 @@ final class PettyCashController extends AbstractController
     }
 
     #[Route('/api/projects/{id}/petty-cash', name: 'api_petty_cash', requirements: ['id' => '\d+'], methods: ['GET'])]
-    #[OA\Response(response: 200, description: 'The caja menor', content: new Model(type: PettyCashOutput::class))]
+    #[OA\Response(response: 200, description: 'Petty cash', content: new Model(type: PettyCashOutput::class))]
     public function show(int $id): JsonResponse
     {
         $this->guard->require(ProjectPermission::VIEW_FINANCIALS, $id);

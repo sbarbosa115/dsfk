@@ -11,11 +11,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class AllocationInput
 {
     public function __construct(
-        #[Assert\NotNull(message: 'Elige el destino.')]
+        #[Assert\NotNull(message: 'Choose where the money goes.')]
         public ?LedgerAccount $destination = null,
         /** Major units, e.g. "1500000.00". */
         #[Assert\NotBlank]
-        #[Assert\Regex(pattern: Patterns::AMOUNT, message: 'Debe ser un monto positivo.')]
+        #[Assert\Regex(pattern: Patterns::AMOUNT, message: 'It must be a positive amount.')]
         public string $amount = '',
         /** Required when the destination is STAGE. */
         public ?int $stageId = null,

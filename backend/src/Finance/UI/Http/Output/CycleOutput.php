@@ -6,14 +6,14 @@ namespace App\Finance\UI\Http\Output;
 
 use OpenApi\Attributes as OA;
 
-/** A caja menor period: opening balance, top-ups, spending, reimbursements and closing balance (major units). */
+/** A petty cash period: opening balance, top-ups, spending, reimbursements and closing balance (major units). */
 final readonly class CycleOutput
 {
     /**
      * @param list<CycleMovementOutput>|null $movements null in lists
      */
     public function __construct(
-        /** null for a cycle that opens with the next use of the caja menor */
+        /** null for a cycle that opens with the next use of petty cash */
         public ?int $id,
         public int $number,
         #[OA\Property(enum: ['OPEN', 'CLOSED', 'SIGNED_OFF'])]

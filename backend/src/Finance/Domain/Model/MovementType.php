@@ -10,9 +10,9 @@ enum MovementType: string
     case ContingencyDraw = 'CONTINGENCY_DRAW';
     /** Leftover of a completed stage moved to the next one (or to the contingency). */
     case Carryover = 'CARRYOVER';
-    /** Expense paid from a stage balance or the caja menor. */
+    /** Expense paid from a stage balance or petty cash. */
     case Expense = 'EXPENSE';
-    /** Team Lead expenses paid back from the caja menor. */
+    /** Team Lead expenses paid back from petty cash. */
     case Reimbursement = 'REIMBURSEMENT';
 
     /** Movements that bring money into the project or move it between accounts (the Finance tab's list). */

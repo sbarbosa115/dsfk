@@ -26,7 +26,7 @@ final readonly class ReorderStagesHandler implements CommandHandler
         sort($given);
         sort($existing);
         if ($given !== $existing) {
-            throw InvalidValue::field('ids', 'La lista debe contener todas las etapas del proyecto, una vez cada una.');
+            throw InvalidValue::field('ids', 'The list must hold every stage of the project, each once.');
         }
         foreach ($command->stageIds as $position => $id) {
             $stages[$id]->moveTo($position);

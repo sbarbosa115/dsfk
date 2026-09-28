@@ -15,7 +15,7 @@ final class CreateMilestoneInput
         public string $name = '',
         /** Percentage of the stage, e.g. "25" or "12.5". */
         #[Assert\NotBlank]
-        #[Assert\Regex(pattern: Patterns::PERCENT, message: 'Porcentaje inválido (máximo 2 decimales).')]
+        #[Assert\Regex(pattern: Patterns::PERCENT, message: 'Invalid percentage (2 decimals at most).')]
         public string $weight = '',
         #[Assert\Date]
         public ?string $plannedDate = null,

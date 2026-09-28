@@ -15,7 +15,7 @@ final class SettingsInput
     public function __construct(
         #[Assert\Currency]
         public ?string $defaultCurrency = null,
-        #[Assert\Regex(pattern: Patterns::AMOUNT, message: 'Debe ser un monto positivo.')]
+        #[Assert\Regex(pattern: Patterns::AMOUNT, message: 'It must be a positive amount.')]
         public ?string $teamLeadExpenseLimit = null,
         #[Assert\Range(min: 1, max: 100)]
         public ?int $pettyCashLowBalancePercent = null,

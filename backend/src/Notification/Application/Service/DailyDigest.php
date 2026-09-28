@@ -34,7 +34,7 @@ final readonly class DailyDigest
                 continue;
             }
             $project = $this->facts->project($projectId);
-            $this->outbox->send([...$this->recipients->admins(), $this->recipients->projectManager($projectId)], 'Resumen diario: '.$project['name'], 'daily_digest', ['project' => $project] + $digest);
+            $this->outbox->send([...$this->recipients->admins(), $this->recipients->projectManager($projectId)], 'daily_digest', ['project' => $project['name']], ['project' => $project] + $digest);
             ++$sent;
         }
 

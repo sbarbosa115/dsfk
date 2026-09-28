@@ -13,15 +13,19 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Renders every /api error as JSON: {"error": "code", "violations": {"field": ["message"]}, ...extra}.
+ * Field messages are written in English and sent translated (the validators domain), like the validator's own.
  */
 #[AsEventListener(event: KernelEvents::EXCEPTION, priority: -10)]
 final readonly class ApiExceptionListener
 {
-    public function __construct(#[Autowire('%kernel.debug%')] private bool $debug)
-    {
+    public function __construct(
+        #[Autowire('%kernel.debug%')] private bool $debug,
+        private TranslatorInterface $translator,
+    ) {
     }
 
     public function __invoke(ExceptionEvent $event): void
@@ -37,7 +41,7 @@ final readonly class ApiExceptionListener
         }
 
         if ($exception instanceof DomainError) {
-            $event->setResponse(new JsonResponse(['error' => $exception->errorCode] + $exception->extra, $exception->httpStatus()));
+            $event->setResponse(new JsonResponse(['error' => $exception->errorCode] + $this->translated($exception->extra), $exception->httpStatus()));
 
             return;
         }
@@ -57,6 +61,28 @@ final readonly class ApiExceptionListener
         }
 
         $event->setResponse(new JsonResponse($data, $status));
+    }
+
+    /**
+     * @param array<string, mixed> $extra
+     *
+     * @return array<string, mixed>
+     */
+    private function translated(array $extra): array
+    {
+        $parameters = \is_array($extra['violationParameters'] ?? null) ? $extra['violationParameters'] : [];
+        unset($extra['violationParameters']);
+        if (!\is_array($extra['violations'] ?? null)) {
+            return $extra;
+        }
+        foreach ($extra['violations'] as $field => $messages) {
+            foreach ((array) $messages as $i => $message) {
+                $message = (string) $message;
+                $extra['violations'][$field][$i] = $this->translator->trans($message, \is_array($parameters[$message] ?? null) ? $parameters[$message] : [], 'validators');
+            }
+        }
+
+        return $extra;
     }
 
     /**

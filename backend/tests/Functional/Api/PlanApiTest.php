@@ -240,7 +240,8 @@ final class PlanApiTest extends ApiTestCase
 
         $data = $this->json('POST', $this->base.'/categories', ['name' => 'MATERIALES']);
         $this->assertStatus(422);
-        self::assertArrayHasKey('name', $data['violations']);
+        // Written in English in the domain, sent in Spanish (translations/validators.es.yaml).
+        self::assertSame(['Ya existe una categoría con ese nombre.'], $data['violations']['name']);
 
         $plan = $this->json('PATCH', "/api/categories/$spare", ['name' => 'Imprevistos']);
         self::assertContains('Imprevistos', array_column($plan['categories'], 'name'));

@@ -59,7 +59,7 @@ export function uploadReceipt(expenseId: number, file: File): Promise<Expense> {
 }
 
 /**
- * An expense moves money and budget figures: its list, its detail, the project's finance, movements, caja menor
+ * An expense moves money and budget figures: its list, its detail, the project's finance, movements, petty cash
  * and plan are reloaded.
  */
 export function refreshExpenses(

@@ -113,7 +113,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** An Admin voids an approved expense (not one paid back); its money goes back to the stage or caja menor. */
+        /** An Admin voids an approved expense (not one paid back); its money goes back to the stage or petty cash. */
         post: operations["post_api_expenses_void"];
         delete?: never;
         options?: never;
@@ -147,7 +147,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** The PM or an Admin pays approved Team Lead expenses back from the caja menor. */
+        /** The PM or an Admin pays approved Team Lead expenses back from petty cash. */
         post: operations["post_api_expenses_reimburse"];
         delete?: never;
         options?: never;
@@ -162,7 +162,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Balances per stage, caja menor and contingency next to the budget: for the Admins and the PM. */
+        /** Balances per stage, petty cash and contingency next to the budget: for the Admins and the PM. */
         get: operations["get_api_finance_summary"];
         put?: never;
         post?: never;
@@ -1026,7 +1026,7 @@ export interface components {
             /** @default  */
             description: string;
             /**
-             * m², m³, kg, día, global…
+             * m², m³, kg, day, lump sum…
              * @default
              */
             unit: string;
@@ -1181,7 +1181,7 @@ export interface components {
             id: number;
             projectId?: number | null;
             projectName?: string | null;
-            /** "Laura Gómez", or "Laura Gómez (vía Ana Admin)" while an Admin viewed the app as her */
+            /** The person, or the person and the Admin who viewed the app as them (audit translations, "actor_via") */
             user?: string | null;
             /** @enum {string} */
             action: "create" | "update" | "delete";
@@ -1415,7 +1415,7 @@ export interface components {
             type: "DEPOSIT" | "CONTINGENCY_DRAW" | "CARRYOVER" | "EXPENSE" | "REIMBURSEMENT";
             /** Format: date */
             date: string;
-            /** Major units, signed: what it put into (+) or took out of (−) the caja menor. */
+            /** Major units, signed: what it put into (+) or took out of (−) petty cash. */
             amount: string;
             /** Its note (an expense's description, who was paid back). */
             description: string;
@@ -1427,7 +1427,7 @@ export interface components {
             attachments: components["schemas"]["AttachmentOutput"][];
         };
         CycleOutput: {
-            /** null for a cycle that opens with the next use of the caja menor */
+            /** null for a cycle that opens with the next use of petty cash */
             id?: number | null;
             number: number;
             /** @enum {string} */
@@ -1769,7 +1769,7 @@ export interface components {
             defaultCurrency: string;
             /** Major units; a Team Lead expense above it also needs an Admin's approval */
             teamLeadExpenseLimit: string;
-            /** Caja menor alert when the balance drops below this % of the last top-up */
+            /** Petty cash alert when the balance drops below this % of the last top-up */
             pettyCashLowBalancePercent: number;
             /** Budget alert thresholds, % of a stage or category budget, ascending */
             budgetWarningPercents: number[];
@@ -2704,7 +2704,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The caja menor */
+            /** @description Petty cash */
             200: {
                 headers: {
                     [name: string]: unknown;

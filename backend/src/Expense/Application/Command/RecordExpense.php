@@ -7,7 +7,7 @@ namespace App\Expense\Application\Command;
 use App\Expense\Domain\Model\PaidFrom;
 
 /**
- * Someone in the project records money spent. The PM and Admins (`$manager`) pay from a stage or the caja menor;
+ * Someone in the project records money spent. The PM and Admins (`$manager`) pay from a stage or petty cash;
  * a Team Lead paid it out of pocket.
  */
 final readonly class RecordExpense

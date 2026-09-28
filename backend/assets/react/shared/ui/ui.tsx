@@ -51,7 +51,7 @@ export function Button({
  * - open (violet): open, view, review, go to a related list
  * - file (teal): look at a document, or at the documents asked for
  * - setup (indigo): set something up or add to it: schedules, invitations, uploads, registering
- * - revert (amber): undo, reopen, an outcome that needs attention ("No asistió")
+ * - revert (amber): undo, reopen, an outcome that needs attention (a returned budget)
  * - contact (rose): write to the person outside the app (WhatsApp, email)
  */
 export const ACTIONS = [
@@ -294,7 +294,7 @@ const TONES: Record<string, string> = {
   expense_rejected: 'danger',
   expense_reimbursed: 'teal',
   expense_voided: 'muted',
-  // Caja menor cycles.
+  // Petty cash cycles.
   cycle_open: 'info',
   cycle_closed: 'warning',
   cycle_signed_off: 'success',

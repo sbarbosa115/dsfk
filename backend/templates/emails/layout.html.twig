@@ -4,15 +4,15 @@
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f6f3;padding:24px 0;">
     <tr><td align="center">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #dfe3dc;">
-            <tr><td style="background:#1f5f4a;color:#ffffff;padding:16px 24px;font-size:16px;font-weight:bold;">Control de Proyectos</td></tr>
+            <tr><td style="background:#1f5f4a;color:#ffffff;padding:16px 24px;font-size:16px;font-weight:bold;">{{ 'layout.app'|trans({}, 'emails') }}</td></tr>
             <tr><td style="padding:24px;font-size:15px;line-height:1.5;">
-                <p style="margin-top:0;">Hola {{ recipient.name }},</p>
+                <p style="margin-top:0;">{{ 'layout.greeting'|trans({name: recipient.name}, 'emails') }}</p>
                 {% block content %}{% endblock %}
                 {% if link is defined %}
-                    <p style="margin:24px 0 8px;"><a href="{{ appUrl }}{{ link }}" style="background:#1f5f4a;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:6px;display:inline-block;">{{ linkLabel|default('Ver en la aplicación') }}</a></p>
+                    <p style="margin:24px 0 8px;"><a href="{{ appUrl }}{{ link }}" style="background:#1f5f4a;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:6px;display:inline-block;">{{ linkLabel|default('layout.cta'|trans({}, 'emails')) }}</a></p>
                 {% endif %}
             </td></tr>
-            <tr><td style="padding:12px 24px;font-size:12px;color:#5f6b64;border-top:1px solid #dfe3dc;">Mensaje automático. No respondas a este correo.</td></tr>
+            <tr><td style="padding:12px 24px;font-size:12px;color:#5f6b64;border-top:1px solid #dfe3dc;">{{ 'layout.footer'|trans({}, 'emails') }}</td></tr>
         </table>
     </td></tr>
 </table>

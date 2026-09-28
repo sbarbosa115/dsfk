@@ -6,7 +6,7 @@ namespace App\Expense\Application\Command;
 
 use App\Expense\Domain\Model\PayoutMethod;
 
-/** The PM or an Admin pays approved Team Lead expenses back from the caja menor, in one movement. */
+/** The PM or an Admin pays approved Team Lead expenses back from petty cash, in one movement. */
 final readonly class ReimburseExpenses
 {
     /**

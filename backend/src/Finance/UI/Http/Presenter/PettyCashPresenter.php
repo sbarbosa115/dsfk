@@ -25,7 +25,7 @@ use App\Shared\Domain\Money\MinorUnits;
 use App\Shared\UI\Http\ProjectGuard;
 use App\Shared\UI\Http\ProjectPermission;
 
-/** The caja menor: its balance, the current cycle with its movements, and the closed cycles. */
+/** Petty cash: its balance, the current cycle with its movements, and the closed cycles. */
 final readonly class PettyCashPresenter
 {
     public function __construct(
@@ -53,7 +53,7 @@ final readonly class PettyCashPresenter
                 $closed[] = $cycle;
             }
         }
-        // Nothing has used the caja menor since the last close: the next cycle opens with its balance.
+        // Nothing has used petty cash since the last close: the next cycle opens with its balance.
         $current = null !== $open
             ? $this->cycle($open, $currency, true)
             : new CycleOutput(null, \count($cycles) + 1, CycleStatus::Open->value, null, null, null, null, null, null, $this->money($balance, $currency), $this->money(0, $currency), $this->money(0, $currency), $this->money(0, $currency), $this->money($balance, $currency), []);
@@ -123,7 +123,7 @@ final readonly class PettyCashPresenter
 
     /**
      * @param list<FundMovement> $movements
-     * @param array<int, int>    $amounts   caja menor share by movement id
+     * @param array<int, int>    $amounts   petty cash share by movement id
      * @param array<int, string> $names
      *
      * @return list<CycleMovementOutput>

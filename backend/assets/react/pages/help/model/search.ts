@@ -8,7 +8,7 @@ export interface HelpSearchResult {
   snippet: string;
 }
 
-/** Lowercase and without accents, so "depósito" is found by typing "deposito". */
+/** Lowercase and without accents, so a word written with accents is found when typed without them. */
 export function normalize(value: string): string {
   return value
     .toLowerCase()

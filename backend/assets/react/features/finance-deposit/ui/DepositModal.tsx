@@ -33,7 +33,7 @@ function newPart(target: string): Part {
   return {key: nextKey++, target, categoryId: '', amount: ''};
 }
 
-/** Money received for the project, split among its open stages, the caja menor and the contingency. */
+/** Money received for the project, split among its open stages, petty cash and the contingency. */
 export function DepositModal({
   projectId,
   finance,

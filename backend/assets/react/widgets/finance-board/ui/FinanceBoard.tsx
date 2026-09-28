@@ -36,7 +36,7 @@ type Dialog =
   | {kind: 'void' | 'attach'; movement: Movement}
   | null;
 
-/** The "Fondos" tab: where the deposited money is, per stage, caja menor and contingency, and how it got there. */
+/** The "Fondos" tab: where the deposited money is, per stage, petty cash and contingency, and how it got there. */
 export function FinanceBoard({projectId}: {projectId: number}) {
   const finance = useQuery({
     queryKey: financeKey(projectId),

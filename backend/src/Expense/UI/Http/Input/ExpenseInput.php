@@ -11,9 +11,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class ExpenseInput
 {
     public function __construct(
-        #[Assert\NotNull(message: 'Elige la etapa.')]
+        #[Assert\NotNull(message: 'Choose the stage.')]
         public ?int $stageId = null,
-        #[Assert\NotNull(message: 'Elige la categoría.')]
+        #[Assert\NotNull(message: 'Choose the category.')]
         public ?int $categoryId = null,
         /** YYYY-MM-DD, not in the future. */
         #[Assert\NotBlank]
@@ -21,7 +21,7 @@ final class ExpenseInput
         public string $date = '',
         /** Major units. */
         #[Assert\NotBlank]
-        #[Assert\Regex(pattern: Patterns::AMOUNT, message: 'Debe ser un monto positivo.')]
+        #[Assert\Regex(pattern: Patterns::AMOUNT, message: 'It must be a positive amount.')]
         public string $amount = '',
         #[Assert\NotBlank]
         #[Assert\Length(max: 255)]

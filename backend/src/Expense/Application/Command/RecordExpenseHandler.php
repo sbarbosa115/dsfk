@@ -39,10 +39,10 @@ final readonly class RecordExpenseHandler implements CommandHandler
         }
         $paidFrom = $c->paidFrom ?? ($c->manager ? null : PaidFrom::OutOfPocket);
         if (null === $paidFrom) {
-            throw InvalidValue::field('paidFrom', 'Elige si el gasto se paga desde la etapa o desde la caja menor.');
+            throw InvalidValue::field('paidFrom', 'Choose whether the expense is paid from the stage or from petty cash.');
         }
         if ($c->manager === (PaidFrom::OutOfPocket === $paidFrom)) {
-            throw InvalidValue::field('paidFrom', $c->manager ? 'Elige si el gasto se paga desde la etapa o desde la caja menor.' : 'Los líderes de equipo registran gastos pagados con su dinero.');
+            throw InvalidValue::field('paidFrom', $c->manager ? 'Choose whether the expense is paid from the stage or from petty cash.' : 'Team Leads record expenses they paid with their own money.');
         }
         $d = CheckedDetails::of($c->details, $c->projectId, $this->plan, $this->limits);
         $in = $c->details;

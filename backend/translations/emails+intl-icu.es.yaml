@@ -1,0 +1,60 @@
+# The notification emails (templates/emails/*.html.twig). Each email's subject is "<template>.subject"; the
+# handlers pass its parameters. ICU format: {name} is a parameter, {x, select, ...} picks a variant.
+layout:
+    app: 'Control de Proyectos'
+    greeting: 'Hola {name},'
+    cta: 'Ver en la aplicación'
+    footer: 'Mensaje automático. No respondas a este correo.'
+
+budget_submitted:
+    subject: 'Presupuesto enviado a aprobación: {project}'
+    body: '{by} envió el presupuesto del proyecto {project} para tu aprobación.'
+    next: 'Revísalo y apruébalo o devuélvelo con observaciones.'
+
+budget_reviewed:
+    subject: '{outcome, select, approved {Presupuesto aprobado: {project}} other {Presupuesto devuelto: {project}}}'
+    approved: '{by} aprobó el presupuesto del proyecto {project}. Ya se pueden registrar depósitos y gastos.'
+    returned: '{by} devolvió el presupuesto del proyecto {project} con estas observaciones:'
+    next: 'Haz los ajustes y vuelve a enviarlo.'
+
+budget_threshold:
+    subject: 'Alerta de presupuesto ({percent}%): {project}'
+    body: 'El gasto de {kind, select, stage {la etapa “{name}”} other {la categoría “{name}”}} en {project} llegó al {executed} % de su presupuesto (alerta al {percent} %).'
+    spent: 'Gastado: {spent} de {budget} presupuestados.'
+
+cycle_closed:
+    subject: 'Caja menor ciclo {number} cerrado: {project}'
+    body: '{by} cerró el ciclo {number} de la caja menor de {project} con un saldo de {balance}.'
+    note: 'Nota: “{note}”'
+    next: 'Revisa sus movimientos y soportes y fírmalo.'
+
+daily_digest:
+    subject: 'Resumen diario: {project}'
+    intro: 'Resumen diario de {project}:'
+    overdue: 'Hitos atrasados'
+    overdue_item: '{stage} · {milestone} (planeado para el {date})'
+    pending: 'Gastos por aprobar: {count}'
+    to_reimburse: 'Gastos aprobados por reembolsar: {count}'
+    unsigned: 'Ciclos de caja menor por firmar: {count}'
+
+expense_submitted:
+    subject: 'Gasto por aprobar: {expense}'
+    body: '{by} registró un gasto por {amount} en {project} que espera tu aprobación:'
+
+expense_needs_admin:
+    subject: 'Gasto sobre el límite por aprobar: {expense}'
+    body: 'Un gasto de {by} por {amount} en {project} supera el límite de los líderes de equipo. El gerente ya lo aprobó y ahora falta tu aprobación:'
+
+expense_rejected:
+    subject: 'Gasto rechazado: {expense}'
+    body: 'Tu gasto “{expense}” por {amount} en {project} fue rechazado:'
+    next: 'Corrígelo y vuelve a enviarlo.'
+
+petty_cash_low:
+    subject: 'Caja menor baja: {project}'
+    body: 'La caja menor de {project} quedó en {balance}, por debajo del nivel de alerta (la última recarga fue de {lastTopUp}).'
+    next: 'Considera cerrar el ciclo y pedir una recarga.'
+
+reimbursed:
+    subject: 'Te reembolsaron gastos de {project}'
+    body: 'Se te reembolsaron {total} de la caja menor de {project} por estos gastos:'

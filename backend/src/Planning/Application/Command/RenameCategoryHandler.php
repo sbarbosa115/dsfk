@@ -19,7 +19,7 @@ final readonly class RenameCategoryHandler implements CommandHandler
         $category = $this->plans->category($command->categoryId);
         foreach ($this->plans->categoriesOf($category->getProjectId()) as $other) {
             if ($other !== $category && $other->isNamed($command->name)) {
-                throw InvalidValue::field('name', 'Ya existe una categoría con ese nombre.');
+                throw InvalidValue::field('name', 'A category with this name already exists.');
             }
         }
         $category->rename($command->name);

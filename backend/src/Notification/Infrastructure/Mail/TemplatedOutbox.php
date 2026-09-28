@@ -11,6 +11,7 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /** Twig emails through the mailer, which queues them on Messenger (sent by the cron-driven consumer). */
 final readonly class TemplatedOutbox implements Outbox
@@ -18,12 +19,14 @@ final readonly class TemplatedOutbox implements Outbox
     public function __construct(
         private MailerInterface $mailer,
         private LoggerInterface $logger,
+        private TranslatorInterface $translator,
         #[Autowire('%env(APP_URL)%')] private string $appUrl,
     ) {
     }
 
-    public function send(array $to, string $subject, string $template, array $context): void
+    public function send(array $to, string $template, array $subject, array $context): void
     {
+        $subject = $this->translator->trans("$template.subject", $subject, 'emails');
         // Subjects carry people's text (an expense's description): one line, no control characters.
         $subject = trim((string) preg_replace('/[\x00-\x1F\x7F]+/u', ' ', $subject));
         $seen = [];

@@ -15,9 +15,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Money spent on the project. The PM and Admins pay from a stage or the caja menor, and it counts at once; a Team
+ * Money spent on the project. The PM and Admins pay from a stage or petty cash, and it counts at once; a Team
  * Lead pays out of pocket, the PM approves it (an Admin too above the Team Lead limit), and it is paid back from
- * the caja menor later. Expenses are never deleted: a mistake is voided.
+ * petty cash later. Expenses are never deleted: a mistake is voided.
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'expense')]
@@ -59,7 +59,7 @@ class Expense implements Audited
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $rejectionReason = null;
 
-    /** Finance's EXPENSE movement that took the money out of the stage or the caja menor. */
+    /** Finance's EXPENSE movement that took the money out of the stage or petty cash. */
     #[ORM\Column(name: 'movement_id', nullable: true, unique: true)]
     #[References('fund_movement')]
     private ?int $movementId = null;
@@ -168,7 +168,7 @@ class Expense implements Audited
             throw new Conflict('expense_awaiting_admin');
         }
         if ('' === trim($reason)) {
-            throw InvalidValue::field('reason', 'Este valor no debería estar vacío.');
+            throw InvalidValue::field('reason', 'This value should not be blank.');
         }
         $this->status = ExpenseStatus::Rejected;
         $this->rejectionReason = trim($reason);
@@ -183,7 +183,7 @@ class Expense implements Audited
             throw new Conflict('expense_invalid_status');
         }
         if ('' === trim($reason)) {
-            throw InvalidValue::field('reason', 'Este valor no debería estar vacío.');
+            throw InvalidValue::field('reason', 'This value should not be blank.');
         }
         $this->status = ExpenseStatus::Voided;
         $this->log('VOIDED', $by, $now, trim($reason));
@@ -316,13 +316,13 @@ class Expense implements Audited
     private function describe(int $stageId, int $categoryId, \DateTimeImmutable $date, int $amount, string $description, ?string $supplier, ?string $invoiceNumber, \DateTimeImmutable $now): void
     {
         if ($date->format('Y-m-d') > $now->format('Y-m-d')) {
-            throw InvalidValue::field('date', 'La fecha no puede estar en el futuro.');
+            throw InvalidValue::field('date', 'The date cannot be in the future.');
         }
         if ($amount <= 0) {
-            throw InvalidValue::field('amount', 'Debe ser un monto positivo.');
+            throw InvalidValue::field('amount', 'It must be a positive amount.');
         }
         if ('' === trim($description)) {
-            throw InvalidValue::field('description', 'Este valor no debería estar vacío.');
+            throw InvalidValue::field('description', 'This value should not be blank.');
         }
         $this->stageId = $stageId;
         $this->categoryId = $categoryId;

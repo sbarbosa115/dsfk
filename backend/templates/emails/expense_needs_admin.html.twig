@@ -1,6 +1,6 @@
 {% extends 'emails/layout.html.twig' %}
 {% set link = '/projects/' ~ project.id ~ '?tab=expenses' %}
 {% block content %}
-<p>Un gasto de <strong>{{ expense.paidBy }}</strong> por <strong>{{ amount }}</strong> en <strong>{{ project.name }}</strong> supera el límite de los líderes de equipo. El gerente ya lo aprobó y ahora falta tu aprobación:</p>
+<p>{{ 'expense_needs_admin.body'|trans({by: expense.paidBy, amount: amount, project: project.name}, 'emails') }}</p>
 <p>{{ expense.description }} · {{ expense.stage }} · {{ expense.category }}</p>
 {% endblock %}

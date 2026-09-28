@@ -30,7 +30,7 @@ final readonly class NotifyReimbursed implements EventHandler
         }
         foreach ($byPerson as $personId => $expenses) {
             $total = array_sum(array_column($expenses, 'amount'));
-            $this->outbox->send([$this->recipients->person($personId)], 'Te reembolsaron gastos de '.$project['name'], 'reimbursed', [
+            $this->outbox->send([$this->recipients->person($personId)], 'reimbursed', ['project' => $project['name']], [
                 'project' => $project,
                 'expenses' => $expenses,
                 'total' => MinorUnits::format($total, $project['currency']),

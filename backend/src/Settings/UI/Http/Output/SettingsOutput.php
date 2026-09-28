@@ -16,7 +16,7 @@ final readonly class SettingsOutput
         public string $defaultCurrency,
         /** Major units; a Team Lead expense above it also needs an Admin's approval */
         public string $teamLeadExpenseLimit,
-        /** Caja menor alert when the balance drops below this % of the last top-up */
+        /** Petty cash alert when the balance drops below this % of the last top-up */
         public int $pettyCashLowBalancePercent,
         /** Budget alert thresholds, % of a stage or category budget, ascending */
         public array $budgetWarningPercents,

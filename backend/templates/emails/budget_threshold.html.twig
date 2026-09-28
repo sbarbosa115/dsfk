@@ -1,6 +1,6 @@
 {% extends 'emails/layout.html.twig' %}
 {% set link = '/projects/' ~ project.id ~ '?tab=dashboard' %}
 {% block content %}
-<p>El gasto de {{ what }} en <strong>{{ project.name }}</strong> llegó al <strong>{{ executed }} %</strong> de su presupuesto (alerta al {{ percent }} %).</p>
-<p>Gastado: <strong>{{ spent }}</strong> de {{ budget }} presupuestados.</p>
+<p>{{ 'budget_threshold.body'|trans({kind: kind, name: name, project: project.name, executed: executed, percent: percent}, 'emails') }}</p>
+<p>{{ 'budget_threshold.spent'|trans({spent: spent, budget: budget}, 'emails') }}</p>
 {% endblock %}

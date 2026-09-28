@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Finance\UI\Http\Output;
 
-/** Where a project's deposited money is (per stage, caja menor, contingency), next to its approved budget. */
+/** Where a project's deposited money is (per stage, petty cash, contingency), next to its approved budget. */
 final readonly class FinanceOutput
 {
     /**

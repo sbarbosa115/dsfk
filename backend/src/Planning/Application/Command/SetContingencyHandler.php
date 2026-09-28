@@ -23,7 +23,7 @@ final readonly class SetContingencyHandler implements CommandHandler
         try {
             $minor = MinorUnits::fromMajor($command->amount, $this->projects->currency($command->projectId));
         } catch (InvalidValue) {
-            throw InvalidValue::field('contingency', 'Monto inválido para la moneda del proyecto.');
+            throw InvalidValue::field('contingency', 'Invalid amount for the project\'s currency.');
         }
         $budget->changeContingency($minor);
     }

@@ -32,11 +32,11 @@ final readonly class ReimburseExpensesHandler implements CommandHandler
         $ids = array_values(array_unique($c->expenseIds));
         $expenses = $this->expenses->manyForUpdate($ids);
         if (\count($expenses) !== \count($ids)) {
-            throw InvalidValue::field('expenseIds', 'Gasto no encontrado.');
+            throw InvalidValue::field('expenseIds', 'Expense not found.');
         }
         foreach ($expenses as $expense) {
             if ($expense->getProjectId() !== $c->projectId || !$expense->isReimbursable()) {
-                throw InvalidValue::field('expenseIds', 'Solo se pueden reembolsar gastos aprobados de líderes de equipo.');
+                throw InvalidValue::field('expenseIds', 'Only approved Team Lead expenses can be paid back.');
             }
         }
         $total = array_sum(array_map(static fn (Expense $e): int => $e->getAmount(), $expenses));

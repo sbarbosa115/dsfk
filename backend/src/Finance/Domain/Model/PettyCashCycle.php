@@ -11,7 +11,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * A caja menor period. Every movement touching the caja menor belongs to the open cycle. The PM closes it
+ * A petty cash period. Every movement touching petty cash belongs to the open cycle. The PM closes it
  * (usually when the money runs out); the Admin signs it off. The closing balance opens the next cycle.
  */
 #[ORM\Entity]

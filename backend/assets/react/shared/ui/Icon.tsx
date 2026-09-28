@@ -87,7 +87,7 @@ const PATHS = {
   shield: (
     <path d="M12 3.5 5 6v5.5c0 4.3 2.9 7.6 7 9 4.1-1.4 7-4.7 7-9V6l-7-2.5Z" />
   ),
-  // Mensajería: the channels a notice goes out on (correo, SMS, WhatsApp).
+  // Messages: the channels a notice goes out on (email, SMS, WhatsApp).
   chat: (
     <path d="M4.5 5.5h15a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5v-3.5h-1a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1ZM8 10h8M8 13h5" />
   ),
@@ -125,7 +125,7 @@ const PATHS = {
   // Move a row up or down in an order (stages of a plan).
   arrowUp: <path d="M12 19V5M6 11l6-6 6 6" />,
   arrowDown: <path d="M12 5v14M6 13l6 6 6-6" />,
-  // Caja menor: the project's petty cash.
+  // Petty cash.
   wallet: (
     <>
       <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3" />

@@ -8,8 +8,8 @@ enum PaidFrom: string
 {
     /** From the stage's balance (PM or Admin). */
     case Stage = 'STAGE';
-    /** From the caja menor (PM or Admin). */
+    /** From petty cash (PM or Admin). */
     case PettyCash = 'PETTY_CASH';
-    /** A Team Lead's own money, paid back later from the caja menor. */
+    /** A Team Lead's own money, paid back later from petty cash. */
     case OutOfPocket = 'OUT_OF_POCKET';
 }

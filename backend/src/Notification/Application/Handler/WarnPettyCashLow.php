@@ -11,7 +11,7 @@ use App\Notification\Application\Port\Recipients;
 use App\Shared\Application\Bus\EventHandler;
 use App\Shared\Domain\Money\MinorUnits;
 
-/** The caja menor dropped below its warning level (a share of its last top-up): the Admins and the PM hear it once. */
+/** Petty cash dropped below its warning level (a share of its last top-up): the Admins and the PM hear it once. */
 final readonly class WarnPettyCashLow implements EventHandler
 {
     public function __construct(private Recipients $recipients, private NotificationFacts $facts, private Outbox $outbox)
@@ -29,7 +29,7 @@ final readonly class WarnPettyCashLow implements EventHandler
         $before = $after + $event->amount;
         if ($before >= $threshold && $after < $threshold) {
             $project = $this->facts->project($event->projectId);
-            $this->outbox->send([...$this->recipients->admins(), $this->recipients->projectManager($event->projectId)], 'Caja menor baja: '.$project['name'], 'petty_cash_low', [
+            $this->outbox->send([...$this->recipients->admins(), $this->recipients->projectManager($event->projectId)], 'petty_cash_low', ['project' => $project['name']], [
                 'project' => $project,
                 'balance' => MinorUnits::format($after, $project['currency']),
                 'lastTopUp' => MinorUnits::format($cash['lastTopUp'], $project['currency']),

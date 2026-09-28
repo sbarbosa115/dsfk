@@ -20,7 +20,7 @@ final readonly class NotifyBudgetSubmitted implements EventHandler
     public function __invoke(BudgetSubmitted $event): void
     {
         $project = $this->facts->project($event->projectId);
-        $this->outbox->send($this->recipients->admins(), 'Presupuesto enviado a aprobación: '.$project['name'], 'budget_submitted', [
+        $this->outbox->send($this->recipients->admins(), 'budget_submitted', ['project' => $project['name']], [
             'project' => $project,
             'by' => $this->facts->personName($event->byUserId),
         ]);

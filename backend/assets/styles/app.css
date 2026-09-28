@@ -251,7 +251,6 @@ code {
   max-width: 140px;
 }
 
-/* Configuración → Equipo: the line above the table, and the property picker inside the access modal. */
 /* A tab's one line of "what this is for" (ui.jsx TabIntro), with the tab's own action beside it when it has one. */
 .tab-intro {
   display: flex;
@@ -1442,7 +1441,7 @@ select.filter-select {
 }
 
 /*
- * A page's own views (Servicios públicos: invoices / utilities): a tab bar across the page under its header,
+ * A page's own views (e.g. one list shown two ways): a tab bar across the page under its header,
  * with the filters of the chosen view below it. The active tab is marked by colour, weight and an underline that
  * sits on the bar's bottom border.
  */
@@ -1728,7 +1727,7 @@ select.filter-select {
   margin: 4px 0 0;
 }
 
-/* Documentation ("Documentación"): the guides of each role */
+/* Documentation: the guides of each role */
 .help-card {
   color: inherit;
   text-decoration: none;

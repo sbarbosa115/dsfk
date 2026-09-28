@@ -66,10 +66,10 @@ final class MovementController extends AbstractController
         $this->guard->require(ProjectPermission::ADMINISTER, $project);
         $file = $request->files->get('file');
         if (!$file instanceof UploadedFile) {
-            throw InvalidValue::field('file', 'Selecciona un archivo.');
+            throw InvalidValue::field('file', 'Select a file.');
         }
         if (!$file->isValid()) {
-            throw InvalidValue::field('file', \UPLOAD_ERR_INI_SIZE === $file->getError() || \UPLOAD_ERR_FORM_SIZE === $file->getError() ? 'El archivo supera el máximo de 10 MB.' : 'No se pudo subir el archivo.');
+            throw InvalidValue::field('file', \UPLOAD_ERR_INI_SIZE === $file->getError() || \UPLOAD_ERR_FORM_SIZE === $file->getError() ? 'The file is larger than 10 MB.' : 'The file could not be uploaded.');
         }
         $this->bus->dispatch(AttachFile::toMovement($project, $id, new Upload($file->getPathname(), $file->getClientOriginalName(), (int) $file->getSize()), $actor->getId()));
 

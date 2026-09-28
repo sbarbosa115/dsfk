@@ -17,7 +17,7 @@ final readonly class CycleMovementOutput
         public string $type,
         #[OA\Property(format: 'date')]
         public string $date,
-        /** Major units, signed: what it put into (+) or took out of (−) the caja menor. */
+        /** Major units, signed: what it put into (+) or took out of (−) petty cash. */
         public string $amount,
         /** Its note (an expense's description, who was paid back). */
         public string $description,

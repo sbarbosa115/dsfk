@@ -1,6 +1,6 @@
 {% extends 'emails/layout.html.twig' %}
 {% set link = '/projects/' ~ project.id ~ '?tab=petty-cash' %}
 {% block content %}
-<p>La caja menor de <strong>{{ project.name }}</strong> quedó en <strong>{{ balance }}</strong>, por debajo del nivel de alerta (la última recarga fue de {{ lastTopUp }}).</p>
-<p>Considera cerrar el ciclo y pedir una recarga.</p>
+<p>{{ 'petty_cash_low.body'|trans({project: project.name, balance: balance, lastTopUp: lastTopUp}, 'emails') }}</p>
+<p>{{ 'petty_cash_low.next'|trans({}, 'emails') }}</p>
 {% endblock %}

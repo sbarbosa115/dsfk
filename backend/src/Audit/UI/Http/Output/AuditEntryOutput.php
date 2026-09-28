@@ -15,7 +15,7 @@ final readonly class AuditEntryOutput
         public int $id,
         public ?int $projectId,
         public ?string $projectName,
-        /** "Laura Gómez", or "Laura Gómez (vía Ana Admin)" while an Admin viewed the app as her */
+        /** The person, or the person and the Admin who viewed the app as them (audit translations, "actor_via") */
         public ?string $user,
         #[OA\Property(enum: ['create', 'update', 'delete'])]
         public string $action,

@@ -9,7 +9,7 @@ use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\ORM\Mapping as ORM;
 
-/** A cost category of one project (Nómina, Materiales…): budget vs actual is broken down by it. */
+/** A cost category of one project (payroll, materials…): budget vs actual is broken down by it. */
 #[ORM\Entity]
 #[ORM\Table(name: 'category')]
 #[ORM\UniqueConstraint(name: 'uniq_category_name', fields: ['projectId', 'name'])]
@@ -50,7 +50,7 @@ class Category implements Audited
     public function rename(string $name): void
     {
         if ('' === trim($name)) {
-            throw InvalidValue::field('name', 'Este valor no debería estar vacío.');
+            throw InvalidValue::field('name', 'This value should not be blank.');
         }
         $this->name = trim($name);
     }

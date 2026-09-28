@@ -6,7 +6,7 @@ namespace App\Finance\Application\Command;
 
 use App\Finance\Domain\Model\PaymentMethod;
 
-/** The Admin records money received for an approved project and splits it among stages, caja menor and contingency. */
+/** The Admin records money received for an approved project and splits it among stages, petty cash and contingency. */
 final readonly class RecordDeposit
 {
     /**

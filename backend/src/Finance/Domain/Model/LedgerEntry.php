@@ -46,10 +46,10 @@ class LedgerEntry implements Audited
         private ?int $categoryId = null,
     ) {
         if ((LedgerAccount::Stage === $account) !== (null !== $stageId)) {
-            throw InvalidValue::field('stageId', LedgerAccount::Stage === $account ? 'Elige la etapa.' : 'Solo las etapas llevan etapa.');
+            throw InvalidValue::field('stageId', LedgerAccount::Stage === $account ? 'Choose the stage.' : 'Only stage entries have a stage.');
         }
         if (0 === $amount) {
-            throw InvalidValue::field('amount', 'El monto no puede ser cero.');
+            throw InvalidValue::field('amount', 'The amount cannot be zero.');
         }
         $this->projectId = $movement->getProjectId();
         $this->amount = $amount;
