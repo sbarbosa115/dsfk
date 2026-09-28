@@ -36,6 +36,20 @@ deptrac:
         - type: bool
           must: [{ type: directory, value: src/Planning/.* }]
           must_not: [{ type: directory, value: src/Planning/(Application|Domain/Event)/.* }]
+    - name: FinanceApi
+      collectors: [{ type: directory, value: src/Finance/(Application|Domain/Event)/.* }]
+    - name: Finance
+      collectors:
+        - type: bool
+          must: [{ type: directory, value: src/Finance/.* }]
+          must_not: [{ type: directory, value: src/Finance/(Application|Domain/Event)/.* }]
+    - name: DocumentApi
+      collectors: [{ type: directory, value: src/Document/(Application|Domain/Event)/.* }]
+    - name: Document
+      collectors:
+        - type: bool
+          must: [{ type: directory, value: src/Document/.* }]
+          must_not: [{ type: directory, value: src/Document/(Application|Domain/Event)/.* }]
   ruleset:
     Shared: ~
     IdentityApi: [Shared, Identity]
@@ -47,5 +61,13 @@ deptrac:
     # Members' names come from Identity, the default currency from Settings.
     Project: [Shared, ProjectApi, IdentityApi, SettingsApi]
     PlanningApi: [Shared, Planning]
-    # The project's currency and activation come from Project, people's names from Identity.
-    Planning: [Shared, PlanningApi, ProjectApi, IdentityApi]
+    # The project's currency and activation come from Project, people's names from Identity; completing a stage
+    # settles its money in Finance, which also says whether deposits use a category.
+    Planning: [Shared, PlanningApi, ProjectApi, IdentityApi, FinanceApi]
+    FinanceApi: [Shared, Finance]
+    # Stages, categories and approval come from Planning, the currency from Project, names from Identity; proofs
+    # of deposit are Document's (the Finance endpoints attach and list them). Completing a stage is a Planning
+    # command that a Finance endpoint sends, answered with the funding summary.
+    Finance: [Shared, FinanceApi, PlanningApi, ProjectApi, IdentityApi, DocumentApi]
+    DocumentApi: [Shared, Document]
+    Document: [Shared, DocumentApi]

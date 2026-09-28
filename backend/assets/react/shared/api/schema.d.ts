@@ -4,6 +4,140 @@
  */
 
 export interface paths {
+    "/api/attachments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Opens a file in the browser: for the project's Admins and Project Manager. */
+        get: operations["get_api_attachments_download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/finance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Balances per stage, caja menor and contingency next to the budget: for the Admins and the PM. */
+        get: operations["get_api_finance_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/movements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Deposits, draws and carry-overs (voided ones included), newest first. `q` searches reference and note. */
+        get: operations["get_api_finance_movements"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/deposits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_finance_deposit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/contingency/draws": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_finance_draw"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stages/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The Admin closes a stage whose milestones are met; what is left of its money moves to the next open stage. */
+        post: operations["post_api_stages_complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/movements/{id}/void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deposits and draws only, with a reason; the record stays, out of the balances. */
+        post: operations["post_api_movements_void"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/movements/{id}/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A proof (multipart field "file"): PDF, JPG, PNG, WEBP or HEIC up to 10 MB, checked by content. */
+        post: operations["post_api_movements_attach"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/login": {
         parameters: {
             query?: never;
@@ -504,6 +638,71 @@ export interface components {
                 [key: string]: string[];
             };
         };
+        /** @enum {string} */
+        PaymentMethod: "TRANSFER" | "CASH" | "CHECK" | "OTHER";
+        /** @enum {string} */
+        LedgerAccount: "STAGE" | "PETTY_CASH" | "CONTINGENCY";
+        AllocationInput: {
+            /** @default null */
+            destination: components["schemas"]["LedgerAccount"] | null;
+            /**
+             * Major units, e.g. "1500000.00".
+             * @default
+             */
+            amount: string;
+            /**
+             * Required when the destination is STAGE.
+             * @default null
+             */
+            stageId: number | null;
+            /**
+             * Optional earmark, for STAGE only.
+             * @default null
+             */
+            categoryId: number | null;
+        };
+        DepositInput: {
+            /**
+             * YYYY-MM-DD, not in the future.
+             * @default
+             */
+            date: string;
+            /** @default null */
+            method: components["schemas"]["PaymentMethod"] | null;
+            /** @default null */
+            reference: string | null;
+            /** @default null */
+            note: string | null;
+            /** @default [] */
+            allocations: components["schemas"]["AllocationInput"][];
+        };
+        DrawInput: {
+            /** @default null */
+            stageId: number | null;
+            /**
+             * Major units.
+             * @default
+             */
+            amount: string;
+            /**
+             * YYYY-MM-DD, not in the future.
+             * @default
+             */
+            date: string;
+            /** @default  */
+            reason: string;
+        };
+        CompleteStageInput: {
+            /**
+             * YYYY-MM-DD, not in the future nor before the stage started.
+             * @default
+             */
+            actualEnd: string;
+        };
+        VoidInput: {
+            /** @default  */
+            reason: string;
+        };
         ChangePasswordInput: {
             /** @default  */
             currentPassword: string;
@@ -692,6 +891,128 @@ export interface components {
             pettyCashLowBalancePercent: number | null;
             /** @default null */
             budgetWarningPercents: number[] | null;
+        };
+        FinancePermissionsOutput: {
+            deposit: boolean;
+            void: boolean;
+            drawContingency: boolean;
+            completeStages: boolean;
+        };
+        FinanceTotalsOutput: {
+            /** Stages plus contingency. */
+            budget: string;
+            deposited: string;
+            spent: string;
+            stagesAvailable: string;
+            pettyCash: string;
+            contingency: string;
+        };
+        StageFundingOutput: {
+            id: number;
+            name: string;
+            /** @enum {string} */
+            status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+            budget: string;
+            deposited: string;
+            contingencyDraws: string;
+            carriedIn: string;
+            carriedOut: string;
+            /** Deposited + draws + carried in. */
+            received: string;
+            available: string;
+            /** Received above the budget. */
+            beyondBudget: string;
+            spent: string;
+            remainingBudget: string;
+            /** Basis points of the budget spent (can pass 10000). */
+            executed: number;
+            /** Basis points of the budget received (can pass 10000). */
+            funded: number;
+            /** Where its leftover goes when completed; null when completed or last. */
+            nextStage?: string | null;
+        };
+        CategorySpendingOutput: {
+            id: number;
+            name: string;
+            /** Major units. */
+            budget: string;
+            /** Major units. */
+            spent: string;
+            /** Basis points of the budget spent. */
+            executed: number;
+        };
+        ContingencyOutput: {
+            budgeted: string;
+            deposited: string;
+            /** Leftover of the last stage. */
+            carriedIn: string;
+            drawn: string;
+            balance: string;
+        };
+        PettyCashSummaryOutput: {
+            deposited: string;
+            balance: string;
+        };
+        FinanceOutput: {
+            currency: string;
+            budgetApproved: boolean;
+            permissions: components["schemas"]["FinancePermissionsOutput"];
+            totals: components["schemas"]["FinanceTotalsOutput"];
+            stages: components["schemas"]["StageFundingOutput"][];
+            categories: components["schemas"]["CategorySpendingOutput"][];
+            contingency: components["schemas"]["ContingencyOutput"];
+            pettyCash: components["schemas"]["PettyCashSummaryOutput"];
+        };
+        FinancePersonOutput: {
+            id: number;
+            fullName: string;
+        };
+        VoidOutput: {
+            /** Format: date-time */
+            at: string;
+            by: string;
+            reason: string;
+        };
+        LedgerEntryOutput: {
+            /** @enum {string} */
+            account: "STAGE" | "PETTY_CASH" | "CONTINGENCY";
+            stageId?: number | null;
+            stageName?: string | null;
+            categoryId?: number | null;
+            categoryName?: string | null;
+            /** Major units, signed: negative when the account gives money. */
+            amount: string;
+        };
+        AttachmentOutput: {
+            id: number;
+            name: string;
+            mimeType: string;
+            size: number;
+        };
+        MovementOutput: {
+            id: number;
+            /** @enum {string} */
+            type: "DEPOSIT" | "CONTINGENCY_DRAW" | "CARRYOVER" | "EXPENSE" | "REIMBURSEMENT";
+            /** Format: date */
+            date: string;
+            /** Major units, positive. */
+            amount: string;
+            /** @enum {string|null} */
+            method?: "TRANSFER" | "CASH" | "CHECK" | "OTHER" | null;
+            reference?: string | null;
+            note?: string | null;
+            createdBy: components["schemas"]["FinancePersonOutput"];
+            /** Format: date-time */
+            createdAt: string;
+            voided?: components["schemas"]["VoidOutput"] | null;
+            entries: components["schemas"]["LedgerEntryOutput"][];
+            attachments: components["schemas"]["AttachmentOutput"][];
+        };
+        MovementPageOutput: {
+            items: components["schemas"]["MovementOutput"][];
+            total: number;
+            page: number;
+            perPage: number;
         };
         MembershipOutput: {
             projectId: number;
@@ -915,6 +1236,416 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_api_attachments_download: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The file, inline, with its stored type */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": unknown;
+                };
+            };
+            /** @description forbidden (Team Leads) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description attachment_not_found, file_missing, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_finance_summary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The funding summary */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinanceOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money; only Admins move it */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description project_not_found (also outside the project), stage_not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_finance_movements: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                page?: number;
+                perPage?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of movements */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovementPageOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money; only Admins move it */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description project_not_found (also outside the project), stage_not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_finance_deposit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepositInput"];
+            };
+        };
+        responses: {
+            /** @description The deposit */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovementOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money; only Admins move it */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description project_not_found (also outside the project), stage_not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_not_approved */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed (fields such as allocations[1].stageId) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_finance_draw: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DrawInput"];
+            };
+        };
+        responses: {
+            /** @description The draw */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovementOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money; only Admins move it */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description project_not_found (also outside the project), stage_not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_not_approved */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed (amount above the contingency balance, stage completed) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_stages_complete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteStageInput"];
+            };
+        };
+        responses: {
+            /** @description The refreshed funding summary */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinanceOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money; only Admins move it */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description project_not_found (also outside the project), stage_not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_not_approved, stage_not_in_progress, stage_milestones_pending */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_movements_void: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoidInput"];
+            };
+        };
+        responses: {
+            /** @description The voided movement */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovementOutput"];
+                };
+            };
+            /** @description forbidden: Admins only */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description movement_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description movement_not_voidable, movement_already_voided, void_would_overdraw, cycle_closed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_movements_attach: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The movement with its files */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovementOutput"];
+                };
+            };
+            /** @description forbidden: Admins only */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description movement_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed on "file" */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     post_api_login: {
         parameters: {
             query?: never;

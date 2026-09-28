@@ -8,6 +8,16 @@ doctrine:
         auto_mapping: true
         # One mapping per bounded context: its Domain/Model folder.
         mappings:
+            Document:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Document/Domain/Model'
+                prefix: 'App\Document\Domain\Model'
+            Finance:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Finance/Domain/Model'
+                prefix: 'App\Finance\Domain\Model'
             Identity:
                 type: attribute
                 is_bundle: false

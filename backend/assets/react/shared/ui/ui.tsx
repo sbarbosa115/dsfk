@@ -282,6 +282,8 @@ const TONES: Record<string, string> = {
   // Milestones: met, or late (their planned date went by). The rest stay plain.
   milestone_done: 'success',
   milestone_overdue: 'danger',
+  // Money movements: a voided one stays listed, greyed out.
+  movement_voided: 'muted',
   // A member's role in a project.
   PROJECT_MANAGER: 'accent',
   TEAM_LEAD: 'teal',

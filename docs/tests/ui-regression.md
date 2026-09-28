@@ -217,3 +217,56 @@ and the Avance tile its share of the project (12,4 % with the Acero at $ 32.000 
 As Laura: no Reabrir. As the super admin: Reabrir on Excavación puts the stage back to 0 %. Then mark it met again.
 "Ver como" Carlos (Team Lead): the plan shows the stages and milestones, with no amounts, no Partidas, no
 Categorías amounts and no buttons that change anything.
+
+## 7. Fondos
+
+Run as the super admin unless the case says otherwise. Torre Norte's budget is the one PLN-02 – 06 approved
+(Estructura's Acero at $ 32.000 after PLN-05): Cimentación $ 1.437.506,25, Estructura $ 3.200.000, contingency
+$ 500.000, total $ 5.137.506,25. Cimentación is in progress with Excavación met (PLN-07).
+
+**FIN-01 · Who sees the money**
+As Laura: Torre Norte › Fondos shows the figures and "Aún no hay depósitos…", with no Registrar depósito, no
+Usar contingencia and no Finalizar etapa. "Ver como" Carlos (Team Lead): there is no Fondos tab, and opening
+`/projects/<id>?tab=finance` shows the plan instead.
+
+**FIN-02 · A deposit split among a stage, the caja menor and the contingency**
+Fondos › Registrar depósito: Transferencia, Referencia `TRX-001`; Destino 1 Etapa: Cimentación, Categoría 1
+Materiales, Monto 1 `1.500.000`; Agregar destino › Caja menor `300.000`; Agregar destino › Contingencia
+`200.000`. The dialog says "Total del depósito: $ 2.000.000" › Registrar. **Expected:** Depositado $ 2.000.000
+"de $ 5.137.506,25 presupuestados", Caja menor $ 300.000, Contingencia $ 200.000; Cimentación: Recibido
+$ 1.500.000 with "$ 62.493,75 por encima del presupuesto", Financiado 104,4 %, Disponible $ 1.500.000; the
+movement "Depósito · Transferencia · TRX-001" lists "Cimentación · Materiales", "Caja menor" and "Contingencia"
+with their amounts.
+
+**FIN-03 · Refusals say where**
+Registrar depósito with Monto 1 empty › Registrar: the message is under Monto 1 and nothing is saved. Usar
+contingencia › Estructura, `250.000`: "El monto supera el saldo disponible de la contingencia." under Monto.
+
+**FIN-04 · Contingency to a stage that ran short**
+Usar contingencia › Estructura, `150.000`, Motivo `Sobrecosto de acero` › Pasar a la etapa. **Expected:**
+Contingencia $ 50.000 ("usada: $ 150.000"), Estructura Recibido and Disponible $ 150.000, a "Uso de contingencia"
+movement with the reason.
+
+**FIN-05 · Proof of deposit**
+Adjuntar on the TRX-001 deposit: a text file renamed `.pdf` is refused ("Formato no permitido…" under Archivo);
+a real PDF › Adjuntar adds a "Comprobante" link that opens the PDF in a new tab. As Laura the link opens too, and
+she has no Adjuntar or Anular.
+
+**FIN-06 · Voiding keeps the record**
+Anular the TRX-001 deposit › any motivo: "No se puede anular: parte de ese dinero ya se usó o se trasladó."
+(its contingency money was drawn in FIN-04). Registrar depósito › Cimentación `500.000`, Referencia `DUP-1`; then
+Anular it with motivo `Duplicado`. **Expected:** the dialog names the deposit (date, amount, destination); the
+row turns grey with "Anulado por Administrador el …: “Duplicado”" and loses its buttons; Cimentación's Disponible
+is back to $ 1.500.000. Buscar `dup` shows only that movement.
+
+**FIN-07 · Completing a stage carries its money on**
+As Laura: Presupuesto y plan › Vaciado de zapatas › Marcar cumplido. Super admin › Fondos › Finalizar etapa on
+Cimentación: "Su saldo disponible ($ 1.500.000) pasará a la etapa “Estructura”." › Finalizar etapa.
+**Expected:** Cimentación's row turns green (Finalizada) with Disponible $ 0 and "$ 1.500.000 pasaron a la
+siguiente"; Estructura Disponible $ 1.650.000; a "Saldo trasladado" movement with no Anular; Presupuesto y plan
+shows Cimentación Finalizada; Registrar depósito no longer offers Cimentación.
+
+**FIN-08 · A category holding money stays**
+As Laura: Presupuesto y plan › Nueva categoría `Herramienta`. Super admin: Registrar depósito › Estructura,
+Categoría Herramienta, `1.000`. As Laura: deleting Herramienta says "La categoría se usa en partidas o gastos y no
+se puede eliminar."

@@ -5,6 +5,575 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/attachments/{id}": {
+            "get": {
+                "tags": [
+                    "Documents"
+                ],
+                "summary": "Opens a file in the browser: for the project's Admins and Project Manager.",
+                "operationId": "get_api_attachments_download",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The file, inline, with its stored type",
+                        "content": {
+                            "application/octet-stream": {}
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden (Team Leads)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "attachment_not_found, file_missing, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/finance": {
+            "get": {
+                "tags": [
+                    "Finance"
+                ],
+                "summary": "Balances per stage, caja menor and contingency next to the budget: for the Admins and the PM.",
+                "operationId": "get_api_finance_summary",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The funding summary",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FinanceOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also outside the project), stage_not_found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money; only Admins move it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/movements": {
+            "get": {
+                "tags": [
+                    "Finance"
+                ],
+                "summary": "Deposits, draws and carry-overs (voided ones included), newest first. `q` searches reference and note.",
+                "operationId": "get_api_finance_movements",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 50,
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "One page of movements",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MovementPageOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also outside the project), stage_not_found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money; only Admins move it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/deposits": {
+            "post": {
+                "tags": [
+                    "Finance"
+                ],
+                "operationId": "post_api_finance_deposit",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DepositInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The deposit",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MovementOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_not_approved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed (fields such as allocations[1].stageId)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also outside the project), stage_not_found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money; only Admins move it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/contingency/draws": {
+            "post": {
+                "tags": [
+                    "Finance"
+                ],
+                "operationId": "post_api_finance_draw",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DrawInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The draw",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MovementOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_not_approved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed (amount above the contingency balance, stage completed)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also outside the project), stage_not_found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money; only Admins move it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stages/{id}/complete": {
+            "post": {
+                "tags": [
+                    "Finance"
+                ],
+                "summary": "The Admin closes a stage whose milestones are met; what is left of its money moves to the next open stage.",
+                "operationId": "post_api_stages_complete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteStageInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The refreshed funding summary",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FinanceOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_not_approved, stage_not_in_progress, stage_milestones_pending",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also outside the project), stage_not_found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money; only Admins move it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/movements/{id}/void": {
+            "post": {
+                "tags": [
+                    "Finance"
+                ],
+                "summary": "Deposits and draws only, with a reason; the record stays, out of the balances.",
+                "operationId": "post_api_movements_void",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VoidInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The voided movement",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MovementOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "movement_not_voidable, movement_already_voided, void_would_overdraw, cycle_closed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Admins only",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "movement_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/movements/{id}/attachments": {
+            "post": {
+                "tags": [
+                    "Finance"
+                ],
+                "summary": "A proof (multipart field \"file\"): PDF, JPG, PNG, WEBP or HEIC up to 10 MB, checked by content.",
+                "operationId": "post_api_movements_attach",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The movement with its files",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MovementOutput"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed on \"file\"",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Admins only",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "movement_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "tags": [
@@ -1902,6 +2471,141 @@
                 },
                 "type": "object"
             },
+            "PaymentMethod": {
+                "type": "string",
+                "enum": [
+                    "TRANSFER",
+                    "CASH",
+                    "CHECK",
+                    "OTHER"
+                ]
+            },
+            "LedgerAccount": {
+                "type": "string",
+                "enum": [
+                    "STAGE",
+                    "PETTY_CASH",
+                    "CONTINGENCY"
+                ]
+            },
+            "AllocationInput": {
+                "properties": {
+                    "destination": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LedgerAccount"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "amount": {
+                        "title": "Major units, e.g. \"1500000.00\".",
+                        "type": "string",
+                        "pattern": "\\d{1,13}(\\.\\d{1,2})?",
+                        "default": ""
+                    },
+                    "stageId": {
+                        "title": "Required when the destination is STAGE.",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "categoryId": {
+                        "title": "Optional earmark, for STAGE only.",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "DepositInput": {
+                "properties": {
+                    "date": {
+                        "title": "YYYY-MM-DD, not in the future.",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "method": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/PaymentMethod"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "reference": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 100
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 2000
+                    },
+                    "allocations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AllocationInput"
+                        },
+                        "default": [],
+                        "maxItems": 30,
+                        "minItems": 1
+                    }
+                },
+                "type": "object"
+            },
+            "DrawInput": {
+                "properties": {
+                    "stageId": {
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "amount": {
+                        "title": "Major units.",
+                        "type": "string",
+                        "pattern": "\\d{1,13}(\\.\\d{1,2})?",
+                        "default": ""
+                    },
+                    "date": {
+                        "title": "YYYY-MM-DD, not in the future.",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "reason": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 2000
+                    }
+                },
+                "type": "object"
+            },
+            "CompleteStageInput": {
+                "properties": {
+                    "actualEnd": {
+                        "title": "YYYY-MM-DD, not in the future nor before the stage started.",
+                        "type": "string",
+                        "default": ""
+                    }
+                },
+                "type": "object"
+            },
+            "VoidInput": {
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 2000
+                    }
+                },
+                "type": "object"
+            },
             "ChangePasswordInput": {
                 "properties": {
                     "currentPassword": {
@@ -2326,6 +3030,462 @@
                         "default": null,
                         "maxItems": 5,
                         "minItems": 1
+                    }
+                },
+                "type": "object"
+            },
+            "FinancePermissionsOutput": {
+                "required": [
+                    "deposit",
+                    "void",
+                    "drawContingency",
+                    "completeStages"
+                ],
+                "properties": {
+                    "deposit": {
+                        "type": "boolean"
+                    },
+                    "void": {
+                        "type": "boolean"
+                    },
+                    "drawContingency": {
+                        "type": "boolean"
+                    },
+                    "completeStages": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "FinanceTotalsOutput": {
+                "required": [
+                    "budget",
+                    "deposited",
+                    "spent",
+                    "stagesAvailable",
+                    "pettyCash",
+                    "contingency"
+                ],
+                "properties": {
+                    "budget": {
+                        "title": "Stages plus contingency.",
+                        "type": "string"
+                    },
+                    "deposited": {
+                        "type": "string"
+                    },
+                    "spent": {
+                        "type": "string"
+                    },
+                    "stagesAvailable": {
+                        "type": "string"
+                    },
+                    "pettyCash": {
+                        "type": "string"
+                    },
+                    "contingency": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "StageFundingOutput": {
+                "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "budget",
+                    "deposited",
+                    "contingencyDraws",
+                    "carriedIn",
+                    "carriedOut",
+                    "received",
+                    "available",
+                    "beyondBudget",
+                    "spent",
+                    "remainingBudget",
+                    "executed",
+                    "funded"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "IN_PROGRESS",
+                            "COMPLETED"
+                        ]
+                    },
+                    "budget": {
+                        "type": "string"
+                    },
+                    "deposited": {
+                        "type": "string"
+                    },
+                    "contingencyDraws": {
+                        "type": "string"
+                    },
+                    "carriedIn": {
+                        "type": "string"
+                    },
+                    "carriedOut": {
+                        "type": "string"
+                    },
+                    "received": {
+                        "title": "Deposited + draws + carried in.",
+                        "type": "string"
+                    },
+                    "available": {
+                        "type": "string"
+                    },
+                    "beyondBudget": {
+                        "title": "Received above the budget.",
+                        "type": "string"
+                    },
+                    "spent": {
+                        "type": "string"
+                    },
+                    "remainingBudget": {
+                        "type": "string"
+                    },
+                    "executed": {
+                        "title": "Basis points of the budget spent (can pass 10000).",
+                        "type": "integer"
+                    },
+                    "funded": {
+                        "title": "Basis points of the budget received (can pass 10000).",
+                        "type": "integer"
+                    },
+                    "nextStage": {
+                        "title": "Where its leftover goes when completed; null when completed or last.",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CategorySpendingOutput": {
+                "required": [
+                    "id",
+                    "name",
+                    "budget",
+                    "spent",
+                    "executed"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "budget": {
+                        "title": "Major units.",
+                        "type": "string"
+                    },
+                    "spent": {
+                        "title": "Major units.",
+                        "type": "string"
+                    },
+                    "executed": {
+                        "title": "Basis points of the budget spent.",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "ContingencyOutput": {
+                "required": [
+                    "budgeted",
+                    "deposited",
+                    "carriedIn",
+                    "drawn",
+                    "balance"
+                ],
+                "properties": {
+                    "budgeted": {
+                        "type": "string"
+                    },
+                    "deposited": {
+                        "type": "string"
+                    },
+                    "carriedIn": {
+                        "title": "Leftover of the last stage.",
+                        "type": "string"
+                    },
+                    "drawn": {
+                        "type": "string"
+                    },
+                    "balance": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "PettyCashSummaryOutput": {
+                "required": [
+                    "deposited",
+                    "balance"
+                ],
+                "properties": {
+                    "deposited": {
+                        "type": "string"
+                    },
+                    "balance": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "FinanceOutput": {
+                "required": [
+                    "currency",
+                    "budgetApproved",
+                    "permissions",
+                    "totals",
+                    "stages",
+                    "categories",
+                    "contingency",
+                    "pettyCash"
+                ],
+                "properties": {
+                    "currency": {
+                        "type": "string"
+                    },
+                    "budgetApproved": {
+                        "type": "boolean"
+                    },
+                    "permissions": {
+                        "$ref": "#/components/schemas/FinancePermissionsOutput"
+                    },
+                    "totals": {
+                        "$ref": "#/components/schemas/FinanceTotalsOutput"
+                    },
+                    "stages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StageFundingOutput"
+                        }
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CategorySpendingOutput"
+                        }
+                    },
+                    "contingency": {
+                        "$ref": "#/components/schemas/ContingencyOutput"
+                    },
+                    "pettyCash": {
+                        "$ref": "#/components/schemas/PettyCashSummaryOutput"
+                    }
+                },
+                "type": "object"
+            },
+            "FinancePersonOutput": {
+                "required": [
+                    "id",
+                    "fullName"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "fullName": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "VoidOutput": {
+                "required": [
+                    "at",
+                    "by",
+                    "reason"
+                ],
+                "properties": {
+                    "at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "by": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "LedgerEntryOutput": {
+                "required": [
+                    "account",
+                    "amount"
+                ],
+                "properties": {
+                    "account": {
+                        "type": "string",
+                        "enum": [
+                            "STAGE",
+                            "PETTY_CASH",
+                            "CONTINGENCY"
+                        ]
+                    },
+                    "stageId": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "stageName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "categoryId": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "categoryName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "amount": {
+                        "title": "Major units, signed: negative when the account gives money.",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "AttachmentOutput": {
+                "required": [
+                    "id",
+                    "name",
+                    "mimeType",
+                    "size"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "mimeType": {
+                        "type": "string"
+                    },
+                    "size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "MovementOutput": {
+                "required": [
+                    "id",
+                    "type",
+                    "date",
+                    "amount",
+                    "createdBy",
+                    "createdAt",
+                    "entries",
+                    "attachments"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "DEPOSIT",
+                            "CONTINGENCY_DRAW",
+                            "CARRYOVER",
+                            "EXPENSE",
+                            "REIMBURSEMENT"
+                        ]
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amount": {
+                        "title": "Major units, positive.",
+                        "type": "string"
+                    },
+                    "method": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "TRANSFER",
+                            "CASH",
+                            "CHECK",
+                            "OTHER"
+                        ]
+                    },
+                    "reference": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "createdBy": {
+                        "$ref": "#/components/schemas/FinancePersonOutput"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "voided": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/VoidOutput"
+                            }
+                        ]
+                    },
+                    "entries": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LedgerEntryOutput"
+                        }
+                    },
+                    "attachments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AttachmentOutput"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "MovementPageOutput": {
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "perPage"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MovementOutput"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "perPage": {
+                        "type": "integer"
                     }
                 },
                 "type": "object"
@@ -3076,6 +4236,12 @@
         }
     },
     "tags": [
+        {
+            "name": "Documents"
+        },
+        {
+            "name": "Finance"
+        },
         {
             "name": "Auth"
         },
