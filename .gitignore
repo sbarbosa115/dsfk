@@ -1,5 +1,0 @@
-/.idea/
-/frontend/node_modules/
-/frontend/dist/
-# Built by `make build` / the deploy step, never committed.
-/backend/public/app/

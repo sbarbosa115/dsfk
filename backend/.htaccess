@@ -1,3 +1,0 @@
-# The web root is public/. This folder sits inside public_html on the server, so refuse to serve
-# anything else from it (.env.local, var/, vendor/...).
-Require all denied
