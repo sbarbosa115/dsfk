@@ -43,6 +43,13 @@ interface LedgerRepository
      */
     public function movement(int $id): FundMovement;
 
+    /**
+     * The movement to change, its row locked until the command commits (two voids of it run one after the other).
+     *
+     * @throws NotFound movement_not_found
+     */
+    public function movementForUpdate(int $id): FundMovement;
+
     /** From the stored movements that are not voided. */
     public function balances(int $projectId): Balances;
 

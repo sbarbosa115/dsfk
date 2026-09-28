@@ -16,6 +16,7 @@ use App\Finance\Domain\Repository\LedgerRepository;
 use App\Shared\Application\Query\Page;
 use App\Shared\Domain\Error\NotFound;
 use App\Shared\Infrastructure\Doctrine\Search;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -77,6 +78,11 @@ final readonly class DoctrineLedgerRepository implements LedgerRepository, Finan
     public function movement(int $id): FundMovement
     {
         return $this->em->find(FundMovement::class, $id) ?? throw new NotFound('movement_not_found');
+    }
+
+    public function movementForUpdate(int $id): FundMovement
+    {
+        return $this->em->find(FundMovement::class, $id, LockMode::PESSIMISTIC_WRITE) ?? throw new NotFound('movement_not_found');
     }
 
     public function balances(int $projectId): Balances

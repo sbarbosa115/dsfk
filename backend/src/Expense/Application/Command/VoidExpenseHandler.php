@@ -17,7 +17,7 @@ final readonly class VoidExpenseHandler implements CommandHandler
 
     public function __invoke(VoidExpense $c): void
     {
-        $expense = $this->expenses->get($c->expenseId);
+        $expense = $this->expenses->forUpdate($c->expenseId);
         $expense->void($c->actorId, $c->reason, $this->clock->now());
         if (null !== $expense->getMovementId()) {
             $this->funds->refund($expense->getMovementId(), $c->actorId, $c->reason);

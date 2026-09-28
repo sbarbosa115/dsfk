@@ -30,7 +30,7 @@ final readonly class ReimburseExpensesHandler implements CommandHandler
     public function __invoke(ReimburseExpenses $c): void
     {
         $ids = array_values(array_unique($c->expenseIds));
-        $expenses = $this->expenses->many($ids);
+        $expenses = $this->expenses->manyForUpdate($ids);
         if (\count($expenses) !== \count($ids)) {
             throw InvalidValue::field('expenseIds', 'Gasto no encontrado.');
         }

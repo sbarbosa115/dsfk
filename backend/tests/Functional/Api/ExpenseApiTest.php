@@ -269,6 +269,36 @@ final class ExpenseApiTest extends ApiTestCase
         $this->assertError(409, 'category_in_use');
     }
 
+    public function testAnotherProjectsExpensesCannotBePaidBackFromThisCajaMenor(): void
+    {
+        $this->fund();
+        $expense = $this->approvedTeamLeadExpense('1000');
+        $otherPm = $this->createUser('otro-pm@example.com');
+        $other = $this->createProject('Otro', [[$otherPm, ProjectRole::ProjectManager]]);
+        $this->loginAs($otherPm);
+
+        $data = $this->request('POST', '/api/projects/'.$other->getId().'/reimbursements', $this->payBack([$expense]));
+        $this->assertStatus(422);
+        self::assertIsArray($data);
+        self::assertArrayHasKey('expenseIds', $data['violations']);
+    }
+
+    public function testATeamLeadNoLongerChangesAnApprovedExpense(): void
+    {
+        $this->fund();
+        $expense = $this->approvedTeamLeadExpense('1000');
+        $this->loginAs($this->lead);
+
+        $this->upload("/api/expenses/$expense/attachments", 'otra.pdf');
+        $this->assertError(403, 'forbidden');
+        $this->request('PUT', "/api/expenses/$expense", $this->expense('2000'));
+        $this->assertError(409, 'expense_not_editable');
+        $this->request('POST', "/api/expenses/$expense/approve");
+        $this->assertError(403, 'forbidden');
+        $this->request('POST', $this->base.'/reimbursements', $this->payBack([$expense]));
+        $this->assertError(403, 'forbidden');
+    }
+
     public function testOutsidersDoNotReachAProjectsExpenses(): void
     {
         $this->fund();

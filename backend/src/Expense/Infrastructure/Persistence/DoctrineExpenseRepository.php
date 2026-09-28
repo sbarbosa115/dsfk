@@ -14,6 +14,7 @@ use App\Expense\Domain\Repository\ExpenseRepository;
 use App\Shared\Application\Query\Page;
 use App\Shared\Domain\Error\NotFound;
 use App\Shared\Infrastructure\Doctrine\Search;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -42,6 +43,28 @@ final readonly class DoctrineExpenseRepository implements ExpenseRepository, Exp
     public function many(array $ids): array
     {
         return [] === $ids ? [] : $this->em->getRepository(Expense::class)->findBy(['id' => $ids], ['id' => 'ASC']);
+    }
+
+    public function forUpdate(int $id): Expense
+    {
+        return $this->em->find(Expense::class, $id, LockMode::PESSIMISTIC_WRITE) ?? throw new NotFound('expense_not_found');
+    }
+
+    public function manyForUpdate(array $ids): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->em->createQueryBuilder()
+            ->select('e')
+            ->from(Expense::class, 'e')
+            ->where('e.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->orderBy('e.id', 'ASC')
+            ->getQuery()
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->getResult();
     }
 
     public function projectOf(int $expenseId): ?int

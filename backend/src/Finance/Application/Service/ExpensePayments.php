@@ -57,7 +57,7 @@ final readonly class ExpensePayments
     /** The expense was voided: its money goes back to the stage or the caja menor. */
     public function refund(int $movementId, int $actorId, string $reason): void
     {
-        $movement = $this->ledger->movement($movementId);
+        $movement = $this->ledger->movementForUpdate($movementId);
         $this->ledger->lock($movement->getProjectId());
         $movement->voidSpending($this->ledger->balances($movement->getProjectId()), $actorId, $reason, $this->clock->now());
     }

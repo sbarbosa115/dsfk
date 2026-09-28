@@ -18,7 +18,7 @@ final readonly class RejectExpenseHandler implements CommandHandler
 
     public function __invoke(RejectExpense $c): void
     {
-        $expense = $this->expenses->get($c->expenseId);
+        $expense = $this->expenses->forUpdate($c->expenseId);
         $expense->reject($c->actorId, $c->admin, $c->reason, $this->clock->now());
         $this->events->publish(new ExpenseRejected($c->expenseId, $expense->getProjectId()));
     }

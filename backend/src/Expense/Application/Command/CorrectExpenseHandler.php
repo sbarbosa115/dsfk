@@ -25,7 +25,7 @@ final readonly class CorrectExpenseHandler implements CommandHandler
 
     public function __invoke(CorrectExpense $c): void
     {
-        $expense = $this->expenses->get($c->expenseId);
+        $expense = $this->expenses->forUpdate($c->expenseId);
         $d = CheckedDetails::of($c->details, $expense->getProjectId(), $this->plan, $this->limits);
         $in = $c->details;
         $names = [

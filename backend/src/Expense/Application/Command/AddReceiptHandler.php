@@ -18,7 +18,7 @@ final readonly class AddReceiptHandler implements CommandHandler
 
     public function __invoke(AddReceipt $c): void
     {
-        $expense = $this->expenses->get($c->expenseId);
+        $expense = $this->expenses->forUpdate($c->expenseId);
         $owner = $expense->getPaidById() === $c->actorId && $expense->isCorrectable();
         $manager = $c->manager && ExpenseStatus::Voided !== $expense->getStatus();
         if (!$owner && !$manager) {

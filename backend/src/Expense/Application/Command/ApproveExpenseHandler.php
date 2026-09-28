@@ -27,7 +27,7 @@ final readonly class ApproveExpenseHandler implements CommandHandler
 
     public function __invoke(ApproveExpense $c): void
     {
-        $expense = $this->expenses->get($c->expenseId);
+        $expense = $this->expenses->forUpdate($c->expenseId);
         $expense->approve($c->actorId, $c->admin, $this->limits->teamLeadLimit($expense->getProjectId()), $this->receipts->has($c->expenseId), $this->clock->now());
         $this->events->publish(ExpenseStatus::PmApproved === $expense->getStatus()
             ? new ExpenseNeedsAdmin($c->expenseId, $expense->getProjectId())
