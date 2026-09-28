@@ -1,0 +1,26 @@
+# Hexagonal layers inside every bounded context (symfony-react-app skill, steps/04 §4.1).
+# UI → Application → Domain; Infrastructure → Application and Domain. Domain and Application name no framework
+# class. The baseline stays empty.
+deptrac:
+  paths: [./src]
+  exclude_files: ['#Kernel\.php$#']
+  layers:
+    - name: Domain
+      collectors: [{ type: directory, value: src/[^/]+/Domain/.* }]
+    - name: Application
+      collectors: [{ type: directory, value: src/[^/]+/Application/.* }]
+    - name: Infrastructure
+      collectors: [{ type: directory, value: src/[^/]+/Infrastructure/.* }]
+    - name: UI
+      collectors: [{ type: directory, value: src/[^/]+/UI/.* }]
+    - name: Framework
+      collectors:
+        - { type: classLike, value: '^Symfony\\' }
+        - { type: classLike, value: '^Doctrine\\(ORM|DBAL|Bundle|Persistence)\\(?!ORM\\Mapping\\)' }
+        - { type: classLike, value: '^Twig\\' }
+        - { type: classLike, value: '^Nelmio\\' }
+  ruleset:
+    Domain: ~
+    Application: [Domain]
+    Infrastructure: [Application, Domain, Framework]
+    UI: [Application, Domain, Framework]

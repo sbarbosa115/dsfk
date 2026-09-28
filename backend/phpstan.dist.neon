@@ -1,0 +1,11 @@
+# PHPStan (symfony-react-app skill, steps/05). A new codebase starts strict; never lower the level.
+# Findings are fixed, not baselined: a deliberate exception goes in ignoreErrors with its reason.
+parameters:
+    level: 8
+    paths:
+        - src
+        - tests
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    doctrine:
+        objectManagerLoader: tests/object-manager.php

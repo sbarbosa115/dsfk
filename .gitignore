@@ -3,3 +3,4 @@
 /frontend/dist/
 # Built by `make build` / the deploy step, never committed.
 /backend/public/app/
+/.env

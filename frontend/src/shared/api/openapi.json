@@ -1,0 +1,33 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Control de Proyectos API",
+        "version": "1.0.0"
+    },
+    "paths": {},
+    "components": {
+        "schemas": {
+            "Error": {
+                "required": [
+                    "error"
+                ],
+                "properties": {
+                    "error": {
+                        "description": "Stable snake_case code the UI translates",
+                        "type": "string"
+                    },
+                    "violations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}
