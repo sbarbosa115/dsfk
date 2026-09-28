@@ -109,8 +109,8 @@ Make Laura an ordinary admin (USR-05 steps), sign in as her. Usuarios. **Expecte
 the super admin's row are disabled. Sign back in as the super admin and remove Laura's admin access.
 
 **USR-08 · Non-admins do not see admin pages**
-Sign in as `pm@demo.test`. **Expected:** the sidebar shows Proyectos and Documentación only; opening
-`/users` or `/settings` goes home.
+Sign in as `pm@demo.test`. **Expected:** no Administración section in the sidebar (Tablero appears once she is a
+Project Manager somewhere); opening `/users` or `/settings` goes home.
 
 ## 3. "Ver como" (super admin)
 
@@ -126,9 +126,47 @@ Create a user (USR-01 steps), then open "Ver como". **Expected:** the new user i
 ## 4. Settings (Admin)
 
 **SET-01 · Invalid values are refused field by field**
-Configuración › Límite `-5`, Alertas `100, 0` › Guardar. **Expected:** "Revisa los campos marcados." and a
-message under both fields; nothing changes.
+Configuración › Alerta de caja menor baja `0`, Alertas `100, 0` › Guardar. **Expected:** "Revisa los campos
+marcados." and a message under both fields; nothing changes. (The límite field only takes amounts: letters and
+a minus sign cannot be typed.)
 
 **SET-02 · Save settings**
 Límite `750000`, Alertas `100, 75, 75` › Guardar. **Expected:** "Cambios guardados.", the field shows
 `75, 100`, and reloading the page keeps the values.
+
+## 5. Projects
+
+**PRJ-01 · An admin with no projects is told to create one**
+Super admin › Proyectos. **Expected:** "Aún no hay proyectos. Crea el primero…" with a "Nuevo proyecto" button
+under it, and the same button at the end of the filter bar; the legend lists Borrador, Activo, Finalizado,
+Archivado.
+
+**PRJ-02 · Create a project**
+Nuevo proyecto › `Torre Norte`, description `Edificio de doce pisos`, Inicio `1/10/2026`, Fin `30/06/2026` ›
+Crear. **Expected:** "La fecha de fin no puede ser anterior a la de inicio." under Fin planeado. Fin
+`30/06/2027` › Crear: the project page opens: Resumen tab, Estado "Borrador", Moneda COP (the Settings
+default), the dates written day first, Mi rol "Administrador".
+
+**PRJ-03 · The currency is chosen once**
+Editar proyecto. **Expected:** Moneda is disabled; the Estado hint changes with the chosen status. Change the
+description › Guardar: the subtitle shows it.
+
+**PRJ-04 · Build the team: one Project Manager**
+Equipo del proyecto › Persona `Laura Gómez`, Rol Gerente de proyecto › Agregar. **Expected:** "Laura Gómez ahora
+es Gerente de proyecto del proyecto." and a violet row. Carlos Pérez as Gerente › Agregar: "El proyecto ya tiene
+un gerente. Cámbiale el rol primero." As Líder de equipo: added, teal row. Admins and disabled users are never in
+the Persona list.
+
+**PRJ-05 · Change a role and remove someone**
+Carlos's row › Rol › Gerente de proyecto: refused as in PRJ-04. Laura's row › Líder de equipo, then Carlos ›
+Gerente: both change. "Quitar" on a row asks "… dejará de ver este proyecto…"; confirming removes the row and
+says so. Put the team back as in PRJ-04 (Laura PM, Carlos Team Lead).
+
+**PRJ-06 · Search and filter the list**
+Create a second project `Casa 50%`. Proyectos › Buscar `50%`: only "Casa 50%". Estado › Archivado: "Ningún
+proyecto coincide con la búsqueda." and "Ver todos", which brings every project back.
+
+**PRJ-07 · Members see only their projects, read-only**
+"Ver como" › Carlos Pérez. **Expected:** Proyectos lists only Torre Norte, Mi rol "Líder de equipo", no "Nuevo
+proyecto"; the project page has no "Editar proyecto", no Agregar and no Quitar. Opening `/projects/<Casa's id>`
+says "Este proyecto no existe o no participas en él."
