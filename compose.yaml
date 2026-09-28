@@ -73,6 +73,9 @@ services:
     working_dir: /app
     volumes:
       - ./backend:/app
+    environment:
+      # Only uid 1000 ("node") has a home in this image; any other user would get / and no npm cache.
+      HOME: /tmp
     # npm ci: the lock file is written by npm 11 (npm 10 crashes resolving this tree); ci only reads it.
     command: sh -c "npm ci --no-audit --no-fund && npm run watch"
 
