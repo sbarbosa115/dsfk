@@ -3,7 +3,149 @@
  * Do not make direct changes to the file.
  */
 
-export type paths = Record<string, never>;
+export interface paths {
+    "/api/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign in with email and password (session cookie). Handled by the json_login authenticator. */
+        post: operations["post_api_login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign out. Intercepted by the firewall's logout listener. */
+        post: operations["post_api_logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_api_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/impersonate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * "Ver como": POST /api/impersonate?_switch_user=<email|_exit> is handled by the firewall (switch_user), which
+         *     then redirects here without the parameter; the answer is the new current user.
+         */
+        get: operations["get_api_impersonate"];
+        put?: never;
+        /**
+         * "Ver como": POST /api/impersonate?_switch_user=<email|_exit> is handled by the firewall (switch_user), which
+         *     then redirects here without the parameter; the answer is the new current user.
+         */
+        post: operations["post_api_impersonate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_me_password"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every user with their project roles (the users table and the "Ver como" menu). */
+        get: operations["get_api_users_list"];
+        put?: never;
+        post: operations["post_api_users_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit a user. Only the fields sent change. */
+        patch: operations["patch_api_users_update"];
+        trace?: never;
+    };
+    "/api/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_api_settings_show"];
+        /** Change some settings; the ones not sent stay. Admin only. */
+        put: operations["put_api_settings_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+}
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
@@ -14,6 +156,80 @@ export interface components {
                 [key: string]: string[];
             };
         };
+        ChangePasswordInput: {
+            /** @default  */
+            currentPassword: string;
+            /** @default  */
+            newPassword: string;
+        };
+        UserInput: Record<string, never>;
+        UserInput2: {
+            /** @default null */
+            email: string | null;
+            /** @default null */
+            fullName: string | null;
+            /** @default null */
+            password: string | null;
+            /** @default null */
+            admin: boolean | null;
+            /** @default null */
+            superAdmin: boolean | null;
+            /** @default null */
+            active: boolean | null;
+        };
+        SettingsInput: {
+            /** @default null */
+            defaultCurrency: string | null;
+            /** @default null */
+            teamLeadExpenseLimit: string | null;
+            /** @default null */
+            pettyCashLowBalancePercent: number | null;
+            /** @default null */
+            budgetWarningPercents: number[] | null;
+        };
+        MembershipOutput: {
+            projectId: number;
+            projectName: string;
+            /** @enum {string} */
+            role: "PROJECT_MANAGER" | "TEAM_LEAD";
+        };
+        ImpersonatorOutput: {
+            id: number;
+            fullName: string;
+        };
+        CurrentUserOutput: {
+            id: number;
+            email: string;
+            fullName: string;
+            admin: boolean;
+            superAdmin: boolean;
+            memberships: components["schemas"]["MembershipOutput"][];
+            /** Set while a super admin is viewing the app as this user. */
+            impersonator?: components["schemas"]["ImpersonatorOutput"] | null;
+            /** Shows the "Ver como" menu: a super admin, or someone being viewed as (to offer the way back). */
+            canImpersonate: boolean;
+        };
+        UserOutput: {
+            id: number;
+            email: string;
+            fullName: string;
+            admin: boolean;
+            superAdmin: boolean;
+            active: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            memberships: components["schemas"]["MembershipOutput"][];
+        };
+        SettingsOutput: {
+            /** ISO 4217 code for new projects */
+            defaultCurrency: string;
+            /** Major units; a Team Lead expense above it also needs an Admin's approval */
+            teamLeadExpenseLimit: string;
+            /** Caja menor alert when the balance drops below this % of the last top-up */
+            pettyCashLowBalancePercent: number;
+            /** Budget alert thresholds, % of a stage or category budget, ascending */
+            budgetWarningPercents: number[];
+        };
     };
     responses: never;
     parameters: never;
@@ -22,4 +238,374 @@ export interface components {
     pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+    post_api_login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    email: string;
+                    password: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The signed-in user */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentUserOutput"];
+                };
+            };
+            /** @description invalid_credentials, account_disabled or too_many_attempts */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Signed out */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_api_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The signed-in user */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentUserOutput"];
+                };
+            };
+        };
+    };
+    get_api_impersonate: {
+        parameters: {
+            query?: {
+                /** @description Email of the user to view as, or _exit */
+                _switch_user?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The user now signed in */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentUserOutput"];
+                };
+            };
+            /** @description Switched; follow to GET /api/impersonate */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description switch_user_not_allowed, or not allowed to view as that user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_impersonate: {
+        parameters: {
+            query?: {
+                /** @description Email of the user to view as, or _exit */
+                _switch_user?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The user now signed in */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentUserOutput"];
+                };
+            };
+            /** @description Switched; follow to GET /api/impersonate */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description switch_user_not_allowed, or not allowed to view as that user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_me_password: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordInput"];
+            };
+        };
+        responses: {
+            /** @description Password changed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description validation_failed (currentPassword wrong, newPassword too short or unchanged) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_users_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Users sorted by name */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOutput"][];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_users_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserInput"];
+            };
+        };
+        responses: {
+            /** @description The new user */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOutput"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed or email_taken */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    patch_api_users_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserInput2"];
+            };
+        };
+        responses: {
+            /** @description The user */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOutput"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description user_not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed, email_taken or cannot_change_own_access */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_settings_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The global settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsOutput"];
+                };
+            };
+        };
+    };
+    put_api_settings_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SettingsInput"];
+            };
+        };
+        responses: {
+            /** @description The global settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsOutput"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+}

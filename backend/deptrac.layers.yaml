@@ -16,7 +16,13 @@ deptrac:
     - name: Framework
       collectors:
         - { type: classLike, value: '^Symfony\\' }
-        - { type: classLike, value: '^Doctrine\\(ORM|DBAL|Bundle|Persistence)\\(?!ORM\\Mapping\\)' }
+        # Doctrine's mapping attributes, column type names and collections are allowed in the Domain.
+        - type: bool
+          must: [{ type: classLike, value: '^Doctrine\\' }]
+          must_not:
+            - { type: classLike, value: '^Doctrine\\ORM\\Mapping\\' }
+            - { type: classLike, value: '^Doctrine\\DBAL\\Types\\Types$' }
+            - { type: classLike, value: '^Doctrine\\Common\\Collections\\' }
         - { type: classLike, value: '^Twig\\' }
         - { type: classLike, value: '^Nelmio\\' }
   ruleset:
