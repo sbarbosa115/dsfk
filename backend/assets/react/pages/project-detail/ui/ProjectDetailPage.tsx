@@ -24,15 +24,23 @@ import {
   TabPanel,
   Tabs,
 } from '@/shared/ui';
+import {ExpenseBoard} from '@/widgets/expense-board';
 import {FinanceBoard} from '@/widgets/finance-board';
+import {PettyCashBoard} from '@/widgets/petty-cash-board';
 import {PlanBoard} from '@/widgets/plan-board';
 
-type Tab = 'plan' | 'finance' | 'overview';
-// Team Leads see no money: a link to ?tab=finance lands them on the plan.
-const MANAGER_TABS: readonly Tab[] = ['plan', 'finance', 'overview'];
-const TEAM_LEAD_TABS: readonly Tab[] = ['plan', 'overview'];
+type Tab = 'plan' | 'expenses' | 'finance' | 'petty-cash' | 'overview';
+// Team Leads see no project money (only their own expenses): a link to ?tab=finance lands them on the plan.
+const MANAGER_TABS: readonly Tab[] = [
+  'plan',
+  'expenses',
+  'finance',
+  'petty-cash',
+  'overview',
+];
+const TEAM_LEAD_TABS: readonly Tab[] = ['plan', 'expenses', 'overview'];
 
-/** One project: its plan and budget first, its money (for the Admins and the PM), then who is in it. */
+/** One project: its plan and budget, its expenses, its money and caja menor (Admins and the PM), then who is in it. */
 export function ProjectDetailPage() {
   const {id = ''} = useParams();
   const project = useQuery({
@@ -87,12 +95,22 @@ function ProjectView({project}: {project: Project}) {
         onChange={setTab}
         options={[
           {value: 'plan', label: t('projects.tabs.plan'), icon: 'clipboard'},
+          {
+            value: 'expenses',
+            label: t('projects.tabs.expenses'),
+            icon: 'receipt',
+          },
           ...(manager
             ? [
                 {
                   value: 'finance' as const,
                   label: t('projects.tabs.finance'),
                   icon: 'wallet' as const,
+                },
+                {
+                  value: 'petty-cash' as const,
+                  label: t('projects.tabs.pettyCash'),
+                  icon: 'card' as const,
                 },
               ]
             : []),
@@ -105,7 +123,11 @@ function ProjectView({project}: {project: Project}) {
       />
       <TabPanel id="project" value={tab}>
         {tab === 'plan' && <PlanBoard projectId={project.id} />}
+        {tab === 'expenses' && (
+          <ExpenseBoard projectId={project.id} manager={manager} />
+        )}
         {tab === 'finance' && <FinanceBoard projectId={project.id} />}
+        {tab === 'petty-cash' && <PettyCashBoard projectId={project.id} />}
         {tab === 'overview' && <Overview project={project} admin={admin} />}
       </TabPanel>
       {editing && (

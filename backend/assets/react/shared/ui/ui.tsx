@@ -282,6 +282,17 @@ const TONES: Record<string, string> = {
   // Milestones: met, or late (their planned date went by). The rest stay plain.
   milestone_done: 'success',
   milestone_overdue: 'danger',
+  // Expenses.
+  expense_submitted: 'info',
+  expense_pm_approved: 'accent',
+  expense_approved: 'success',
+  expense_rejected: 'danger',
+  expense_reimbursed: 'teal',
+  expense_voided: 'muted',
+  // Caja menor cycles.
+  cycle_open: 'info',
+  cycle_closed: 'warning',
+  cycle_signed_off: 'success',
   // Money movements: a voided one stays listed, greyed out.
   movement_voided: 'muted',
   // A member's role in a project.
