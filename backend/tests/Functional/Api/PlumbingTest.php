@@ -34,7 +34,8 @@ final class PlumbingTest extends WebTestCase
 
         $client->request('GET', '/projects/12');
 
-        $status = $client->getResponse()->getStatusCode();
-        self::assertContains($status, [200, 503], 'the SPA controller answers (503 only while the UI is not built)');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('data-controller="symfony--ux-react--react"', (string) $client->getResponse()->getContent(), 'Symfony UX React mounts the app');
+        self::assertStringContainsString('App', (string) $client->getResponse()->getContent());
     }
 }

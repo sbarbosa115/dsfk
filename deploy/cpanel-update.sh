@@ -97,18 +97,13 @@ main() {
   placeholders="$(grep -nE '^[^#]*(change-me|:PASSWORD@|yourdomain)' "$app_dir/.env.local" | cut -d= -f1 | tr '\n' ' ' || true)"
   [ -z "$placeholders" ] || die "$app_dir/.env.local still has template values on lines: $placeholders(was the edit saved?)"
 
-  # --- Frontend (compiled into backend/public/app) ---------------------------------------------
-  log "Building frontend"
-  (cd "$src/frontend" && npm ci --no-audit --no-fund --no-update-notifier --loglevel=error && npx tsc -b && npx vite build --logLevel warn)
-  [ -f "$src/backend/public/app/index.html" ] || die "frontend build produced no public/app/index.html"
-
   # --- Backend release -------------------------------------------------------------------------
   log "Staging release"
   rm -rf "$stage" && mkdir -p "$stage"
   rsync -a "$src/backend/" "$stage/" \
     --exclude '/vendor/' --exclude '/var/' --exclude '/tests/' --exclude '/.phpunit.cache/' \
     --exclude '/.env.local' --exclude '/.env.local.php' --exclude '/.env.*.local' --exclude '/.env.dev' --exclude '/.env.test' \
-    --exclude '/phpunit.dist.xml' --exclude '/phpunit.xml'
+    --exclude '/phpunit.dist.xml' --exclude '/phpunit.xml' --exclude '/node_modules/' --exclude '/public/build/'
   sed -i 's/^APP_ENV=.*/APP_ENV=prod/' "$stage/.env"
   cp -r "$src/deploy/server" "$stage/deploy"
   chmod +x "$stage/deploy/"*.sh
@@ -118,6 +113,15 @@ main() {
   (cd "$stage" && "${composer[@]}" install \
     --no-dev --no-scripts --no-interaction --no-progress --optimize-autoloader --classmap-authoritative -q)
   (cd "$stage" && "$php" -r 'require "vendor/autoload.php";') || die "PHP dependencies do not load on this PHP"
+
+  # --- Frontend (Webpack Encore into public/build, served by Symfony) ---------------------------
+  # After composer: @symfony/ux-react is installed from vendor/. npm ci only reads the lock file.
+  log "Building frontend"
+  (cd "$stage" && npm ci --no-audit --no-fund --no-update-notifier --loglevel=error && npx tsc --noEmit && npm run -s build >/dev/null)
+  [ -f "$stage/public/build/entrypoints.json" ] || die "frontend build produced no public/build/entrypoints.json"
+  # Only the build ships: sources and tooling stay out of the app folder.
+  (cd "$stage" && rm -rf node_modules assets package.json package-lock.json webpack.config.js tsconfig.json \
+    vitest.config.mts eslint.config.mjs eslint-fsd-boundaries.mjs eslint-google-rules.mjs .prettierrc.json .prettierignore)
 
   (cd "$stage" && find . -type f ! -name MANIFEST | sed 's#^\./##' | LC_ALL=C sort > MANIFEST)
 

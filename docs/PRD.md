@@ -276,8 +276,10 @@ expenses, caja menor, dashboard), `/help`, `/help/:topicId`, and Admin-only `/us
 
 - **Stack:** Symfony 8.1 on PHP ≥ 8.4.1, Doctrine ORM + Migrations, Security, Validator, Serializer,
   Mailer, Messenger (Doctrine transport). MySQL or MariaDB without engine-specific features.
-  React + TypeScript + Vite, MUI, React Router, TanStack Query, react-i18next, Recharts; built into
-  `backend/public/app` and served by Symfony (same origin, no CORS, no Node on the server).
+  React + TypeScript inside Symfony: `backend/assets/react` (Feature-Sliced Design), mounted by Symfony UX
+  React (`react_component('App')` in a Twig page) and built by Webpack Encore into `backend/public/build`
+  (same origin, no CORS, no Node at runtime). UI in the MDX project's design system (token stylesheet with
+  light and dark themes, its table/button/filter kit); React Router, TanStack Query, react-i18next, Recharts.
 - **Security:** session cookies, CSRF header on every write, login throttling, disabled-user check,
   per-project voter, files outside the web root, content-sniffed uploads.
 - **Integrity:** money in minor units; balances derived from the ledger; no hard deletes of money records;
@@ -288,8 +290,8 @@ expenses, caja menor, dashboard), `/help`, `/help/:topicId`, and Admin-only `/us
 
 ## 8. Deployment and operations
 
-- **Local:** Docker Compose with `php` (Apache + mod_php, like cPanel), `mysql` 8.0, `node` 22 (Vite)
-  and `mailpit`. `make up | install | migrate | admin | seed | test | build`. `make seed` loads three demo
+- **Local:** Docker Compose with `php` (Apache + mod_php, like cPanel), `mysql` 8.0, `node` 22 (Encore watch),
+  `worker` (Messenger) and `mailpit`. `make up | install | migrate | admin | seed | test | build`. `make seed` loads three demo
   projects and demo accounts (password `demo1234`).
 - **Production (cPanel):** `deploy/cpanel-update.sh [ref]` pulls a branch, tag or commit from GitHub,
   builds the frontend and a production `vendor/` on PHP 8.4, writes a `MANIFEST`, copies the release,

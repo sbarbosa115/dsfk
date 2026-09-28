@@ -1,0 +1,21 @@
+webpack_encore:
+    # Built by Webpack Encore (npm run build / the node service's watch); Symfony serves public/build.
+    output_path: '%kernel.project_dir%/public/build'
+    script_attributes:
+        defer: true
+
+framework:
+    assets:
+        json_manifest_path: '%kernel.project_dir%/public/build/manifest.json'
+
+when@prod:
+    webpack_encore:
+        cache: true
+
+# Functional tests render the SPA page without a build.
+when@test:
+    webpack_encore:
+        strict_mode: false
+    framework:
+        assets:
+            json_manifest_path: ~
