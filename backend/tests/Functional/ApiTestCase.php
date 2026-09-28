@@ -13,6 +13,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Clock;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * Functional API tests: a real kernel, the MySQL test database (each test rolled back), JSON in and out.
@@ -29,6 +31,13 @@ abstract class ApiTestCase extends WebTestCase
         $this->client = static::createClient();
         $this->em = self::service(EntityManagerInterface::class);
         self::service(CacheItemPoolInterface::class, 'cache.rate_limiter')->clear();
+    }
+
+    protected function tearDown(): void
+    {
+        // A test may have frozen time (Clock::set()); the next one starts with the real clock.
+        Clock::set(new NativeClock());
+        parent::tearDown();
     }
 
     /**

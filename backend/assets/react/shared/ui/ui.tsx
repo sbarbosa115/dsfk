@@ -270,6 +270,18 @@ const TONES: Record<string, string> = {
   project_active: 'success',
   project_completed: 'info',
   project_archived: 'muted',
+  // The budget of a plan.
+  budget_draft: 'accent',
+  budget_submitted: 'info',
+  budget_returned: 'warning',
+  budget_approved: 'success',
+  // Stages of a plan.
+  stage_pending: 'neutral',
+  stage_in_progress: 'info',
+  stage_completed: 'success',
+  // Milestones: met, or late (their planned date went by). The rest stay plain.
+  milestone_done: 'success',
+  milestone_overdue: 'danger',
   // A member's role in a project.
   PROJECT_MANAGER: 'accent',
   TEAM_LEAD: 'teal',

@@ -400,6 +400,1088 @@
                 }
             }
         },
+        "/api/budget-lines/{id}": {
+            "put": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "put_api_lines_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LineInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "delete_api_lines_delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categories/{id}": {
+            "delete": {
+                "tags": [
+                    "Plan"
+                ],
+                "summary": "Only a category nothing uses.",
+                "operationId": "delete_api_categories_delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "409": {
+                        "description": "category_in_use",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "patch_api_categories_rename",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CategoryInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/milestones/{id}": {
+            "delete": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "delete_api_milestones_delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked, budget_not_approved, milestone_already_completed, stage_completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Plan"
+                ],
+                "summary": "While the budget is editable. Fields sent change; null clears the planned date.",
+                "operationId": "patch_api_milestones_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateMilestoneInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked, budget_not_approved, milestone_already_completed, stage_completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/milestones/{id}/complete": {
+            "post": {
+                "tags": [
+                    "Plan"
+                ],
+                "summary": "PM or Admin, once the budget is approved.",
+                "operationId": "post_api_milestones_complete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteMilestoneInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked, budget_not_approved, milestone_already_completed, stage_completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/milestones/{id}/reopen": {
+            "post": {
+                "tags": [
+                    "Plan"
+                ],
+                "summary": "Admin only: undoes a completion.",
+                "operationId": "post_api_milestones_reopen",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked, budget_not_approved, milestone_already_completed, stage_completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/plan": {
+            "get": {
+                "tags": [
+                    "Plan"
+                ],
+                "summary": "Any member; Team Leads get it without money.",
+                "operationId": "get_api_plan_show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also when not a member)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/categories": {
+            "post": {
+                "tags": [
+                    "Plan"
+                ],
+                "summary": "PM or Admin, also after approval.",
+                "operationId": "post_api_plan_categories_add",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CategoryInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "validation_failed (name taken)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also when not a member)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/stages": {
+            "post": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "post_api_plan_stages_add",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateStageInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "409": {
+                        "description": "budget_locked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also when not a member)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/stages/order": {
+            "put": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "put_api_plan_stages_order",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReorderInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "validation_failed: ids must be every stage once",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also when not a member)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/budget/contingency": {
+            "put": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "put_api_plan_contingency",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ContingencyInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also when not a member)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/budget/submit": {
+            "post": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "post_api_plan_submit",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "422": {
+                        "description": "budget_incomplete, with `issues`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also when not a member)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/budget/return": {
+            "post": {
+                "tags": [
+                    "Plan"
+                ],
+                "summary": "Admin only: back to the PM with what to change.",
+                "operationId": "post_api_plan_return",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReturnBudgetInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "409": {
+                        "description": "budget_not_submitted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also when not a member)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/budget/approve": {
+            "post": {
+                "tags": [
+                    "Plan"
+                ],
+                "summary": "Admin only: locks the budget and activates the project.",
+                "operationId": "post_api_plan_approve",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also when not a member)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stages/{id}": {
+            "delete": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "delete_api_stages_delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stage_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked, budget_not_approved, stage_already_started",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Plan"
+                ],
+                "summary": "The name can always be fixed; planned dates only while the budget is editable. Fields sent change.",
+                "operationId": "patch_api_stages_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateStageInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stage_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked, budget_not_approved, stage_already_started",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stages/{id}/start": {
+            "post": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "post_api_stages_start",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StartStageInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stage_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked, budget_not_approved, stage_already_started",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stages/{id}/lines": {
+            "post": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "post_api_stages_lines_add",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LineInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stage_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked, budget_not_approved, stage_already_started",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stages/{id}/milestones": {
+            "post": {
+                "tags": [
+                    "Plan"
+                ],
+                "operationId": "post_api_stages_milestones_add",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateMilestoneInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The refreshed plan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlanOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "stage_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_locked, budget_not_approved, stage_already_started",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/projects": {
             "get": {
                 "tags": [
@@ -903,6 +1985,198 @@
                 },
                 "type": "object"
             },
+            "LineInput": {
+                "properties": {
+                    "categoryId": {
+                        "type": "integer",
+                        "default": 0,
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 255
+                    },
+                    "unit": {
+                        "title": "m\u00b2, m\u00b3, kg, d\u00eda, global\u2026",
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 20
+                    },
+                    "quantity": {
+                        "title": "Up to 3 decimals.",
+                        "type": "string",
+                        "pattern": "\\d{1,11}(\\.\\d{1,3})?",
+                        "default": "",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                    },
+                    "unitPrice": {
+                        "title": "Major units, e.g. \"35000.50\".",
+                        "type": "string",
+                        "pattern": "\\d{1,13}(\\.\\d{1,2})?",
+                        "default": ""
+                    }
+                },
+                "type": "object"
+            },
+            "CategoryInput": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 100
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateMilestoneInput": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 200
+                    },
+                    "weight": {
+                        "type": "string",
+                        "pattern": "\\d{1,3}(\\.\\d{1,2})?",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "plannedDate": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "CompleteMilestoneInput": {
+                "properties": {
+                    "completedAt": {
+                        "title": "YYYY-MM-DD, not in the future.",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "notes": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 2000
+                    }
+                },
+                "type": "object"
+            },
+            "CreateStageInput": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 150
+                    },
+                    "plannedStart": {
+                        "title": "YYYY-MM-DD",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "plannedEnd": {
+                        "title": "YYYY-MM-DD",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "ReorderInput": {
+                "properties": {
+                    "ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "default": []
+                    }
+                },
+                "type": "object"
+            },
+            "ContingencyInput": {
+                "properties": {
+                    "contingency": {
+                        "title": "Major units.",
+                        "type": "string",
+                        "pattern": "\\d{1,13}(\\.\\d{1,2})?",
+                        "default": ""
+                    }
+                },
+                "type": "object"
+            },
+            "ReturnBudgetInput": {
+                "properties": {
+                    "comment": {
+                        "title": "What the PM should change.",
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 2000
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateStageInput": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 150
+                    },
+                    "plannedStart": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "plannedEnd": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "StartStageInput": {
+                "properties": {
+                    "actualStart": {
+                        "title": "YYYY-MM-DD, not in the future.",
+                        "type": "string",
+                        "default": ""
+                    }
+                },
+                "type": "object"
+            },
+            "CreateMilestoneInput": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 200
+                    },
+                    "weight": {
+                        "title": "Percentage of the stage, e.g. \"25\" or \"12.5\".",
+                        "type": "string",
+                        "pattern": "\\d{1,3}(\\.\\d{1,2})?",
+                        "default": ""
+                    },
+                    "plannedDate": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
             "ProjectStatus": {
                 "type": "string",
                 "enum": [
@@ -1211,6 +2485,439 @@
                 },
                 "type": "object"
             },
+            "PlanProjectOutput": {
+                "required": [
+                    "id",
+                    "name",
+                    "currency",
+                    "status"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "DRAFT",
+                            "ACTIVE",
+                            "COMPLETED",
+                            "ARCHIVED"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "PlanPermissionsOutput": {
+                "required": [
+                    "viewFinancials",
+                    "edit",
+                    "manageCategories",
+                    "submit",
+                    "review",
+                    "track",
+                    "reopenMilestones"
+                ],
+                "properties": {
+                    "viewFinancials": {
+                        "title": "Amounts are shown (PM and Admin).",
+                        "type": "boolean"
+                    },
+                    "edit": {
+                        "title": "Stages, lines, milestones and contingency can be edited (the budget is a draft or was returned).",
+                        "type": "boolean"
+                    },
+                    "manageCategories": {
+                        "title": "Categories can be added and renamed (also after approval).",
+                        "type": "boolean"
+                    },
+                    "submit": {
+                        "type": "boolean"
+                    },
+                    "review": {
+                        "title": "The Admin may approve or return it (it is submitted).",
+                        "type": "boolean"
+                    },
+                    "track": {
+                        "title": "Stages can be started and milestones met (the budget is approved).",
+                        "type": "boolean"
+                    },
+                    "reopenMilestones": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "PersonOutput": {
+                "required": [
+                    "id",
+                    "fullName"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "fullName": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "MilestoneOutput": {
+                "required": [
+                    "id",
+                    "name",
+                    "weight",
+                    "overdue"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "weight": {
+                        "title": "Basis points of the stage (10000 = 100 %)",
+                        "type": "integer"
+                    },
+                    "plannedDate": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "completedAt": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "completedBy": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/PersonOutput"
+                            }
+                        ]
+                    },
+                    "completionNotes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "overdue": {
+                        "title": "Not met and its planned date has gone by",
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "LineOutput": {
+                "required": [
+                    "id",
+                    "categoryId",
+                    "description",
+                    "unit",
+                    "quantity",
+                    "unitPrice",
+                    "total"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "categoryId": {
+                        "type": "integer"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "title": "\"12.5\"",
+                        "type": "string"
+                    },
+                    "unitPrice": {
+                        "title": "Major units",
+                        "type": "string"
+                    },
+                    "total": {
+                        "title": "Major units: quantity \u00d7 unit price, rounded half up",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "StageOutput": {
+                "required": [
+                    "id",
+                    "name",
+                    "position",
+                    "status",
+                    "progress",
+                    "milestoneWeightTotal",
+                    "milestones"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "IN_PROGRESS",
+                            "COMPLETED"
+                        ]
+                    },
+                    "plannedStart": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "plannedEnd": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "actualStart": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "actualEnd": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "progress": {
+                        "title": "Basis points met",
+                        "type": "integer"
+                    },
+                    "milestoneWeightTotal": {
+                        "title": "Basis points: must be 10000 to submit",
+                        "type": "integer"
+                    },
+                    "milestones": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MilestoneOutput"
+                        }
+                    },
+                    "budgetTotal": {
+                        "title": "Major units; null for Team Leads",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "weight": {
+                        "title": "Share of the budget in basis points; null for Team Leads",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "lines": {
+                        "title": "null for Team Leads",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LineOutput"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CategoryOutput": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "CategoryTotalOutput": {
+                "required": [
+                    "categoryId",
+                    "total"
+                ],
+                "properties": {
+                    "categoryId": {
+                        "type": "integer"
+                    },
+                    "total": {
+                        "title": "Major units budgeted in the category",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "BudgetEventOutput": {
+                "required": [
+                    "status",
+                    "user",
+                    "createdAt"
+                ],
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "DRAFT",
+                            "SUBMITTED",
+                            "RETURNED",
+                            "APPROVED"
+                        ]
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/PersonOutput"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "BudgetOutput": {
+                "required": [
+                    "contingency",
+                    "stagesTotal",
+                    "total",
+                    "byCategory",
+                    "events"
+                ],
+                "properties": {
+                    "contingency": {
+                        "type": "string"
+                    },
+                    "stagesTotal": {
+                        "title": "Sum of the stages (contingency excluded)",
+                        "type": "string"
+                    },
+                    "total": {
+                        "type": "string"
+                    },
+                    "approvedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "byCategory": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CategoryTotalOutput"
+                        }
+                    },
+                    "events": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BudgetEventOutput"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "PlanIssueOutput": {
+                "required": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "enum": [
+                            "no_stages",
+                            "stage_without_lines",
+                            "milestone_weights"
+                        ]
+                    },
+                    "stageId": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PlanOutput": {
+                "required": [
+                    "project",
+                    "permissions",
+                    "budgetStatus",
+                    "progress",
+                    "stages",
+                    "categories"
+                ],
+                "properties": {
+                    "project": {
+                        "$ref": "#/components/schemas/PlanProjectOutput"
+                    },
+                    "permissions": {
+                        "$ref": "#/components/schemas/PlanPermissionsOutput"
+                    },
+                    "budgetStatus": {
+                        "type": "string",
+                        "enum": [
+                            "DRAFT",
+                            "SUBMITTED",
+                            "RETURNED",
+                            "APPROVED"
+                        ]
+                    },
+                    "progress": {
+                        "title": "Project progress: stages weighted by their share of the budget",
+                        "type": "integer"
+                    },
+                    "stages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StageOutput"
+                        }
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CategoryOutput"
+                        }
+                    },
+                    "budget": {
+                        "title": "null for Team Leads",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/BudgetOutput"
+                            }
+                        ]
+                    },
+                    "issues": {
+                        "title": "What blocks submitting, while editable; null for Team Leads",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlanIssueOutput"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "MemberUserOutput": {
                 "required": [
                     "id",
@@ -1374,6 +3081,9 @@
         },
         {
             "name": "Users"
+        },
+        {
+            "name": "Plan"
         },
         {
             "name": "Projects"
