@@ -40,7 +40,12 @@ summarises; nothing is copied without meeting today's bar.
 Cross-context writes in one transaction go through the other context's `Application` port (e.g. completing a
 stage asks `Finance` to carry its balance over; paying an expense asks `Finance` to post the movement).
 
-## Frontend `frontend/src/` (FSD)
+## Frontend `backend/assets/react/` (FSD, served by Symfony)
+
+Changed on 2026-09-28 at the owner's request: the React app lives inside Symfony (Symfony UX React mounts it
+from a Twig page, Webpack Encore builds it into `public/build`) and uses the MDX project's design system
+instead of MUI.
+
 
 `app/` (providers, router, shell) · `pages/` (login, dashboard, projects, project-detail, users, settings,
 audit, help) · `widgets/` (plan board, finance panels, expense list, petty-cash panel, project dashboard,

@@ -36,7 +36,7 @@ export function ImpersonationPicker() {
   const current = user.impersonator ? user.email : '';
 
   return (
-    <div className="theme-picker impersonation-picker">
+    <div className="impersonation-picker">
       <label className="nav-section-title" htmlFor="impersonation-select">
         {t('impersonation.label')}
       </label>

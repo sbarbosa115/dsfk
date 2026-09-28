@@ -5,7 +5,7 @@
 export const es = {
   app: {
     name: 'Control de Proyectos',
-    tagline: 'Presupuesto, dinero y avance de cada obra',
+    tagline: 'Obras, dinero y avance',
   },
   nav: {
     label: 'Menú principal',
@@ -128,9 +128,9 @@ export const es = {
     lockedSuperAdmin:
       'Solo un super administrador puede editar a otro super administrador.',
     confirmDisable:
-      '{{name}} no podrá entrar a la aplicación hasta que lo actives de nuevo. ¿Desactivar?',
-    disabled: '{{name}} quedó desactivado.',
-    enabled: '{{name}} puede entrar de nuevo.',
+      '{{name}} no podrá entrar a la aplicación hasta que vuelvas a activar su cuenta.',
+    disabled: 'La cuenta de {{name}} quedó desactivada.',
+    enabled: '{{name}} ya puede entrar de nuevo.',
   },
   settings: {
     title: 'Configuración',

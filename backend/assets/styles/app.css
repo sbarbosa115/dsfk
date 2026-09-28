@@ -366,7 +366,19 @@ code {
   font-weight: 600;
 }
 
-/* "Tema" in the sidebar footer: the same labelled dropdown as "Actuar como usuario". */
+/* "Ver como" at the top of a super admin's sidebar. */
+.impersonation-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 16px 8px 20px;
+}
+
+.impersonation-picker .nav-section-title {
+    padding: 0;
+}
+
+/* "Tema" in the sidebar footer: the same labelled dropdown as "Ver como". */
 .theme-picker {
   display: flex;
   flex-direction: column;
