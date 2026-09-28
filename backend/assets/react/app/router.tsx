@@ -19,6 +19,9 @@ const ProjectDetailPage = lazy(() =>
     default: m.ProjectDetailPage,
   })),
 );
+const AuditPage = lazy(() =>
+  import('@/pages/audit').then((m) => ({default: m.AuditPage})),
+);
 const NotFoundPage = lazy(() =>
   import('@/pages/not-found').then((m) => ({default: m.NotFoundPage})),
 );
@@ -39,6 +42,7 @@ export const router = createBrowserRouter([
             children: [
               {path: 'users', element: <UsersPage />},
               {path: 'settings', element: <SettingsPage />},
+              {path: 'audit', element: <AuditPage />},
             ],
           },
           {path: '*', element: <NotFoundPage />},

@@ -6,6 +6,7 @@ namespace App\Finance\Domain\Model;
 
 use App\Shared\Domain\Error\Conflict;
 use App\Shared\Domain\Error\InvalidValue;
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -20,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: 'fund_movement')]
 #[ORM\Index(name: 'idx_movement_project_date', columns: ['project_id', 'date'])]
-class FundMovement
+class FundMovement implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -327,5 +328,10 @@ class FundMovement
     private static function clean(?string $text): ?string
     {
         return null === $text || '' === trim($text) ? null : trim($text);
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->projectId;
     }
 }

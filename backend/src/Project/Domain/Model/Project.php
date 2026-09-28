@@ -7,6 +7,7 @@ namespace App\Project\Domain\Model;
 use App\Shared\Domain\Error\Conflict;
 use App\Shared\Domain\Error\InvalidValue;
 use App\Shared\Domain\Error\NotFound;
+use App\Shared\Domain\Model\Audited;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -18,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'project')]
-class Project
+class Project implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -200,5 +201,10 @@ class Project
         }
 
         return null;
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->id;
     }
 }

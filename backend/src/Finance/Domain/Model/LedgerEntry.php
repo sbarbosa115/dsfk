@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Finance\Domain\Model;
 
 use App\Shared\Domain\Error\InvalidValue;
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: 'ledger_entry')]
 #[ORM\Index(name: 'idx_entry_account', columns: ['project_id', 'account', 'stage_id'])]
-class LedgerEntry
+class LedgerEntry implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -87,5 +88,10 @@ class LedgerEntry
     public function key(): string
     {
         return Balances::key($this->account, $this->stageId);
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->projectId;
     }
 }

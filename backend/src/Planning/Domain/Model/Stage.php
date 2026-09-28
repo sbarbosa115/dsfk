@@ -7,6 +7,7 @@ namespace App\Planning\Domain\Model;
 use App\Shared\Domain\Error\Conflict;
 use App\Shared\Domain\Error\InvalidValue;
 use App\Shared\Domain\Error\NotFound;
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -16,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 /** An ordered stage of a project, with its budget lines, its weighted milestones and its dates. */
 #[ORM\Entity]
 #[ORM\Table(name: 'stage')]
-class Stage
+class Stage implements Audited
 {
     public const FULL_WEIGHT = 10000;
 
@@ -295,5 +296,10 @@ class Stage
         }
 
         return $next;
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->projectId;
     }
 }

@@ -8,6 +8,11 @@ doctrine:
         auto_mapping: true
         # One mapping per bounded context: its Domain/Model folder.
         mappings:
+            Audit:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Audit/Domain/Model'
+                prefix: 'App\Audit\Domain\Model'
             Document:
                 type: attribute
                 is_bundle: false

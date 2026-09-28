@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Planning\Domain\Model;
 
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Money\MinorUnits;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 /** One line of a stage's budget: quantity × unit price, in a category. */
 #[ORM\Entity]
 #[ORM\Table(name: 'budget_line')]
-class BudgetLine
+class BudgetLine implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -110,5 +111,10 @@ class BudgetLine
     public function getPosition(): int
     {
         return $this->position;
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->stage->getProjectId();
     }
 }

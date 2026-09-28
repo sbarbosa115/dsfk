@@ -5,6 +5,90 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/audit": {
+            "get": {
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Who changed what, newest first: Admins only. `q` searches the person's name.",
+                "operationId": "get_api_audit",
+                "parameters": [
+                    {
+                        "name": "projectId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "entityType",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 50,
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "One page of the audit trail",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuditPageOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Not an admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/attachments/{id}": {
             "get": {
                 "tags": [
@@ -4047,6 +4131,94 @@
                 },
                 "type": "object"
             },
+            "AuditEntryOutput": {
+                "required": [
+                    "id",
+                    "action",
+                    "entityType",
+                    "changes",
+                    "createdAt"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "projectId": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "projectName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "user": {
+                        "title": "\"Laura G\u00f3mez\", or \"Laura G\u00f3mez (v\u00eda Ana Admin)\" while an Admin viewed the app as her",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "action": {
+                        "type": "string",
+                        "enum": [
+                            "create",
+                            "update",
+                            "delete"
+                        ]
+                    },
+                    "entityType": {
+                        "title": "Project, Stage, Expense, FundMovement\u2026",
+                        "type": "string"
+                    },
+                    "entityId": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "changes": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {}
+                        }
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "AuditPageOutput": {
+                "required": [
+                    "entityTypes",
+                    "items",
+                    "total",
+                    "page",
+                    "perPage"
+                ],
+                "properties": {
+                    "entityTypes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuditEntryOutput"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "perPage": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
             "ExpenseSummaryOutput": {
                 "required": [
                     "pendingCount",
@@ -5783,6 +5955,9 @@
         }
     },
     "tags": [
+        {
+            "name": "Audit"
+        },
         {
             "name": "Documents"
         },

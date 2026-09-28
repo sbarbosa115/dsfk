@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/api/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Who changed what, newest first: Admins only. `q` searches the person's name. */
+        get: operations["get_api_audit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/attachments/{id}": {
         parameters: {
             query?: never;
@@ -1127,6 +1144,30 @@ export interface components {
             /** @default null */
             budgetWarningPercents: number[] | null;
         };
+        AuditEntryOutput: {
+            id: number;
+            projectId?: number | null;
+            projectName?: string | null;
+            /** "Laura Gómez", or "Laura Gómez (vía Ana Admin)" while an Admin viewed the app as her */
+            user?: string | null;
+            /** @enum {string} */
+            action: "create" | "update" | "delete";
+            /** Project, Stage, Expense, FundMovement… */
+            entityType: string;
+            entityId?: number | null;
+            changes: {
+                [key: string]: unknown[];
+            };
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AuditPageOutput: {
+            entityTypes: string[];
+            items: components["schemas"]["AuditEntryOutput"][];
+            total: number;
+            page: number;
+            perPage: number;
+        };
         ExpenseSummaryOutput: {
             /** Waiting for the PM, or for an Admin above the limit. */
             pendingCount: number;
@@ -1611,6 +1652,41 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_api_audit: {
+        parameters: {
+            query?: {
+                projectId?: number | null;
+                entityType?: string | null;
+                q?: string | null;
+                page?: number;
+                perPage?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of the audit trail */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditPageOutput"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     get_api_attachments_download: {
         parameters: {
             query?: never;

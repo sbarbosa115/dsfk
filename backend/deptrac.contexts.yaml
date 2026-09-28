@@ -57,6 +57,13 @@ deptrac:
         - type: bool
           must: [{ type: directory, value: src/Expense/.* }]
           must_not: [{ type: directory, value: src/Expense/(Application|Domain/Event)/.* }]
+    - name: AuditApi
+      collectors: [{ type: directory, value: src/Audit/(Application|Domain/Event)/.* }]
+    - name: Audit
+      collectors:
+        - type: bool
+          must: [{ type: directory, value: src/Audit/.* }]
+          must_not: [{ type: directory, value: src/Audit/(Application|Domain/Event)/.* }]
   ruleset:
     Shared: ~
     IdentityApi: [Shared, Identity]
@@ -85,3 +92,6 @@ deptrac:
     # the currency from Project, names from Identity, receipts are Document's (its handler runs in the command).
     # The presenter reads reimbursement dates from Finance.
     Expense: [Shared, ExpenseApi, FinanceApi, PlanningApi, SettingsApi, ProjectApi, IdentityApi, DocumentApi]
+    AuditApi: [Shared, Audit]
+    # Every Audited entity is recorded through the Shared interface; project names come from Project.
+    Audit: [Shared, AuditApi, ProjectApi]

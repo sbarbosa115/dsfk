@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Project\Domain\Model;
 
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'project_member')]
 #[ORM\UniqueConstraint(name: 'uniq_project_member', fields: ['project', 'userId'])]
-class ProjectMember
+class ProjectMember implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -52,5 +53,10 @@ class ProjectMember
     public function changeRole(ProjectRole $role): void
     {
         $this->role = $role;
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->project->getId();
     }
 }
