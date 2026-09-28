@@ -56,7 +56,7 @@ export function CategoriesPanel({plan}: {plan: Plan}) {
             busy={add.busy}
             disabled={!name.trim()}
           >
-            {t('plan.newCategory')}
+            {t('plan.addCategory')}
           </ActionButton>
         </form>
       )}

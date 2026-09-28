@@ -1,8 +1,12 @@
 import {LOCALE} from '@/shared/i18n';
 
-/** An amount in major units, e.g. formatMoney('1500000', 'COP') → "$ 1.500.000". */
+/**
+ * An amount in major units: formatMoney('1500000', 'COP') → "$ 1.500.000". Pesos show cents only when there
+ * are some ("$ 35.000,50"), so no figure is ever rounded on screen; other currencies always show two.
+ */
 export function formatMoney(amount: string | number, currency: string): string {
-  const digits = currency === 'COP' ? 0 : 2;
+  const whole = !/\.\d*[1-9]/.test(String(amount));
+  const digits = currency === 'COP' && whole ? 0 : 2;
 
   return new Intl.NumberFormat(LOCALE, {
     style: 'currency',

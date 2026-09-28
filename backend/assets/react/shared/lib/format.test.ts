@@ -16,6 +16,11 @@ describe('formatMoney', () => {
     expect(plain(formatMoney('1500000', 'COP'))).toBe('$ 1.500.000');
   });
 
+  it('shows cents only when the amount has them, so a price is never rounded away', () => {
+    expect(plain(formatMoney('35000.50', 'COP'))).toBe('$ 35.000,50');
+    expect(plain(formatMoney('437506.00', 'COP'))).toBe('$ 437.506');
+  });
+
   it('keeps two decimals for other currencies', () => {
     expect(plain(formatMoney('1234.5', 'USD'))).toContain('1.234,50');
   });

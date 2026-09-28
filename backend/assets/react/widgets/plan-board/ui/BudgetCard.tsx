@@ -50,7 +50,11 @@ export function BudgetCard({plan}: {plan: Plan}) {
             value={formatPercent(plan.progress)}
             money
           >
-            <ProgressBar value={plan.progress} label={t('plan.progress')} />
+            <ProgressBar
+              value={plan.progress}
+              label={t('plan.progress')}
+              showValue={false}
+            />
           </Stat>
         </div>
       ) : (

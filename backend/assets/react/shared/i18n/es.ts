@@ -228,6 +228,7 @@ export const es = {
     category: 'Categoría',
     budgeted: 'Presupuestado',
     newCategory: 'Nueva categoría',
+    addCategory: 'Agregar',
     renameCategory: 'Renombrar categoría',
     noCategories: 'Crea al menos una categoría antes de agregar partidas.',
     stages: 'Etapas',
