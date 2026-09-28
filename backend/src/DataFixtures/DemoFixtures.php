@@ -173,7 +173,7 @@ final class DemoFixtures extends Fixture
     {
         $this->bus->dispatch(new AddStage($project, $name, $this->day($start), $this->day($end)));
         $stages = $this->plans->stagesOf($project);
-        $stage = (int) end($stages)->getId();
+        $stage = (int) $stages[\count($stages) - 1]->getId();
         foreach ($lines as [$category, $description, $unit, $quantity, $price]) {
             $this->bus->dispatch(new AddLine($stage, $category, $description, $unit, $quantity, $price));
         }

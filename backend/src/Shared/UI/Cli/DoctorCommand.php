@@ -38,7 +38,8 @@ final readonly class DoctorCommand
             $rows[] = [$ok, $label, $detail, $informative];
         };
 
-        $check('PHP >= 8.4', \PHP_VERSION_ID >= 80400, \PHP_VERSION);
+        // Composer already requires PHP 8.4: the row says which version the server runs.
+        $check('PHP version', true, \PHP_VERSION);
         foreach (self::EXTENSIONS as $extension) {
             $check("PHP extension $extension", \extension_loaded($extension));
         }
