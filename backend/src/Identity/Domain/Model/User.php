@@ -110,6 +110,17 @@ class User
         return $this->createdAt;
     }
 
+    /**
+     * Only a super admin edits a super admin (other than themselves): otherwise an ordinary admin could reset
+     * a super admin's password or email and sign in as them.
+     */
+    public function assertEditableBy(self $by): void
+    {
+        if ($this->superAdmin && !$by->superAdmin && !$this->isSameAs($by)) {
+            throw new NotAllowed('super_admin_required');
+        }
+    }
+
     public function changeEmail(string $email): void
     {
         $this->email = self::normalizeEmail($email);

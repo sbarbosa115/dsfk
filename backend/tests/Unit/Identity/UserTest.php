@@ -93,6 +93,21 @@ final class UserTest extends TestCase
         self::assertTrue($root->isSuperAdmin());
     }
 
+    public function testOnlyASuperAdminEditsAnotherSuperAdmin(): void
+    {
+        $root = $this->superAdmin();
+        $admin = $this->user('admin@example.com');
+        $admin->changeAccess($root, admin: true);
+
+        $root->assertEditableBy($root);
+        $root->assertEditableBy($this->superAdmin('other@example.com'));
+        $this->user()->assertEditableBy($admin);
+
+        $this->expectExceptionObject(new NotAllowed('super_admin_required'));
+
+        $root->assertEditableBy($admin);
+    }
+
     private function user(string $email = 'pm@example.com'): User
     {
         return new User($email, 'Ana Pérez', 'hash', new \DateTimeImmutable('2026-09-01'));

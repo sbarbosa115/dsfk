@@ -135,4 +135,33 @@ final class UserApiTest extends ApiTestCase
 
         $this->assertError(404, 'user_not_found');
     }
+
+    public function testAnOrdinaryAdminCannotTakeOverASuperAdminAccount(): void
+    {
+        $root = $this->createUser('root@example.com', superAdmin: true);
+        $this->loginAs($this->createUser('admin@example.com', admin: true));
+
+        foreach ([['password' => 'taken-over-123'], ['email' => 'mine@example.com'], ['fullName' => 'X'], ['active' => false]] as $change) {
+            $this->request('PATCH', '/api/users/'.$root->getId(), $change);
+            $this->assertError(403, 'super_admin_required');
+        }
+
+        $this->client->restart();
+        $this->request('POST', '/api/login', ['email' => 'root@example.com', 'password' => self::PASSWORD]);
+        $this->assertStatus(200);
+    }
+
+    public function testDisablingAUserEndsTheirOpenSession(): void
+    {
+        $pm = $this->createUser('pm@example.com');
+        $this->request('POST', '/api/login', ['email' => 'pm@example.com', 'password' => self::PASSWORD]);
+        $this->assertStatus(200);
+
+        $admin = $this->createUser('admin@example.com', admin: true);
+        $pm->changeAccess($admin, active: false);
+        $this->em->flush();
+
+        $this->request('GET', '/api/me');
+        $this->assertStatus(401);
+    }
 }

@@ -19,6 +19,8 @@ final readonly class UpdateUserHandler implements CommandHandler
     public function __invoke(UpdateUser $command): void
     {
         $user = $this->users->get($command->userId);
+        $actor = $this->users->get($command->actorId);
+        $user->assertEditableBy($actor);
 
         if (null !== $command->email && User::normalizeEmail($command->email) !== $user->getEmail()) {
             if (null !== $this->users->findByEmail($command->email)) {
@@ -32,6 +34,6 @@ final readonly class UpdateUserHandler implements CommandHandler
         if (null !== $command->password) {
             $user->changePassword($this->hasher->hash($command->password));
         }
-        $user->changeAccess($this->users->get($command->actorId), $command->admin, $command->superAdmin, $command->active);
+        $user->changeAccess($actor, $command->admin, $command->superAdmin, $command->active);
     }
 }

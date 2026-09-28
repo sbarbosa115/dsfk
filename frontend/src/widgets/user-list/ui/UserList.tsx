@@ -4,6 +4,7 @@ import {Button, IconButton, Stack} from '@mui/material';
 import {useQuery} from '@tanstack/react-query';
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
+import {useSession} from '@/entities/session';
 import {
   fetchUsers,
   UserAccessChip,
@@ -19,6 +20,7 @@ import {QueryState} from '@/shared/ui/QueryState';
 /** Every user, with create and edit. */
 export function UserList() {
   const {t} = useTranslation();
+  const {user: me} = useSession();
   const users = useQuery({queryKey: USERS_KEY, queryFn: fetchUsers});
   // undefined = closed, null = creating, a user = editing
   const [editing, setEditing] = useState<User | null | undefined>(undefined);
@@ -86,6 +88,15 @@ export function UserList() {
                 render: (u) => (
                   <IconButton
                     aria-label={t('users.editNamed', {name: u.fullName})}
+                    title={
+                      u.superAdmin && !me?.superAdmin
+                        ? t('errors.super_admin_required')
+                        : undefined
+                    }
+                    // Only a super admin edits another super admin.
+                    disabled={
+                      u.superAdmin && !me?.superAdmin && u.id !== me?.id
+                    }
                     onClick={() => setEditing(u)}
                   >
                     <EditIcon />

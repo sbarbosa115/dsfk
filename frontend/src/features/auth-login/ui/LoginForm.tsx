@@ -24,7 +24,9 @@ export function LoginForm() {
     try {
       await login(email, password);
       // Only same-origin paths: `from` comes from our own redirect, never from the URL.
-      navigate(from.startsWith('/') ? from : '/', {replace: true});
+      navigate(from.startsWith('/') && !from.startsWith('//') ? from : '/', {
+        replace: true,
+      });
     } catch (e) {
       setError(errorMessage(t, e));
     } finally {
