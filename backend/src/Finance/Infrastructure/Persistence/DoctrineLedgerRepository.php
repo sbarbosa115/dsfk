@@ -16,6 +16,7 @@ use App\Finance\Domain\Repository\LedgerRepository;
 use App\Shared\Application\Query\Page;
 use App\Shared\Domain\Error\NotFound;
 use App\Shared\Infrastructure\Doctrine\Search;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -30,6 +31,43 @@ final readonly class DoctrineLedgerRepository implements LedgerRepository, Finan
         $this->em->persist($movement);
     }
 
+    public function addNow(FundMovement $movement): int
+    {
+        $this->em->persist($movement);
+        $this->em->flush();
+
+        return (int) $movement->getId();
+    }
+
+    public function cycle(int $id): PettyCashCycle
+    {
+        return $this->em->find(PettyCashCycle::class, $id) ?? throw new NotFound('cycle_not_found');
+    }
+
+    public function findOpenCycle(int $projectId): ?PettyCashCycle
+    {
+        return $this->em->getRepository(PettyCashCycle::class)->findOneBy(['projectId' => $projectId, 'status' => CycleStatus::Open]);
+    }
+
+    public function saveCycle(PettyCashCycle $cycle): int
+    {
+        $this->em->persist($cycle);
+        $this->em->flush();
+
+        return (int) $cycle->getId();
+    }
+
+    public function lastCycleNumber(int $projectId): int
+    {
+        return (int) $this->em->createQueryBuilder()
+            ->select('MAX(c.number)')
+            ->from(PettyCashCycle::class, 'c')
+            ->where('c.projectId = :project')
+            ->setParameter('project', $projectId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function lock(int $projectId): void
     {
         // The project row is the one row every money write of the project shares; the lock lasts until the
@@ -40,6 +78,11 @@ final readonly class DoctrineLedgerRepository implements LedgerRepository, Finan
     public function movement(int $id): FundMovement
     {
         return $this->em->find(FundMovement::class, $id) ?? throw new NotFound('movement_not_found');
+    }
+
+    public function movementForUpdate(int $id): FundMovement
+    {
+        return $this->em->find(FundMovement::class, $id, LockMode::PESSIMISTIC_WRITE) ?? throw new NotFound('movement_not_found');
     }
 
     public function balances(int $projectId): Balances
@@ -71,13 +114,11 @@ final readonly class DoctrineLedgerRepository implements LedgerRepository, Finan
 
     public function openCycle(int $projectId, \DateTimeImmutable $now): PettyCashCycle
     {
-        $cycles = $this->em->getRepository(PettyCashCycle::class);
-        $open = $cycles->findOneBy(['projectId' => $projectId, 'status' => CycleStatus::Open]);
+        $open = $this->findOpenCycle($projectId);
         if (null !== $open) {
             return $open;
         }
-        $last = $cycles->findOneBy(['projectId' => $projectId], ['number' => 'DESC']);
-        $cycle = new PettyCashCycle($projectId, ($last?->getNumber() ?? 0) + 1, $this->balances($projectId)->of(LedgerAccount::PettyCash), $now);
+        $cycle = new PettyCashCycle($projectId, $this->lastCycleNumber($projectId) + 1, $this->balances($projectId)->of(LedgerAccount::PettyCash), $now);
         $this->em->persist($cycle);
 
         return $cycle;
@@ -105,6 +146,40 @@ final readonly class DoctrineLedgerRepository implements LedgerRepository, Finan
         $paginator = new Paginator($qb, fetchJoinCollection: true);
 
         return new Page(array_values(iterator_to_array($paginator)), \count($paginator));
+    }
+
+    public function movementDates(array $movementIds): array
+    {
+        $dates = [];
+        foreach ([] === $movementIds ? [] : $this->em->getRepository(FundMovement::class)->findBy(['id' => $movementIds]) as $movement) {
+            $dates[(int) $movement->getId()] = $movement->getDate()->format('Y-m-d');
+        }
+
+        return $dates;
+    }
+
+    public function projectOfCycle(int $cycleId): ?int
+    {
+        return $this->em->find(PettyCashCycle::class, $cycleId)?->getProjectId();
+    }
+
+    public function cycles(int $projectId): array
+    {
+        return $this->em->getRepository(PettyCashCycle::class)->findBy(['projectId' => $projectId], ['number' => 'DESC']);
+    }
+
+    public function cycleMovements(int $cycleId): array
+    {
+        return $this->em->createQueryBuilder()
+            ->select('m', 'e')
+            ->from(FundMovement::class, 'm')
+            ->leftJoin('m.entries', 'e')
+            ->where('IDENTITY(m.pettyCashCycle) = :cycle')
+            ->setParameter('cycle', $cycleId)
+            ->orderBy('m.date', 'ASC')
+            ->addOrderBy('m.id', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
     public function usesCategory(int $categoryId): bool

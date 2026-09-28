@@ -2112,3 +2112,11 @@ select.filter-select {
 .card > .stat-grid:last-child {
   margin-bottom: 0;
 }
+
+.history-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

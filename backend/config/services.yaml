@@ -1,5 +1,6 @@
 parameters:
     app.upload_dir: '%kernel.project_dir%/var/uploads'
+    env(UPLOAD_DIR_MODE): '0750'
 
 services:
     _defaults:

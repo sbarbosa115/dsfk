@@ -10,7 +10,7 @@
                 "tags": [
                     "Documents"
                 ],
-                "summary": "Opens a file in the browser: for the project's Admins and Project Manager.",
+                "summary": "Opens a file in the browser: for the project's Admins and Project Manager, and a Team Lead's own receipts.",
                 "operationId": "get_api_attachments_download",
                 "parameters": [
                     {
@@ -42,6 +42,668 @@
                     },
                     "404": {
                         "description": "attachment_not_found, file_missing, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/expenses": {
+            "get": {
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "The PM and Admins see every expense; a Team Lead their own. With the Team Lead expenses in numbers.",
+                "operationId": "get_api_expenses_list",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "stageId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 50,
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "One page of expenses, newest first",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensePageOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "expense_not_found (also another Team Lead's), or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Expenses"
+                ],
+                "operationId": "post_api_expenses_record",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExpenseInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The expense with its history",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpenseOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_not_approved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed; insufficient_funds (with `available`)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "expense_not_found (also another Team Lead's), or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/expenses/{id}": {
+            "get": {
+                "tags": [
+                    "Expenses"
+                ],
+                "operationId": "get_api_expenses_show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The expense with its history",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpenseOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "expense_not_found (also another Team Lead's), or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Its Team Lead corrects a pending or rejected expense; it goes back to the PM.",
+                "operationId": "put_api_expenses_correct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExpenseInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The expense",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpenseOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "expense_not_editable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "expense_not_found (also another Team Lead's), or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/expenses/{id}/approve": {
+            "post": {
+                "tags": [
+                    "Expenses"
+                ],
+                "operationId": "post_api_expenses_approve",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The expense: APPROVED, or PM_APPROVED above the Team Lead limit",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpenseOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "receipt_required, expense_awaiting_admin, expense_invalid_status",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "expense_not_found (also another Team Lead's), or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/expenses/{id}/reject": {
+            "post": {
+                "tags": [
+                    "Expenses"
+                ],
+                "operationId": "post_api_expenses_reject",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReasonInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The expense",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpenseOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "expense_awaiting_admin, expense_invalid_status",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "expense_not_found (also another Team Lead's), or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/expenses/{id}/void": {
+            "post": {
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "An Admin voids an approved expense (not one paid back); its money goes back to the stage or caja menor.",
+                "operationId": "post_api_expenses_void",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReasonInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The expense",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpenseOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "expense_invalid_status, cycle_closed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "expense_not_found (also another Team Lead's), or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/expenses/{id}/attachments": {
+            "post": {
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "A receipt (multipart field \"file\"): its owner while it can be corrected, the PM or an Admin unless voided.",
+                "operationId": "post_api_expenses_attach",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The expense with its receipts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpenseOutput"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed on \"file\"",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "expense_not_found (also another Team Lead's), or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/reimbursements": {
+            "post": {
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "The PM or an Admin pays approved Team Lead expenses back from the caja menor.",
+                "operationId": "post_api_expenses_reimburse",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReimbursementInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The expenses, now REIMBURSED",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ExpenseOutput"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed on expenseIds; insufficient_funds",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "expense_not_found (also another Team Lead's), or project_not_found outside the project",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -563,6 +1225,232 @@
                     },
                     "404": {
                         "description": "movement_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/petty-cash": {
+            "get": {
+                "tags": [
+                    "Caja menor"
+                ],
+                "operationId": "get_api_petty_cash",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The caja menor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PettyCashOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money; only Admins sign off",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "cycle_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/petty-cash-cycles/{id}": {
+            "get": {
+                "tags": [
+                    "Caja menor"
+                ],
+                "summary": "A cycle with its movements (e.g. a closed one under review).",
+                "operationId": "get_api_petty_cash_cycle",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The cycle",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CycleOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money; only Admins sign off",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "cycle_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/petty-cash/close": {
+            "post": {
+                "tags": [
+                    "Caja menor"
+                ],
+                "summary": "The PM (or an Admin) closes the current cycle, usually when the money runs out.",
+                "operationId": "post_api_petty_cash_close",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CloseCycleInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The closed cycle",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CycleOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money; only Admins sign off",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "cycle_not_found, or project_not_found outside the project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/petty-cash-cycles/{id}/sign-off": {
+            "post": {
+                "tags": [
+                    "Caja menor"
+                ],
+                "operationId": "post_api_petty_cash_sign_off",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The signed-off cycle",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CycleOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "cycle_not_closed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money; only Admins sign off",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "cycle_not_found, or project_not_found outside the project",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2471,6 +3359,120 @@
                 },
                 "type": "object"
             },
+            "PaidFrom": {
+                "type": "string",
+                "enum": [
+                    "STAGE",
+                    "PETTY_CASH",
+                    "OUT_OF_POCKET"
+                ]
+            },
+            "ExpenseInput": {
+                "properties": {
+                    "stageId": {
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "categoryId": {
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "date": {
+                        "title": "YYYY-MM-DD, not in the future.",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "amount": {
+                        "title": "Major units.",
+                        "type": "string",
+                        "pattern": "\\d{1,13}(\\.\\d{1,2})?",
+                        "default": ""
+                    },
+                    "description": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 255
+                    },
+                    "supplier": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 150
+                    },
+                    "invoiceNumber": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 60
+                    },
+                    "paidFrom": {
+                        "title": "STAGE or PETTY_CASH for the PM and Admins; Team Leads' expenses are OUT_OF_POCKET. Ignored on a correction.",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/PaidFrom"
+                            }
+                        ],
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "ReasonInput": {
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 2000
+                    }
+                },
+                "type": "object"
+            },
+            "PayoutMethod": {
+                "type": "string",
+                "enum": [
+                    "TRANSFER",
+                    "CASH",
+                    "CHECK",
+                    "OTHER"
+                ]
+            },
+            "ReimbursementInput": {
+                "properties": {
+                    "expenseIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "default": [],
+                        "maxItems": 100,
+                        "minItems": 1
+                    },
+                    "date": {
+                        "title": "YYYY-MM-DD, not in the future.",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "method": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/PayoutMethod"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "reference": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 100
+                    }
+                },
+                "type": "object"
+            },
             "PaymentMethod": {
                 "type": "string",
                 "enum": [
@@ -2601,6 +3603,17 @@
                     "reason": {
                         "type": "string",
                         "default": "",
+                        "maxLength": 2000
+                    }
+                },
+                "type": "object"
+            },
+            "CloseCycleInput": {
+                "properties": {
+                    "note": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
                         "maxLength": 2000
                     }
                 },
@@ -3030,6 +4043,343 @@
                         "default": null,
                         "maxItems": 5,
                         "minItems": 1
+                    }
+                },
+                "type": "object"
+            },
+            "ExpenseSummaryOutput": {
+                "required": [
+                    "pendingCount",
+                    "pendingTotal",
+                    "toReimburseCount",
+                    "toReimburseTotal",
+                    "teamLeadLimit"
+                ],
+                "properties": {
+                    "pendingCount": {
+                        "title": "Waiting for the PM, or for an Admin above the limit.",
+                        "type": "integer"
+                    },
+                    "pendingTotal": {
+                        "type": "string"
+                    },
+                    "toReimburseCount": {
+                        "title": "Approved, not paid back yet: what the project owes its Team Leads.",
+                        "type": "integer"
+                    },
+                    "toReimburseTotal": {
+                        "type": "string"
+                    },
+                    "teamLeadLimit": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ExpenseRefOutput": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ExpenseReimbursementOutput": {
+                "required": [
+                    "id",
+                    "method"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "method": {
+                        "type": "string",
+                        "enum": [
+                            "TRANSFER",
+                            "CASH",
+                            "CHECK",
+                            "OTHER"
+                        ]
+                    },
+                    "reference": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ExpenseFileOutput": {
+                "required": [
+                    "id",
+                    "name",
+                    "mimeType",
+                    "size"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "mimeType": {
+                        "type": "string"
+                    },
+                    "size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "ExpensePermissionsOutput": {
+                "required": [
+                    "edit",
+                    "attach",
+                    "approve",
+                    "reject",
+                    "void",
+                    "reimburse"
+                ],
+                "properties": {
+                    "edit": {
+                        "type": "boolean"
+                    },
+                    "attach": {
+                        "type": "boolean"
+                    },
+                    "approve": {
+                        "type": "boolean"
+                    },
+                    "reject": {
+                        "type": "boolean"
+                    },
+                    "void": {
+                        "type": "boolean"
+                    },
+                    "reimburse": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "ExpensePreviousOutput": {
+                "required": [
+                    "stage",
+                    "category",
+                    "date",
+                    "amount",
+                    "description"
+                ],
+                "properties": {
+                    "stage": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amount": {
+                        "title": "Major units.",
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "supplier": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "invoiceNumber": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ExpenseEventOutput": {
+                "required": [
+                    "type",
+                    "user",
+                    "createdAt"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "CREATED",
+                            "EDITED",
+                            "PM_APPROVED",
+                            "APPROVED",
+                            "REJECTED",
+                            "REIMBURSED",
+                            "VOIDED"
+                        ]
+                    },
+                    "user": {
+                        "type": "string"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "previous": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpensePreviousOutput"
+                            }
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "ExpenseOutput": {
+                "required": [
+                    "id",
+                    "date",
+                    "amount",
+                    "description",
+                    "stage",
+                    "category",
+                    "paidFrom",
+                    "paidBy",
+                    "status",
+                    "createdAt",
+                    "attachments",
+                    "permissions"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amount": {
+                        "title": "Major units.",
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "supplier": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "invoiceNumber": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "stage": {
+                        "$ref": "#/components/schemas/ExpenseRefOutput"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseRefOutput"
+                    },
+                    "paidFrom": {
+                        "type": "string",
+                        "enum": [
+                            "STAGE",
+                            "PETTY_CASH",
+                            "OUT_OF_POCKET"
+                        ]
+                    },
+                    "paidBy": {
+                        "$ref": "#/components/schemas/ExpenseRefOutput"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "SUBMITTED",
+                            "PM_APPROVED",
+                            "APPROVED",
+                            "REJECTED",
+                            "REIMBURSED",
+                            "VOIDED"
+                        ]
+                    },
+                    "rejectionReason": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "reimbursement": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseReimbursementOutput"
+                            }
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "attachments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseFileOutput"
+                        }
+                    },
+                    "permissions": {
+                        "$ref": "#/components/schemas/ExpensePermissionsOutput"
+                    },
+                    "events": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseEventOutput"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ExpensePageOutput": {
+                "required": [
+                    "summary",
+                    "items",
+                    "total",
+                    "page",
+                    "perPage"
+                ],
+                "properties": {
+                    "summary": {
+                        "$ref": "#/components/schemas/ExpenseSummaryOutput"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseOutput"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "perPage": {
+                        "type": "integer"
                     }
                 },
                 "type": "object"
@@ -3486,6 +4836,203 @@
                     },
                     "perPage": {
                         "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "CycleMovementOutput": {
+                "required": [
+                    "id",
+                    "type",
+                    "date",
+                    "amount",
+                    "description",
+                    "user",
+                    "voided",
+                    "attachments"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "DEPOSIT",
+                            "CONTINGENCY_DRAW",
+                            "CARRYOVER",
+                            "EXPENSE",
+                            "REIMBURSEMENT"
+                        ]
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amount": {
+                        "title": "Major units, signed: what it put into (+) or took out of (\u2212) the caja menor.",
+                        "type": "string"
+                    },
+                    "description": {
+                        "title": "Its note (an expense's description, who was paid back).",
+                        "type": "string"
+                    },
+                    "method": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "TRANSFER",
+                            "CASH",
+                            "CHECK",
+                            "OTHER"
+                        ]
+                    },
+                    "reference": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "user": {
+                        "type": "string"
+                    },
+                    "voided": {
+                        "type": "boolean"
+                    },
+                    "attachments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AttachmentOutput"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "CycleOutput": {
+                "required": [
+                    "number",
+                    "status",
+                    "openingBalance",
+                    "topUps",
+                    "spent",
+                    "reimbursed",
+                    "closingBalance"
+                ],
+                "properties": {
+                    "id": {
+                        "title": "null for a cycle that opens with the next use of the caja menor",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "number": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "OPEN",
+                            "CLOSED",
+                            "SIGNED_OFF"
+                        ]
+                    },
+                    "openedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "closedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "closedBy": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "closingNote": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "signedOffAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "signedOffBy": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "openingBalance": {
+                        "type": "string"
+                    },
+                    "topUps": {
+                        "type": "string"
+                    },
+                    "spent": {
+                        "type": "string"
+                    },
+                    "reimbursed": {
+                        "type": "string"
+                    },
+                    "closingBalance": {
+                        "title": "Snapshot when closed; the running balance while open.",
+                        "type": "string"
+                    },
+                    "movements": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CycleMovementOutput"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PettyCashPermissionsOutput": {
+                "required": [
+                    "close",
+                    "signOff"
+                ],
+                "properties": {
+                    "close": {
+                        "type": "boolean"
+                    },
+                    "signOff": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "PettyCashOutput": {
+                "required": [
+                    "currency",
+                    "balance",
+                    "current",
+                    "history",
+                    "unsignedCount",
+                    "permissions"
+                ],
+                "properties": {
+                    "currency": {
+                        "type": "string"
+                    },
+                    "balance": {
+                        "title": "Major units.",
+                        "type": "string"
+                    },
+                    "current": {
+                        "$ref": "#/components/schemas/CycleOutput"
+                    },
+                    "history": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CycleOutput"
+                        }
+                    },
+                    "unsignedCount": {
+                        "title": "Closed cycles waiting for an Admin's sign-off.",
+                        "type": "integer"
+                    },
+                    "permissions": {
+                        "$ref": "#/components/schemas/PettyCashPermissionsOutput"
                     }
                 },
                 "type": "object"
@@ -4240,7 +5787,13 @@
             "name": "Documents"
         },
         {
+            "name": "Expenses"
+        },
+        {
             "name": "Finance"
+        },
+        {
+            "name": "Caja menor"
         },
         {
             "name": "Auth"

@@ -118,6 +118,40 @@ class FundMovement
         return $movement;
     }
 
+    /**
+     * An expense paid from a stage (earmarked with its category) or from the caja menor. The account must hold the
+     * amount: money never goes below zero.
+     *
+     * @throws InvalidValue insufficient_funds, with the minor units `available`
+     */
+    public static function spend(int $projectId, LedgerAccount $from, ?int $stageId, ?int $categoryId, int $amount, Balances $balances, \DateTimeImmutable $date, string $description, int $by, \DateTimeImmutable $now): self
+    {
+        if (LedgerAccount::Contingency === $from) {
+            throw new \LogicException('Expenses are paid from a stage or the caja menor.');
+        }
+        self::assertFunds($balances->balance(Balances::key($from, $stageId)), $amount);
+        $movement = new self($projectId, MovementType::Expense, $date, $description, $by, $now);
+        $movement->addEntry($from, -$amount, LedgerAccount::Stage === $from ? $stageId : null, LedgerAccount::Stage === $from ? $categoryId : null);
+        $movement->amount = $amount;
+
+        return $movement;
+    }
+
+    /**
+     * Team Lead expenses paid back from the caja menor, as one movement.
+     *
+     * @throws InvalidValue insufficient_funds
+     */
+    public static function reimbursement(int $projectId, int $total, Balances $balances, \DateTimeImmutable $date, string $note, int $by, \DateTimeImmutable $now): self
+    {
+        self::assertFunds($balances->of(LedgerAccount::PettyCash), $total);
+        $movement = new self($projectId, MovementType::Reimbursement, $date, $note, $by, $now);
+        $movement->addEntry(LedgerAccount::PettyCash, -$total);
+        $movement->amount = $total;
+
+        return $movement;
+    }
+
     /** Part of a deposit going to one account. */
     public function allocate(LedgerAccount $account, int $amount, ?int $stageId = null, ?int $categoryId = null): void
     {
@@ -139,6 +173,20 @@ class FundMovement
         if (!\in_array($this->type, [MovementType::Deposit, MovementType::ContingencyDraw], true)) {
             throw new Conflict('movement_not_voidable');
         }
+        $this->cancel($current, $by, $reason, $now);
+    }
+
+    /** Voiding an expense gives its money back to where it came from (the Expense context voids the expense). */
+    public function voidSpending(Balances $current, int $by, string $reason, \DateTimeImmutable $now): void
+    {
+        if (MovementType::Expense !== $this->type) {
+            throw new Conflict('movement_not_voidable');
+        }
+        $this->cancel($current, $by, $reason, $now);
+    }
+
+    private function cancel(Balances $current, int $by, string $reason, \DateTimeImmutable $now): void
+    {
         if ($this->isVoided()) {
             throw new Conflict('movement_already_voided');
         }
@@ -266,6 +314,13 @@ class FundMovement
         $this->entries->add(new LedgerEntry($this, $account, $amount, $stageId, $categoryId));
         if ($amount > 0) {
             $this->amount = $this->getAmount() + $amount;
+        }
+    }
+
+    private static function assertFunds(int $available, int $amount): void
+    {
+        if ($amount > $available) {
+            throw new InvalidValue('insufficient_funds', ['available' => max(0, $available)]);
         }
     }
 

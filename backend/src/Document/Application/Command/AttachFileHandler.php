@@ -11,13 +11,13 @@ use App\Shared\Application\Bus\CommandHandler;
 use App\Shared\Application\Bus\NewId;
 use Psr\Clock\ClockInterface;
 
-final readonly class AttachToMovementHandler implements CommandHandler
+final readonly class AttachFileHandler implements CommandHandler
 {
     public function __construct(private AttachmentRepository $attachments, private FileStore $files, private ClockInterface $clock)
     {
     }
 
-    public function __invoke(AttachToMovement $c): NewId
+    public function __invoke(AttachFile $c): NewId
     {
         $attachment = Attachment::accept(
             $c->projectId,
@@ -28,7 +28,12 @@ final readonly class AttachToMovementHandler implements CommandHandler
             $c->actorId,
             $this->clock->now(),
         );
-        $attachment->attachToMovement($c->movementId);
+        if (null !== $c->movementId) {
+            $attachment->attachToMovement($c->movementId);
+        }
+        if (null !== $c->expenseId) {
+            $attachment->attachToExpense($c->expenseId);
+        }
         $this->attachments->add($attachment);
         $this->files->keep($c->file->path, $attachment->getStoredName());
 

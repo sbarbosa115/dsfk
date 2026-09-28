@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Clock;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Functional API tests: a real kernel, the MySQL test database (each test rolled back), JSON in and out.
@@ -37,6 +38,8 @@ abstract class ApiTestCase extends WebTestCase
     {
         // A test may have frozen time (Clock::set()); the next one starts with the real clock.
         Clock::set(new NativeClock());
+        // Uploaded files are not rolled back with the database.
+        (new Filesystem())->remove(static::getContainer()->getParameter('app.upload_dir'));
         parent::tearDown();
     }
 

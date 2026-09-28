@@ -14,6 +14,25 @@ interface LedgerRepository
     public function add(FundMovement $movement): void;
 
     /**
+     * Adds a movement another context has to point at, and writes it at once (inside the command's transaction) so
+     * its id is known.
+     */
+    public function addNow(FundMovement $movement): int;
+
+    /**
+     * @throws NotFound cycle_not_found
+     */
+    public function cycle(int $id): PettyCashCycle;
+
+    /** The open cycle, or null when the caja menor has not been used since the last one closed. */
+    public function findOpenCycle(int $projectId): ?PettyCashCycle;
+
+    /** Writes the cycle at once (inside the transaction) and answers its id. */
+    public function saveCycle(PettyCashCycle $cycle): int;
+
+    public function lastCycleNumber(int $projectId): int;
+
+    /**
      * Holds the project's money until the transaction ends, so two writes cannot both spend the same balance
      * (two draws of the last contingency, a void racing a draw).
      */
@@ -23,6 +42,13 @@ interface LedgerRepository
      * @throws NotFound movement_not_found
      */
     public function movement(int $id): FundMovement;
+
+    /**
+     * The movement to change, its row locked until the command commits (two voids of it run one after the other).
+     *
+     * @throws NotFound movement_not_found
+     */
+    public function movementForUpdate(int $id): FundMovement;
 
     /** From the stored movements that are not voided. */
     public function balances(int $projectId): Balances;

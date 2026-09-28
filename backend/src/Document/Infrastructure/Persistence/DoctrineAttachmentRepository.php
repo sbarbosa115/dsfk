@@ -41,6 +41,19 @@ final readonly class DoctrineAttachmentRepository implements AttachmentRepositor
         return $byMovement;
     }
 
+    public function ofExpenses(array $expenseIds): array
+    {
+        if ([] === $expenseIds) {
+            return [];
+        }
+        $byExpense = [];
+        foreach ($this->em->getRepository(Attachment::class)->findBy(['expenseId' => $expenseIds], ['id' => 'ASC']) as $attachment) {
+            $byExpense[(int) $attachment->getExpenseId()][] = self::view($attachment);
+        }
+
+        return $byExpense;
+    }
+
     private static function view(Attachment $a): AttachmentView
     {
         return new AttachmentView((int) $a->getId(), $a->getProjectId(), $a->getMovementId(), $a->getExpenseId(), $a->getOriginalName(), $a->getMimeType(), $a->getSize(), $a->getStoredName());

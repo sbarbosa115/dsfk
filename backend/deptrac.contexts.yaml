@@ -50,6 +50,13 @@ deptrac:
         - type: bool
           must: [{ type: directory, value: src/Document/.* }]
           must_not: [{ type: directory, value: src/Document/(Application|Domain/Event)/.* }]
+    - name: ExpenseApi
+      collectors: [{ type: directory, value: src/Expense/(Application|Domain/Event)/.* }]
+    - name: Expense
+      collectors:
+        - type: bool
+          must: [{ type: directory, value: src/Expense/.* }]
+          must_not: [{ type: directory, value: src/Expense/(Application|Domain/Event)/.* }]
   ruleset:
     Shared: ~
     IdentityApi: [Shared, Identity]
@@ -63,11 +70,18 @@ deptrac:
     PlanningApi: [Shared, Planning]
     # The project's currency and activation come from Project, people's names from Identity; completing a stage
     # settles its money in Finance, which also says whether deposits use a category.
-    Planning: [Shared, PlanningApi, ProjectApi, IdentityApi, FinanceApi]
+    Planning: [Shared, PlanningApi, ProjectApi, IdentityApi, FinanceApi, ExpenseApi]
     FinanceApi: [Shared, Finance]
     # Stages, categories and approval come from Planning, the currency from Project, names from Identity; proofs
     # of deposit are Document's (the Finance endpoints attach and list them). Completing a stage is a Planning
     # command that a Finance endpoint sends, answered with the funding summary.
-    Finance: [Shared, FinanceApi, PlanningApi, ProjectApi, IdentityApi, DocumentApi]
+    # Spending comes from Expense, which also names the expense behind a caja menor movement.
+    Finance: [Shared, FinanceApi, PlanningApi, ProjectApi, IdentityApi, DocumentApi, ExpenseApi]
     DocumentApi: [Shared, Document]
-    Document: [Shared, DocumentApi]
+    # A Team Lead opens their own receipts: Expense says whose an expense is.
+    Document: [Shared, DocumentApi, ExpenseApi]
+    ExpenseApi: [Shared, Expense]
+    # Money moves through Finance; stages, categories and approval come from Planning, the limit from Settings,
+    # the currency from Project, names from Identity, receipts are Document's (its handler runs in the command).
+    # The presenter reads reimbursement dates from Finance.
+    Expense: [Shared, ExpenseApi, FinanceApi, PlanningApi, SettingsApi, ProjectApi, IdentityApi, DocumentApi]

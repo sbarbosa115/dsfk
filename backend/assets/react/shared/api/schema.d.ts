@@ -11,10 +11,127 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Opens a file in the browser: for the project's Admins and Project Manager. */
+        /** Opens a file in the browser: for the project's Admins and Project Manager, and a Team Lead's own receipts. */
         get: operations["get_api_attachments_download"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/expenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The PM and Admins see every expense; a Team Lead their own. With the Team Lead expenses in numbers. */
+        get: operations["get_api_expenses_list"];
+        put?: never;
+        post: operations["post_api_expenses_record"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_api_expenses_show"];
+        /** Its Team Lead corrects a pending or rejected expense; it goes back to the PM. */
+        put: operations["put_api_expenses_correct"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_expenses_approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_expenses_reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/{id}/void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** An Admin voids an approved expense (not one paid back); its money goes back to the stage or caja menor. */
+        post: operations["post_api_expenses_void"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/{id}/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A receipt (multipart field "file"): its owner while it can be corrected, the PM or an Admin unless voided. */
+        post: operations["post_api_expenses_attach"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/reimbursements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The PM or an Admin pays approved Team Lead expenses back from the caja menor. */
+        post: operations["post_api_expenses_reimburse"];
         delete?: never;
         options?: never;
         head?: never;
@@ -132,6 +249,72 @@ export interface paths {
         put?: never;
         /** A proof (multipart field "file"): PDF, JPG, PNG, WEBP or HEIC up to 10 MB, checked by content. */
         post: operations["post_api_movements_attach"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/petty-cash": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_api_petty_cash"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/petty-cash-cycles/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A cycle with its movements (e.g. a closed one under review). */
+        get: operations["get_api_petty_cash_cycle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/petty-cash/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The PM (or an Admin) closes the current cycle, usually when the money runs out. */
+        post: operations["post_api_petty_cash_close"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/petty-cash-cycles/{id}/sign-off": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["post_api_petty_cash_sign_off"];
         delete?: never;
         options?: never;
         head?: never;
@@ -639,6 +822,54 @@ export interface components {
             };
         };
         /** @enum {string} */
+        PaidFrom: "STAGE" | "PETTY_CASH" | "OUT_OF_POCKET";
+        ExpenseInput: {
+            /** @default null */
+            stageId: number | null;
+            /** @default null */
+            categoryId: number | null;
+            /**
+             * YYYY-MM-DD, not in the future.
+             * @default
+             */
+            date: string;
+            /**
+             * Major units.
+             * @default
+             */
+            amount: string;
+            /** @default  */
+            description: string;
+            /** @default null */
+            supplier: string | null;
+            /** @default null */
+            invoiceNumber: string | null;
+            /**
+             * STAGE or PETTY_CASH for the PM and Admins; Team Leads' expenses are OUT_OF_POCKET. Ignored on a correction.
+             * @default null
+             */
+            paidFrom: components["schemas"]["PaidFrom"] | null;
+        };
+        ReasonInput: {
+            /** @default  */
+            reason: string;
+        };
+        /** @enum {string} */
+        PayoutMethod: "TRANSFER" | "CASH" | "CHECK" | "OTHER";
+        ReimbursementInput: {
+            /** @default [] */
+            expenseIds: number[];
+            /**
+             * YYYY-MM-DD, not in the future.
+             * @default
+             */
+            date: string;
+            /** @default null */
+            method: components["schemas"]["PayoutMethod"] | null;
+            /** @default null */
+            reference: string | null;
+        };
+        /** @enum {string} */
         PaymentMethod: "TRANSFER" | "CASH" | "CHECK" | "OTHER";
         /** @enum {string} */
         LedgerAccount: "STAGE" | "PETTY_CASH" | "CONTINGENCY";
@@ -702,6 +933,10 @@ export interface components {
         VoidInput: {
             /** @default  */
             reason: string;
+        };
+        CloseCycleInput: {
+            /** @default null */
+            note: string | null;
         };
         ChangePasswordInput: {
             /** @default  */
@@ -892,6 +1127,92 @@ export interface components {
             /** @default null */
             budgetWarningPercents: number[] | null;
         };
+        ExpenseSummaryOutput: {
+            /** Waiting for the PM, or for an Admin above the limit. */
+            pendingCount: number;
+            pendingTotal: string;
+            /** Approved, not paid back yet: what the project owes its Team Leads. */
+            toReimburseCount: number;
+            toReimburseTotal: string;
+            teamLeadLimit: string;
+        };
+        ExpenseRefOutput: {
+            id: number;
+            name: string;
+        };
+        ExpenseReimbursementOutput: {
+            id: number;
+            /** Format: date */
+            date?: string | null;
+            /** @enum {string} */
+            method: "TRANSFER" | "CASH" | "CHECK" | "OTHER";
+            reference?: string | null;
+        };
+        ExpenseFileOutput: {
+            id: number;
+            name: string;
+            mimeType: string;
+            size: number;
+        };
+        ExpensePermissionsOutput: {
+            edit: boolean;
+            attach: boolean;
+            approve: boolean;
+            reject: boolean;
+            void: boolean;
+            reimburse: boolean;
+        };
+        ExpensePreviousOutput: {
+            stage: string;
+            category: string;
+            /** Format: date */
+            date: string;
+            /** Major units. */
+            amount: string;
+            description: string;
+            supplier?: string | null;
+            invoiceNumber?: string | null;
+        };
+        ExpenseEventOutput: {
+            /** @enum {string} */
+            type: "CREATED" | "EDITED" | "PM_APPROVED" | "APPROVED" | "REJECTED" | "REIMBURSED" | "VOIDED";
+            user: string;
+            comment?: string | null;
+            previous?: components["schemas"]["ExpensePreviousOutput"] | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ExpenseOutput: {
+            id: number;
+            /** Format: date */
+            date: string;
+            /** Major units. */
+            amount: string;
+            description: string;
+            supplier?: string | null;
+            invoiceNumber?: string | null;
+            stage: components["schemas"]["ExpenseRefOutput"];
+            category: components["schemas"]["ExpenseRefOutput"];
+            /** @enum {string} */
+            paidFrom: "STAGE" | "PETTY_CASH" | "OUT_OF_POCKET";
+            paidBy: components["schemas"]["ExpenseRefOutput"];
+            /** @enum {string} */
+            status: "SUBMITTED" | "PM_APPROVED" | "APPROVED" | "REJECTED" | "REIMBURSED" | "VOIDED";
+            rejectionReason?: string | null;
+            reimbursement?: components["schemas"]["ExpenseReimbursementOutput"] | null;
+            /** Format: date-time */
+            createdAt: string;
+            attachments: components["schemas"]["ExpenseFileOutput"][];
+            permissions: components["schemas"]["ExpensePermissionsOutput"];
+            events?: components["schemas"]["ExpenseEventOutput"][] | null;
+        };
+        ExpensePageOutput: {
+            summary: components["schemas"]["ExpenseSummaryOutput"];
+            items: components["schemas"]["ExpenseOutput"][];
+            total: number;
+            page: number;
+            perPage: number;
+        };
         FinancePermissionsOutput: {
             deposit: boolean;
             void: boolean;
@@ -1013,6 +1334,60 @@ export interface components {
             total: number;
             page: number;
             perPage: number;
+        };
+        CycleMovementOutput: {
+            id: number;
+            /** @enum {string} */
+            type: "DEPOSIT" | "CONTINGENCY_DRAW" | "CARRYOVER" | "EXPENSE" | "REIMBURSEMENT";
+            /** Format: date */
+            date: string;
+            /** Major units, signed: what it put into (+) or took out of (−) the caja menor. */
+            amount: string;
+            /** Its note (an expense's description, who was paid back). */
+            description: string;
+            /** @enum {string|null} */
+            method?: "TRANSFER" | "CASH" | "CHECK" | "OTHER" | null;
+            reference?: string | null;
+            user: string;
+            voided: boolean;
+            attachments: components["schemas"]["AttachmentOutput"][];
+        };
+        CycleOutput: {
+            /** null for a cycle that opens with the next use of the caja menor */
+            id?: number | null;
+            number: number;
+            /** @enum {string} */
+            status: "OPEN" | "CLOSED" | "SIGNED_OFF";
+            /** Format: date-time */
+            openedAt?: string | null;
+            /** Format: date-time */
+            closedAt?: string | null;
+            closedBy?: string | null;
+            closingNote?: string | null;
+            /** Format: date-time */
+            signedOffAt?: string | null;
+            signedOffBy?: string | null;
+            openingBalance: string;
+            topUps: string;
+            spent: string;
+            reimbursed: string;
+            /** Snapshot when closed; the running balance while open. */
+            closingBalance: string;
+            movements?: components["schemas"]["CycleMovementOutput"][] | null;
+        };
+        PettyCashPermissionsOutput: {
+            close: boolean;
+            signOff: boolean;
+        };
+        PettyCashOutput: {
+            currency: string;
+            /** Major units. */
+            balance: string;
+            current: components["schemas"]["CycleOutput"];
+            history: components["schemas"]["CycleOutput"][];
+            /** Closed cycles waiting for an Admin's sign-off. */
+            unsignedCount: number;
+            permissions: components["schemas"]["PettyCashPermissionsOutput"];
         };
         MembershipOutput: {
             projectId: number;
@@ -1267,6 +1642,471 @@ export interface operations {
             };
             /** @description attachment_not_found, file_missing, or project_not_found outside the project */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_expenses_list: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                status?: string | null;
+                stageId?: number | null;
+                page?: number;
+                perPage?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of expenses, newest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpensePageOutput"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_not_found (also another Team Lead's), or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_expenses_record: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseInput"];
+            };
+        };
+        responses: {
+            /** @description The expense with its history */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseOutput"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_not_found (also another Team Lead's), or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_not_approved */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed; insufficient_funds (with `available`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_expenses_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The expense with its history */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseOutput"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_not_found (also another Team Lead's), or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    put_api_expenses_correct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseInput"];
+            };
+        };
+        responses: {
+            /** @description The expense */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseOutput"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_not_found (also another Team Lead's), or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_not_editable */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_expenses_approve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The expense: APPROVED, or PM_APPROVED above the Team Lead limit */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseOutput"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_not_found (also another Team Lead's), or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description receipt_required, expense_awaiting_admin, expense_invalid_status */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_expenses_reject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonInput"];
+            };
+        };
+        responses: {
+            /** @description The expense */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseOutput"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_not_found (also another Team Lead's), or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_awaiting_admin, expense_invalid_status */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_expenses_void: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonInput"];
+            };
+        };
+        responses: {
+            /** @description The expense */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseOutput"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_not_found (also another Team Lead's), or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_invalid_status, cycle_closed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_expenses_attach: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The expense with its receipts */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseOutput"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_not_found (also another Team Lead's), or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed on "file" */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_expenses_reimburse: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReimbursementInput"];
+            };
+        };
+        responses: {
+            /** @description The expenses, now REIMBURSED */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseOutput"][];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description expense_not_found (also another Team Lead's), or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed on expenseIds; insufficient_funds */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1637,6 +2477,179 @@ export interface operations {
             };
             /** @description validation_failed on "file" */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_petty_cash: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The caja menor */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PettyCashOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money; only Admins sign off */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description cycle_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_petty_cash_cycle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The cycle */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CycleOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money; only Admins sign off */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description cycle_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_petty_cash_close: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CloseCycleInput"];
+            };
+        };
+        responses: {
+            /** @description The closed cycle */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CycleOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money; only Admins sign off */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description cycle_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_petty_cash_sign_off: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The signed-off cycle */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CycleOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money; only Admins sign off */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description cycle_not_found, or project_not_found outside the project */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description cycle_not_closed */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
