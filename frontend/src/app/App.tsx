@@ -1,9 +1,10 @@
-import {CssBaseline, ThemeProvider, Typography} from '@mui/material';
+import {CssBaseline, ThemeProvider} from '@mui/material';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import {useTranslation} from 'react-i18next';
-import {createBrowserRouter, RouterProvider} from 'react-router';
+import {RouterProvider} from 'react-router';
+import {SessionProvider} from '@/entities/session';
 import {ApiError} from '@/shared/api';
 import {theme} from '@/shared/config/theme';
+import {router} from './router';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,20 +17,14 @@ const queryClient = new QueryClient({
   },
 });
 
-function NotFound() {
-  const {t} = useTranslation();
-
-  return <Typography>{t('common.notFound')}</Typography>;
-}
-
-const router = createBrowserRouter([{path: '*', element: <NotFound />}]);
-
 export function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <SessionProvider>
+          <RouterProvider router={router} />
+        </SessionProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

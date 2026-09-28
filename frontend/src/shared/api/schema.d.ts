@@ -162,8 +162,19 @@ export interface components {
             /** @default  */
             newPassword: string;
         };
-        UserInput: Record<string, never>;
-        UserInput2: {
+        CreateUserInput: {
+            /** @default  */
+            email: string;
+            /** @default  */
+            fullName: string;
+            /** @default  */
+            password: string;
+            /** @default false */
+            admin: boolean;
+            /** @default false */
+            superAdmin: boolean;
+        };
+        UpdateUserInput: {
             /** @default null */
             email: string | null;
             /** @default null */
@@ -460,7 +471,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UserInput"];
+                "application/json": components["schemas"]["CreateUserInput"];
             };
         };
         responses: {
@@ -504,7 +515,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UserInput2"];
+                "application/json": components["schemas"]["UpdateUserInput"];
             };
         };
         responses: {

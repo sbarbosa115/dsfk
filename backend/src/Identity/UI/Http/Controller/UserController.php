@@ -8,7 +8,8 @@ use App\Identity\Application\Command\CreateUser;
 use App\Identity\Application\Command\UpdateUser;
 use App\Identity\Application\Port\MembershipDirectory;
 use App\Identity\Application\Query\UserQueries;
-use App\Identity\UI\Http\Input\UserInput;
+use App\Identity\UI\Http\Input\CreateUserInput;
+use App\Identity\UI\Http\Input\UpdateUserInput;
 use App\Identity\UI\Http\Output\UserOutput;
 use App\Shared\Application\Bus\CommandBus;
 use App\Shared\Application\Bus\NewId;
@@ -53,16 +54,9 @@ final class UserController extends AbstractController
     #[Route('', name: 'api_users_create', methods: ['POST'])]
     #[OA\Response(response: 201, description: 'The new user', content: new Model(type: UserOutput::class))]
     #[OA\Response(response: 422, description: 'validation_failed or email_taken', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
-    public function create(#[CurrentUser] Actor $actor, #[MapRequestPayload(validationGroups: ['Default', 'create'])] UserInput $input): JsonResponse
+    public function create(#[CurrentUser] Actor $actor, #[MapRequestPayload] CreateUserInput $input): JsonResponse
     {
-        $id = $this->bus->dispatch(new CreateUser(
-            $actor->getId(),
-            (string) $input->email,
-            (string) $input->fullName,
-            (string) $input->password,
-            $input->admin ?? false,
-            $input->superAdmin ?? false,
-        ));
+        $id = $this->bus->dispatch(new CreateUser($actor->getId(), $input->email, $input->fullName, $input->password, $input->admin, $input->superAdmin));
         \assert($id instanceof NewId);
 
         return $this->present($id->value(), Response::HTTP_CREATED);
@@ -73,7 +67,7 @@ final class UserController extends AbstractController
     #[OA\Response(response: 200, description: 'The user', content: new Model(type: UserOutput::class))]
     #[OA\Response(response: 404, description: 'user_not_found', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
     #[OA\Response(response: 422, description: 'validation_failed, email_taken or cannot_change_own_access', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
-    public function update(int $id, #[CurrentUser] Actor $actor, #[MapRequestPayload] UserInput $input): JsonResponse
+    public function update(int $id, #[CurrentUser] Actor $actor, #[MapRequestPayload] UpdateUserInput $input): JsonResponse
     {
         $this->bus->dispatch(new UpdateUser($actor->getId(), $id, $input->email, $input->fullName, $input->password, $input->admin, $input->superAdmin, $input->active));
 

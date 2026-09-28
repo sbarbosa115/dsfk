@@ -249,7 +249,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/UserInput"
+                                "$ref": "#/components/schemas/CreateUserInput"
                             }
                         }
                     }
@@ -311,7 +311,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/UserInput2"
+                                "$ref": "#/components/schemas/UpdateUserInput"
                             }
                         }
                     }
@@ -468,10 +468,36 @@
                 },
                 "type": "object"
             },
-            "UserInput": {
+            "CreateUserInput": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 180
+                    },
+                    "fullName": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 150
+                    },
+                    "password": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 4096,
+                        "minLength": 8
+                    },
+                    "admin": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "superAdmin": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
                 "type": "object"
             },
-            "UserInput2": {
+            "UpdateUserInput": {
                 "properties": {
                     "email": {
                         "type": "string",
