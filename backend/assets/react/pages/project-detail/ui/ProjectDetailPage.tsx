@@ -24,10 +24,11 @@ import {
   TabPanel,
   Tabs,
 } from '@/shared/ui';
+import {PlanBoard} from '@/widgets/plan-board';
 
-const TABS = ['overview'] as const;
+const TABS = ['plan', 'overview'] as const;
 
-/** One project: its tabs (plan, money, expenses… as they arrive) and, first, what it is and who is in it. */
+/** One project: its plan and budget first, then what it is and who is in it (more tabs come with the money). */
 export function ProjectDetailPage() {
   const {id = ''} = useParams();
   const project = useQuery({
@@ -80,6 +81,7 @@ function ProjectView({project}: {project: Project}) {
         value={tab}
         onChange={setTab}
         options={[
+          {value: 'plan', label: t('projects.tabs.plan'), icon: 'clipboard'},
           {
             value: 'overview',
             label: t('projects.tabs.overview'),
@@ -88,33 +90,42 @@ function ProjectView({project}: {project: Project}) {
         ]}
       />
       <TabPanel id="project" value={tab}>
-        <TabIntro>{t('projects.overviewIntro')}</TabIntro>
-        <div className="settings-sections">
-          <section className="card">
-            <div className="card-header">
-              <h2>{t('projects.details')}</h2>
-            </div>
-            <DefinitionList
-              items={[
-                [
-                  t('projects.statusLabel'),
-                  <Badge key="status" value={projectTone(project.status)}>
-                    {projectStatusLabel(project.status)}
-                  </Badge>,
-                ],
-                [t('projects.currency'), project.currency],
-                [t('projects.plannedStart'), formatDate(project.plannedStart)],
-                [t('projects.plannedEnd'), formatDate(project.plannedEnd)],
-                [t('projects.myRole'), t(`roles.${project.myRole}`)],
-              ]}
-            />
-          </section>
-          <MembersPanel project={project} canManage={admin} />
-        </div>
+        {tab === 'plan' && <PlanBoard projectId={project.id} />}
+        {tab === 'overview' && <Overview project={project} admin={admin} />}
       </TabPanel>
       {editing && (
         <ProjectFormModal project={project} onClose={() => setEditing(false)} />
       )}
+    </>
+  );
+}
+
+function Overview({project, admin}: {project: Project; admin: boolean}) {
+  return (
+    <>
+      <TabIntro>{t('projects.overviewIntro')}</TabIntro>
+      <div className="settings-sections">
+        <section className="card">
+          <div className="card-header">
+            <h2>{t('projects.details')}</h2>
+          </div>
+          <DefinitionList
+            items={[
+              [
+                t('projects.statusLabel'),
+                <Badge key="status" value={projectTone(project.status)}>
+                  {projectStatusLabel(project.status)}
+                </Badge>,
+              ],
+              [t('projects.currency'), project.currency],
+              [t('projects.plannedStart'), formatDate(project.plannedStart)],
+              [t('projects.plannedEnd'), formatDate(project.plannedEnd)],
+              [t('projects.myRole'), t(`roles.${project.myRole}`)],
+            ]}
+          />
+        </section>
+        <MembersPanel project={project} canManage={admin} />
+      </div>
     </>
   );
 }

@@ -122,6 +122,17 @@ const PATHS = {
   ),
   menu: <path d="M4 6.5h16M4 12h16M4 17.5h16" />,
   close: <path d="M6 6l12 12M18 6 6 18" />,
+  // Move a row up or down in an order (stages of a plan).
+  arrowUp: <path d="M12 19V5M6 11l6-6 6 6" />,
+  arrowDown: <path d="M12 5v14M6 13l6 6 6-6" />,
+  // Caja menor: the project's petty cash.
+  wallet: (
+    <>
+      <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3" />
+      <path d="M4 7.5v10A2.5 2.5 0 0 0 6.5 20H20v-12H6.5A2.5 2.5 0 0 1 4 7.5Z" />
+      <circle cx="16" cy="14" r="1.2" />
+    </>
+  ),
   chevronLeft: <path d="M15 5l-7 7 7 7" />,
   chevronRight: <path d="M9 5l7 7-7 7" />,
   eye: (
