@@ -3,7 +3,7 @@
 # class. The baseline stays empty.
 deptrac:
   paths: [./src]
-  exclude_files: ['#Kernel\.php$#']
+  exclude_files: ['#Kernel\.php$#', '#/DataFixtures/#']
   layers:
     - name: Domain
       collectors: [{ type: directory, value: src/[^/]+/Domain/.* }]

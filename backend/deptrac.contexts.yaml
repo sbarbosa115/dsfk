@@ -4,7 +4,7 @@
 # A context is added here when it is created.
 deptrac:
   paths: [./src]
-  exclude_files: ['#Kernel\.php$#']
+  exclude_files: ['#Kernel\.php$#', '#/DataFixtures/#']
   layers:
     - name: Shared
       collectors: [{ type: directory, value: src/Shared/.* }]
