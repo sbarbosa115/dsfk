@@ -23,6 +23,8 @@ export function cycleFixture(overrides: Partial<Cycle> = {}): Cycle {
         date: '2026-10-15',
         amount: '300000.00',
         description: 'Fondo inicial',
+        method: 'CASH',
+        reference: 'R-1',
         user: 'Ana Admin',
         voided: false,
         attachments: [],
@@ -33,6 +35,8 @@ export function cycleFixture(overrides: Partial<Cycle> = {}): Cycle {
         date: '2026-10-15',
         amount: '-45000.00',
         description: 'Clavos',
+        method: null,
+        reference: null,
         user: 'Laura Gómez',
         voided: false,
         attachments: [

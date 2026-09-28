@@ -19,6 +19,9 @@ describe('PettyCashBoard', () => {
       '$ 255.000',
     );
     expect(screen.getByText('Ciclo 2 (actual)')).toBeInTheDocument();
+    expect(
+      screen.getByText('Efectivo · R-1 · Fondo inicial'),
+    ).toBeInTheDocument();
     const clavos = screen.getByText('Clavos').closest('tr')!;
     expect(text(clavos.textContent ?? '')).toContain('-$ 45.000');
     expect(within(clavos).getByRole('link', {name: 'Recibo'})).toHaveAttribute(

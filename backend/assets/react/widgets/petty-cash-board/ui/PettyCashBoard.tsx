@@ -228,8 +228,16 @@ function Movements({
           <td>{formatDate(m.date)}</td>
           <td>
             <strong>{t(`finance.type.${m.type}`)}</strong>
-            {m.description && (
-              <div className="small muted">{m.description}</div>
+            {(m.description || m.method) && (
+              <div className="small muted">
+                {[
+                  m.method && t(`finance.methods.${m.method}`),
+                  m.reference,
+                  m.description,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </div>
             )}
           </td>
           <td>{m.user}</td>

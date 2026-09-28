@@ -84,6 +84,16 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
 | `POST /movements/{id}/attachments` multipart `file` | admin | 201 movement with its files | 422 `file`: type by content (PDF, JPG, PNG, WEBP, HEIC), 10 MB |
 | `GET /attachments/{id}` | PM, admin | the file, inline, `nosniff`, sandboxed | 403 Team Lead, 404 `attachment_not_found`, `file_missing` |
 | `POST /stages/{id}/complete` `{actualEnd}` | admin, after approval | the funding summary; the stage's leftover moves to the next open stage, or to the contingency after the last | 409 `stage_not_in_progress`, `stage_milestones_pending` |
+| `GET /projects/{id}/expenses?q=&status=A,B&stageId=` | member | page of expenses, newest first (a Team Lead's own only), with `summary` (pending, to reimburse, Team Lead limit) | 404, 422 unknown status |
+| `POST /projects/{id}/expenses` `{stageId, categoryId, date, amount, description, supplier?, invoiceNumber?, paidFrom}` | member, after approval | 201 expense: the PM and Admins pay from `STAGE` or `PETTY_CASH` (counts at once), Team Leads are `OUT_OF_POCKET` (SUBMITTED) | 409 `budget_not_approved`; 422 `insufficient_funds` (with `available`), `validation_failed` |
+| `GET\|PUT /expenses/{id}` | its Team Lead, PM, admin | the expense with its history; PUT corrects a pending or rejected one (back to SUBMITTED) | 404 `expense_not_found` (also another Team Lead's), 409 `expense_not_editable` |
+| `POST /expenses/{id}/approve` · `/reject {reason}` | PM, admin | the expense: APPROVED, or PM_APPROVED above the Team Lead limit (an Admin approves then) | 409 `receipt_required`, `expense_awaiting_admin`, `expense_invalid_status` |
+| `POST /expenses/{id}/void {reason}` | admin | the expense, VOIDED; its money goes back | 409 `expense_invalid_status` (reimbursed), `cycle_closed` |
+| `POST /expenses/{id}/attachments` multipart `file` | its Team Lead while pending/rejected, PM, admin | 201 expense with its receipts | 403, 422 `file` |
+| `POST /projects/{id}/reimbursements` `{expenseIds, date, method, reference?}` | PM, admin | 201 the expenses, REIMBURSED (one caja menor movement) | 422 `expenseIds` (not approved out of pocket, another project's), `insufficient_funds` |
+| `GET /projects/{id}/petty-cash` · `GET /petty-cash-cycles/{id}` | PM, admin | balance, current cycle with movements, closed cycles; one cycle | 403 Team Lead, 404 `cycle_not_found` |
+| `POST /projects/{id}/petty-cash/close {note?}` | PM, admin | the closed cycle (its balance opens the next) | 409 `cycle_not_open` |
+| `POST /petty-cash-cycles/{id}/sign-off` | admin | the signed-off cycle | 409 `cycle_not_closed` |
 | `GET /settings` | signed in | settings | |
 | `PUT /settings` (fields sent change) | admin | 200 settings | 403, 422 `validation_failed` |
 
@@ -107,8 +117,14 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   menor, the contingency); balances are sums of the entries of movements that are not voided, and movements are
   never deleted. Every money write locks the project's row for its transaction, so two writes cannot spend the
   same balance.
+- **Expenses move money through Finance in their own transaction.** The Expense context calls Finance's
+  `ExpensePayments` (pay, refund, pay back) and reads spending back for the budget comparison; handlers lock the
+  expenses they change (`SELECT … FOR UPDATE`), so a void and a reimbursement, or two reimbursements, never both
+  pass.
 - **Completing a stage is a Planning command that settles the stage's money through Finance** in the same
   transaction; the endpoint answers with the funding summary.
+- **Upload folders are 0750** in production (`UPLOAD_DIR_MODE`); the Docker dev stack uses 0755 so the node
+  service's tools can walk the project.
 - **Handlers register through marker interfaces** (`CommandHandler`, `EventHandler`) wired in `services.yaml`,
   so the Application layer names no framework class.
 
@@ -120,8 +136,8 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   an admin cannot be added as a member.
 - The theme choice (Claro/Oscuro/Según el dispositivo) is kept in the browser, not on the user's account.
 - Light theme input borders are below 3:1 contrast (inherited from the MDX design; `styles.test.ts` lists it).
-- Until the Expense context exists (next phase) nothing is spent: "Gastado" is $ 0 everywhere, and the caja
-  menor has no close or sign-off yet (a deposit to it opens its first cycle).
+- An expense of a closed caja menor cycle still shows Anular; the server refuses it ("…ciclo de caja menor
+  cerrado…"), since an expense does not know its cycle's state.
 - `app:create-admin` asks for the password interactively or prints a generated one; there is no
   non-interactive `--password` option.
 

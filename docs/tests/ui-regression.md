@@ -270,3 +270,66 @@ shows Cimentación Finalizada; Registrar depósito no longer offers Cimentación
 As Laura: Presupuesto y plan › Nueva categoría `Herramienta`. Super admin: Registrar depósito › Estructura,
 Categoría Herramienta, `1.000`. As Laura: deleting Herramienta says "La categoría se usa en partidas o gastos y no
 se puede eliminar."
+
+## 8. Gastos
+
+After section 7: Estructura holds $ 1.651.000, the caja menor $ 300.000; Cimentación is finalizada.
+
+**EXP-01 · A Team Lead records what they paid**
+"Ver como" Carlos › Torre Norte › Gastos › Registrar gasto: `Cemento gris`, Estructura, Materiales, fecha de hoy,
+`120.000`, Proveedor `Ferretería El Tornillo` › Registrar. **Expected:** the dialog has no "Se paga desde"; a blue
+row "Pendiente" with "Pagado por Carlos Pérez" and "Sin factura o recibo"; Carlos has no Fondos or Caja menor tab.
+
+**EXP-02 · Approval needs a receipt**
+Laura › Gastos › Aprobar (check) on Cemento gris › Aprobar: "Adjunta la factura o el recibo antes de aprobar el
+gasto." Carlos › Adjuntar recibo › a PDF › Adjuntar: the row gets a "Recibo" link that opens it.
+
+**EXP-03 · Rejected, corrected, sent again**
+Laura › Rechazar (ban) › `El valor no coincide con la factura` › Rechazar: a red row "Rechazado: “El valor no
+coincide con la factura”". Carlos › Corregir (pencil) › Monto `110.000` › Guardar y enviar de nuevo: blue
+"Pendiente" again. Ver gasto (eye): the history lists Registrado, Rechazado with the reason, Corregido with
+"Antes: Cemento gris, $ 120.000, …".
+
+**EXP-04 · The PM approves up to the limit**
+Laura › Aprobar › Aprobar: green "Aprobado"; the tiles say Por reembolsar 1 ($ 110.000). Fondos: Gastado $ 110.000,
+and Estructura's Presupuesto cell says "Gastado: $ 110.000 (3,4%)".
+
+**EXP-05 · Above the limit an Admin approves too**
+Carlos records `Alquiler de andamios`, Estructura, `600.000`, with a receipt. Laura › Aprobar: the dialog says
+"Supera el límite de $ 500.000…" › Aprobar: the row says "Espera al administrador" and Laura has no Aprobar. The
+super admin › Aprobar: "Aprobado".
+
+**EXP-06 · Paying Team Leads back from the caja menor**
+Laura › Reembolsar: both expenses listed; tick both › "Reembolsar $ 710.000": "Fondos insuficientes. Disponible:
+$ 300.000." under the list. Only Cemento gris › "Reembolsar $ 110.000": its row turns teal "Reembolsado", Ver gasto
+shows "Reembolso: <fecha> · Transferencia". Caja menor: saldo $ 190.000.
+
+**EXP-07 · The PM pays from the caja menor or a stage**
+Laura › Registrar gasto `Clavos`, `45.000`, Se paga desde Caja menor: green "Aprobado" at once; caja menor
+$ 145.000. `Arena`, `100.000`, Fondos de la etapa (Estructura): Aprobado; Fondos: Estructura Disponible
+$ 1.551.000. `Mano de obra`, `5.000.000`, Fondos de la etapa: "Fondos insuficientes. Disponible: $ 1.551.000." under
+Monto.
+
+**EXP-08 · An Admin voids a mistake; its money goes back**
+Super admin › Anular on Arena › motivo `Duplicado` › Anular: grey "Anulado"; Estructura Disponible back to
+$ 1.651.000. Reembolsado and Pendiente rows offer no Anular. Carlos's list shows only his two expenses.
+
+## 9. Caja menor
+
+**CAJ-01 · What moved in the cycle**
+Laura › Caja menor. **Expected:** Saldo $ 145.000; "Ciclo 1 (actual)" lists the Depósito +$ 300.000 (TRX-001,
+with its Comprobante from FIN-05), the Reembolso −$ 110.000 "Reembolso:
+Carlos Pérez – Cemento gris" and the Gasto −$ 45.000 "Clavos"; Carlos has no Caja menor tab.
+
+**CAJ-02 · The PM closes the cycle**
+Cerrar ciclo: "El ciclo se cierra con un saldo de $ 145.000…" › nota `Fin de mes` › Cerrar ciclo. **Expected:**
+Ciclos anteriores has #1, amber ("Cerrado, por firmar"), saldo final $ 145.000; Ciclos por firmar 1; "Ciclo 2
+(actual)" has no movements. Laura has no Firmar.
+
+**CAJ-03 · A closed cycle is final**
+Super admin › Gastos › Anular on Clavos: "El movimiento pertenece a un ciclo de caja menor cerrado y ya no se
+modifica."
+
+**CAJ-04 · The Admin signs it off**
+Super admin › Caja menor › Firmar on #1 › Firmar: green "Firmado"; Ver (eye) shows the cycle's movements, "Fin de
+mes" and who signed and when.

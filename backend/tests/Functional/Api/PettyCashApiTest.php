@@ -76,6 +76,7 @@ final class PettyCashApiTest extends ApiTestCase
         self::assertSame(['DEPOSIT', 'EXPENSE'], array_column($current['movements'], 'type'));
         self::assertSame(['300000.00', '-45000.00'], array_column($current['movements'], 'amount'));
         self::assertSame('Clavos', $current['movements'][1]['description']);
+        self::assertSame('CASH', $current['movements'][0]['method']);
 
         $closed = $this->json('POST', $this->base.'/petty-cash/close', ['note' => 'Se acabó el mes']);
         $this->assertStatus(200);

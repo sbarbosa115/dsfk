@@ -1343,7 +1343,11 @@ export interface components {
             date: string;
             /** Major units, signed: what it put into (+) or took out of (−) the caja menor. */
             amount: string;
+            /** Its note (an expense's description, who was paid back). */
             description: string;
+            /** @enum {string|null} */
+            method?: "TRANSFER" | "CASH" | "CHECK" | "OTHER" | null;
+            reference?: string | null;
             user: string;
             voided: boolean;
             attachments: components["schemas"]["AttachmentOutput"][];

@@ -19,7 +19,11 @@ final readonly class CycleMovementOutput
         public string $date,
         /** Major units, signed: what it put into (+) or took out of (−) the caja menor. */
         public string $amount,
+        /** Its note (an expense's description, who was paid back). */
         public string $description,
+        #[OA\Property(enum: ['TRANSFER', 'CASH', 'CHECK', 'OTHER'])]
+        public ?string $method,
+        public ?string $reference,
         public string $user,
         public bool $voided,
         public array $attachments,

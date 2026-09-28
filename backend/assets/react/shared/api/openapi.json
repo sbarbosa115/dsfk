@@ -4874,7 +4874,22 @@
                         "type": "string"
                     },
                     "description": {
+                        "title": "Its note (an expense's description, who was paid back).",
                         "type": "string"
+                    },
+                    "method": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "TRANSFER",
+                            "CASH",
+                            "CHECK",
+                            "OTHER"
+                        ]
+                    },
+                    "reference": {
+                        "type": "string",
+                        "nullable": true
                     },
                     "user": {
                         "type": "string"

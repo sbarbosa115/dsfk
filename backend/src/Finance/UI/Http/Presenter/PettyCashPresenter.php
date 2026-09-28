@@ -142,6 +142,8 @@ final readonly class PettyCashPresenter
             $m->getDate()->format('Y-m-d'),
             $this->money($amounts[(int) $m->getId()] ?? 0, $currency),
             (string) $m->getNote(),
+            $m->getMethod()?->value,
+            $m->getReference(),
             $names[$m->getCreatedById()] ?? '—',
             $m->isVoided(),
             $files(isset($expenseOf[(int) $m->getId()]) ? ($receipts[$expenseOf[(int) $m->getId()]] ?? []) : ($proofs[(int) $m->getId()] ?? [])),
