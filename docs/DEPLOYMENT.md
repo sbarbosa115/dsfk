@@ -115,14 +115,26 @@ Push to GitHub, then on the server:
 ~/dsfk-src/deploy/cpanel-update.sh v1.2.0    # a tag, branch or commit
 ```
 It does, in order:
-1. fetches the ref, installs PHP dependencies, then builds the frontend with Webpack Encore into
-   `public/build` (`npm ci`, `tsc`, `npm run build`) and removes the frontend sources;
+1. fetches the ref (if that version has a different `cpanel-update.sh`, it continues with that one),
+   installs PHP dependencies, then builds the frontend with Webpack Encore into `public/build` (`npm ci`,
+   `tsc`, `encore production`; the output goes to `~/dsfk-build/frontend-build.log`) and removes the
+   frontend sources;
 2. (all of it in `~/dsfk-build/stage`, without dev tools) checks the dependencies load on PHP 8.4 and
    writes a `MANIFEST` of every shipped file;
 3. copies the release into the app folder. `.env.local` and `var/` (uploads, logs, sessions) are
    never touched;
 4. runs `deploy/update.sh`: backs up the database and uploads, deletes code files not in the
-   `MANIFEST`, rebuilds the cache, runs migrations, and runs the checks.
+   `MANIFEST` (and the folders left empty), rebuilds the cache, runs migrations, and runs the checks.
+
+**Once, when the server still runs the legacy version** (React + Vite in `frontend/`, served from
+`public/app`): the script in `~/dsfk-src` is then the legacy one, and it cannot build this version
+(`npm ci` fails in a `frontend/` folder that no longer exists). Put the clone on the new version first:
+```bash
+cd ~/dsfk-src && git fetch origin && git checkout -f --detach origin/main && git clean -ffdx
+~/dsfk-src/deploy/cpanel-update.sh
+```
+From then on the script updates itself. The old `public/app` is deleted in step 4; the database needs no
+change (same migrations).
 
 To roll back, deploy the previous tag. Migrations are not reverted, so restore the backup taken in
 step 4 if a migration must be undone. The site keeps running during a deployment. For large changes,

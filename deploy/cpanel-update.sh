@@ -23,6 +23,8 @@ main() {
   local app_dir="${APP_DIR:-/home/lentti/public_html/dsfk}"
   local build_dir="${BUILD_DIR:-$HOME/dsfk-build}"
   local stage="$build_dir/stage"
+  # What this run started with: if the release brings another version of this script, that one takes over.
+  local running_script; running_script="$(cat "${BASH_SOURCE[0]}")"
 
   log() { echo "[$(date '+%F %T')] $*"; }
   die() { echo "ERROR: $*" >&2; exit 1; }
@@ -79,7 +81,12 @@ main() {
   commit="$(git -C "$src" rev-parse --verify -q "origin/$ref^{commit}" || git -C "$src" rev-parse --verify -q "$ref^{commit}")" \
     || die "unknown branch, tag or commit: $ref"
   git -C "$src" checkout -q -f --detach "$commit"
-  git -C "$src" clean -q -fd
+  # -x: ignored files too, so build leftovers of other versions (public/app, node_modules) never ship.
+  git -C "$src" clean -q -ffdx
+  if [ -z "${DSFK_DEPLOY_REEXEC:-}" ] && [ "$(cat "$src/deploy/cpanel-update.sh")" != "$running_script" ]; then
+    log "This release has its own version of the deploy script: continuing with it"
+    DSFK_DEPLOY_REEXEC=1 exec bash "$src/deploy/cpanel-update.sh" "$commit"
+  fi
   local version; version="$(git -C "$src" describe --tags --always "$commit")"
   version="${version//\//-}"
   log "Building $version ($(git -C "$src" log -1 --format='%h %s' "$commit"))"
