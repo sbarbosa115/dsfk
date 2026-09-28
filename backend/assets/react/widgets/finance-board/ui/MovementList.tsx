@@ -106,7 +106,7 @@ export function MovementList({
                   className={actionClass('file')}
                   href={attachmentUrl(a.id)}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   title={a.name}
                 >
                   {t('finance.proof')}

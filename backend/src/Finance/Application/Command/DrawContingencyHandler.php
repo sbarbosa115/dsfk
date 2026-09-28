@@ -24,6 +24,7 @@ final readonly class DrawContingencyHandler implements CommandHandler
 
     public function __invoke(DrawContingency $c): NewId
     {
+        $this->ledger->lock($c->projectId);
         $targets = new FundingTargets($this->plan, $c->projectId);
         $stageId = $targets->openStage($c->stageId, 'stageId');
         $amount = FundingTargets::minor($c->amount, $this->currencies->of($c->projectId), 'amount');

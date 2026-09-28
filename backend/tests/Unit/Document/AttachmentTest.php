@@ -16,6 +16,9 @@ final class AttachmentTest extends TestCase
 
         self::assertSame('7/'.str_repeat('ab', 16).'.pdf', $attachment->getStoredName());
         self::assertSame('.._.._etc_comprobante.pdf', $attachment->getOriginalName(), 'no path separators in the shown name');
+
+        $renamed = Attachment::accept(7, "slip\r\nX-Evil: 1\\x.pdf", 'application/pdf', 2048, str_repeat('ab', 16), 1, new \DateTimeImmutable());
+        self::assertSame('slip__X-Evil: 1_x.pdf', $renamed->getOriginalName(), 'no control characters or backslashes');
     }
 
     /**

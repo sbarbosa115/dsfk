@@ -20,6 +20,7 @@ final readonly class StageSettlement
 
     public function settle(int $projectId, int $stageId, ?int $nextStageId, \DateTimeImmutable $date, int $actorId): void
     {
+        $this->ledger->lock($projectId);
         $left = $this->ledger->balances($projectId)->stage($stageId);
         if ($left <= 0) {
             return;

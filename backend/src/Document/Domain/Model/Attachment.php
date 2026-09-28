@@ -64,7 +64,7 @@ class Attachment
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
         private \DateTimeImmutable $createdAt,
     ) {
-        $name = trim(str_replace(['/', '\\', "\0"], '_', $originalName));
+        $name = trim((string) preg_replace('/[\/\\\\\x00-\x1F\x7F]/u', '_', $originalName));
         $this->originalName = mb_substr('' === $name ? 'archivo' : $name, 0, 255);
     }
 

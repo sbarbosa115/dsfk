@@ -26,6 +26,7 @@ final readonly class RecordDepositHandler implements CommandHandler
 
     public function __invoke(RecordDeposit $c): NewId
     {
+        $this->ledger->lock($c->projectId);
         $targets = new FundingTargets($this->plan, $c->projectId);
         $currency = $this->currencies->of($c->projectId);
         $deposit = FundMovement::deposit($c->projectId, $c->date, $c->method, $c->reference, $c->note, $c->actorId, $this->clock->now());

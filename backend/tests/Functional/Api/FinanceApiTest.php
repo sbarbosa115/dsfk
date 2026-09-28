@@ -121,6 +121,33 @@ final class FinanceApiTest extends ApiTestCase
         $this->assertError(404, 'project_not_found');
     }
 
+    public function testAnotherProjectsPeopleCannotReachThisProjectsMoneyByItsIds(): void
+    {
+        $this->approve();
+        $deposit = $this->deposit([$this->toStage($this->foundation, '1000')]);
+        $movement = $this->upload('/api/movements/'.$deposit['id'].'/attachments', "%PDF-1.4\n%%EOF\n", 'slip.pdf');
+        $otherPm = $this->createUser('otro-pm@example.com');
+        $other = $this->createProject('Otro', [[$otherPm, ProjectRole::ProjectManager]]);
+        $this->loginAs($otherPm);
+        $foreignStage = $this->json('POST', '/api/projects/'.$other->getId().'/stages', ['name' => 'Ajena'])['stages'][0]['id'];
+
+        foreach (['/finance', '/movements'] as $path) {
+            $this->request('GET', $this->base.$path);
+            $this->assertError(404, 'project_not_found');
+        }
+        $this->request('POST', '/api/movements/'.$deposit['id'].'/void', ['reason' => 'x']);
+        $this->assertError(404, 'project_not_found');
+        $this->client->request('GET', '/api/attachments/'.$movement['attachments'][0]['id']);
+        $this->assertStatus(404);
+
+        // The Admin cannot send this project's contingency to another project's stage either.
+        $this->loginAs($this->admin);
+        $this->deposit([['destination' => 'CONTINGENCY', 'amount' => '1000']]);
+        $data = $this->draw($foreignStage, '10');
+        $this->assertStatus(422);
+        self::assertArrayHasKey('stageId', $data['violations']);
+    }
+
     public function testDepositValidationNamesTheWrongPart(): void
     {
         $this->approve();

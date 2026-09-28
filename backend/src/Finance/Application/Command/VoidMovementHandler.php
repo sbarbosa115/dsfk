@@ -17,6 +17,7 @@ final readonly class VoidMovementHandler implements CommandHandler
     public function __invoke(VoidMovement $c): void
     {
         $movement = $this->ledger->movement($c->movementId);
+        $this->ledger->lock($movement->getProjectId());
         $movement->void($this->ledger->balances($movement->getProjectId()), $c->actorId, $c->reason, $this->clock->now());
     }
 }

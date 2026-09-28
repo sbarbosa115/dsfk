@@ -30,6 +30,13 @@ final readonly class DoctrineLedgerRepository implements LedgerRepository, Finan
         $this->em->persist($movement);
     }
 
+    public function lock(int $projectId): void
+    {
+        // The project row is the one row every money write of the project shares; the lock lasts until the
+        // command bus commits.
+        $this->em->getConnection()->executeQuery('SELECT id FROM project WHERE id = ? FOR UPDATE', [$projectId]);
+    }
+
     public function movement(int $id): FundMovement
     {
         return $this->em->find(FundMovement::class, $id) ?? throw new NotFound('movement_not_found');
