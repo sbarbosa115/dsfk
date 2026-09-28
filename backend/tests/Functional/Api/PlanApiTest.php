@@ -298,4 +298,23 @@ final class PlanApiTest extends ApiTestCase
         $this->assertStatus(422);
         self::assertEqualsCanonicalizing(['quantity', 'unitPrice'], array_keys($data['violations']));
     }
+
+    public function testAProjectManagerCannotReachAnotherProjectsPlanThroughItsIds(): void
+    {
+        $this->loginAs($this->pm);
+        $mine = $this->buildPlan();
+        $otherPm = $this->createUser('pm2@example.com');
+        $other = $this->createProject('Otro', [[$otherPm, ProjectRole::ProjectManager]]);
+        $this->loginAs($otherPm);
+        $theirs = $this->json('POST', '/api/projects/'.$other->getId().'/stages', ['name' => 'Suya'])['stages'][0]['id'];
+
+        $this->loginAs($this->pm);
+        $this->request('PATCH', "/api/stages/$theirs", ['name' => 'Mía']);
+        $this->assertError(404, 'project_not_found');
+        $this->request('PUT', $this->base.'/stages/order', ['ids' => [$theirs, $mine['stages'][0]['id']]]);
+        $this->assertStatus(422);
+
+        $this->loginAs($otherPm);
+        self::assertSame('Suya', $this->json('GET', '/api/projects/'.$other->getId().'/plan')['stages'][0]['name']);
+    }
 }
