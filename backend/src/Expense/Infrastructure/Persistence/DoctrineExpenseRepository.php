@@ -186,6 +186,7 @@ final readonly class DoctrineExpenseRepository implements ExpenseRepository, Exp
             'amount' => $e->getAmount(),
             'description' => $e->getDescription(),
             'paidById' => $e->getPaidById(),
+            'rejectionReason' => $e->getRejectionReason(),
         ];
     }
 

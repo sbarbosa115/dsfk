@@ -49,6 +49,6 @@ final readonly class ReimburseExpensesHandler implements CommandHandler
         foreach ($expenses as $expense) {
             $expense->markReimbursed($reimbursement, $c->actorId, $this->clock->now());
         }
-        $this->events->publish(new ExpensesReimbursed($c->projectId, $ids), new PettyCashUsed($c->projectId));
+        $this->events->publish(new ExpensesReimbursed($c->projectId, $ids), new PettyCashUsed($c->projectId, $total));
     }
 }

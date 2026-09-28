@@ -57,7 +57,7 @@ final readonly class RecordExpenseHandler implements CommandHandler
         $expense->linkMovement($this->funds->pay($c->projectId, $paidFrom->value, $in->stageId, $in->categoryId, $d->amount, $in->date, $expense->getDescription(), $c->actorId));
         $this->events->publish(new SpendingRecorded(...self::ids($expense)));
         if (PaidFrom::PettyCash === $paidFrom) {
-            $this->events->publish(new PettyCashUsed($c->projectId));
+            $this->events->publish(new PettyCashUsed($c->projectId, $d->amount));
         }
 
         return NewId::of($expense);

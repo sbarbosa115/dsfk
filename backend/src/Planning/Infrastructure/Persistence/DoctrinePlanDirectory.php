@@ -66,6 +66,22 @@ final readonly class DoctrinePlanDirectory implements PlanDirectory
         ), $this->plans->stagesOf($projectId));
     }
 
+    public function overdueMilestones(int $projectId, \DateTimeImmutable $today): array
+    {
+        $overdue = [];
+        foreach ($this->plans->stagesOf($projectId) as $stage) {
+            foreach ($stage->getMilestones() as $m) {
+                $date = $m->getPlannedDate();
+                if (null !== $date && $m->isOverdue($today)) {
+                    $overdue[] = ['stage' => $stage->getName(), 'name' => $m->getName(), 'plannedDate' => $date];
+                }
+            }
+        }
+        usort($overdue, static fn (array $a, array $b): int => $a['plannedDate'] <=> $b['plannedDate']);
+
+        return $overdue;
+    }
+
     public function progress(int $projectId): int
     {
         return Progress::ofProject($this->plans->stagesOf($projectId));

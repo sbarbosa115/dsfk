@@ -1,0 +1,12 @@
+{% extends 'emails/layout.html.twig' %}
+{% set link = '/projects/' ~ project.id ~ '?tab=dashboard' %}
+{% block content %}
+<p>Resumen diario de <strong>{{ project.name }}</strong>:</p>
+{% if overdue|length %}
+<p><strong>Hitos atrasados</strong></p>
+<ul>{% for m in overdue %}<li>{{ m.stage }} · {{ m.name }} (planeado para el {{ m.plannedDate|date('d/m/Y') }})</li>{% endfor %}</ul>
+{% endif %}
+{% if pending %}<p><strong>Gastos por aprobar:</strong> {{ pending }}</p>{% endif %}
+{% if toReimburse %}<p><strong>Gastos aprobados por reembolsar:</strong> {{ toReimburse }}</p>{% endif %}
+{% if unsigned %}<p><strong>Ciclos de caja menor por firmar:</strong> {{ unsigned }}</p>{% endif %}
+{% endblock %}

@@ -29,6 +29,13 @@ interface PlanDirectory
      */
     public function schedule(int $projectId): array;
 
+    /**
+     * Milestones not met whose planned date went by, oldest first.
+     *
+     * @return list<array{stage: string, name: string, plannedDate: \DateTimeImmutable}>
+     */
+    public function overdueMilestones(int $projectId, \DateTimeImmutable $today): array;
+
     /** Physical progress of the project in basis points (stages weighted by their budget). */
     public function progress(int $projectId): int;
 }

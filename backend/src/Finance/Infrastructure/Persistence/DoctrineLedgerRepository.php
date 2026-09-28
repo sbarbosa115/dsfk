@@ -234,6 +234,19 @@ final readonly class DoctrineLedgerRepository implements LedgerRepository, Finan
         return $this->em->getRepository(PettyCashCycle::class)->count(['projectId' => $projectId, 'status' => CycleStatus::Closed]);
     }
 
+    public function cycleFacts(int $cycleId): ?array
+    {
+        $c = $this->em->find(PettyCashCycle::class, $cycleId);
+
+        return null === $c ? null : [
+            'projectId' => $c->getProjectId(),
+            'number' => $c->getNumber(),
+            'closingBalance' => (int) $c->getClosingBalance(),
+            'closedById' => $c->getClosedById(),
+            'note' => $c->getClosingNote(),
+        ];
+    }
+
     public function lastPettyCashTopUp(int $projectId): int
     {
         $amount = $this->em->createQueryBuilder()

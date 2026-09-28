@@ -32,7 +32,7 @@ interface ExpenseDirectory
     /**
      * What a notification says about an expense. null: no such expense.
      *
-     * @return array{projectId: int, stageId: int, categoryId: int, amount: int, description: string, paidById: int}|null
+     * @return array{projectId: int, stageId: int, categoryId: int, amount: int, description: string, paidById: int, rejectionReason: ?string}|null
      */
     public function facts(int $expenseId): ?array;
 
