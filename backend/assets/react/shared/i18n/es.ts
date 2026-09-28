@@ -132,6 +132,66 @@ export const es = {
     disabled: 'La cuenta de {{name}} quedó desactivada.',
     enabled: '{{name}} ya puede entrar de nuevo.',
   },
+  projects: {
+    title: 'Proyectos',
+    subtitle:
+      'Las obras que sigues: su presupuesto, el dinero que entra y sale, y cómo avanzan.',
+    searchPlaceholder: 'Buscar por nombre…',
+    new: 'Nuevo proyecto',
+    edit: 'Editar proyecto',
+    open: 'Abrir',
+    name: 'Nombre',
+    description: 'Descripción',
+    currency: 'Moneda',
+    currencyHint:
+      'Todos los valores del proyecto quedan en esta moneda; no se puede cambiar después.',
+    statusLabel: 'Estado',
+    statusHint: {
+      DRAFT:
+        'Se arma el plan y el presupuesto. Pasa a Activo cuando el administrador aprueba el presupuesto.',
+      ACTIVE:
+        'En obra: se reciben depósitos, se registran gastos y se marca el avance.',
+      COMPLETED: 'La obra terminó. Sus datos quedan para consulta.',
+      ARCHIVED: 'Fuera de la lista diaria; sus datos quedan para consulta.',
+    },
+    plannedStart: 'Inicio planeado',
+    plannedEnd: 'Fin planeado',
+    dates: 'Fechas planeadas',
+    myRole: 'Mi rol',
+    status: {
+      DRAFT: 'Borrador',
+      ACTIVE: 'Activo',
+      COMPLETED: 'Finalizado',
+      ARCHIVED: 'Archivado',
+    },
+    empty: 'Ningún proyecto coincide con la búsqueda.',
+    emptyAll:
+      'Aún no hay proyectos. Crea el primero para armar su plan y presupuesto.',
+    emptyMember:
+      'Todavía no estás en ningún proyecto. El administrador te agrega cuando empiece una obra.',
+    notFound: 'Este proyecto no existe o no participas en él.',
+    backToList: 'Volver a proyectos',
+    details: 'Datos del proyecto',
+    tabs: {
+      overview: 'Resumen',
+    },
+    overviewIntro: 'Los datos del proyecto y quiénes trabajan en él.',
+  },
+  members: {
+    title: 'Equipo del proyecto',
+    intro:
+      'Un gerente de proyecto (maneja la caja menor) y los líderes de equipo. Los administradores ven todos los proyectos sin estar aquí.',
+    person: 'Persona',
+    role: 'Rol',
+    add: 'Agregar',
+    remove: 'Quitar',
+    choosePerson: 'Selecciona una persona…',
+    empty: 'Aún no hay nadie en este proyecto.',
+    confirmRemove:
+      '{{name}} dejará de ver este proyecto. Sus gastos y registros se conservan.',
+    removed: '{{name}} ya no está en el proyecto.',
+    added: '{{name}} ahora es {{role}} del proyecto.',
+  },
   settings: {
     title: 'Configuración',
     subtitle: 'Valores generales que usan todos los proyectos.',
@@ -171,5 +231,14 @@ export const es = {
       'Solo un super administrador puede hacer este cambio.',
     switch_user_not_allowed: 'No se puede cambiar de usuario de esta forma.',
     invalid_amount: 'El monto no es válido para la moneda del proyecto.',
+    project_not_found: 'Este proyecto no existe o no participas en él.',
+    member_not_found: 'Esa persona ya no está en el proyecto.',
+    project_manager_exists:
+      'El proyecto ya tiene un gerente. Cámbiale el rol primero.',
+    admin_is_global:
+      'Los administradores ya ven todos los proyectos; no se agregan como miembros.',
+    user_inactive: 'Esa cuenta está desactivada. Actívala en Usuarios primero.',
+    currency_locked:
+      'La moneda no se puede cambiar después de crear el proyecto.',
   },
 };

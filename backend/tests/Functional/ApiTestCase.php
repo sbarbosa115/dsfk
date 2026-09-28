@@ -7,6 +7,8 @@ namespace App\Tests\Functional;
 use App\Identity\Application\Port\PasswordHasher;
 use App\Identity\Domain\Model\User;
 use App\Identity\Infrastructure\Security\SecurityUser;
+use App\Project\Domain\Model\Project;
+use App\Project\Domain\Model\ProjectRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -53,6 +55,21 @@ abstract class ApiTestCase extends WebTestCase
         $this->em->flush();
 
         return $user;
+    }
+
+    /**
+     * @param list<array{User, ProjectRole}> $members
+     */
+    protected function createProject(string $name = 'Edificio Central', array $members = [], string $currency = 'COP'): Project
+    {
+        $project = new Project($name, $currency, new \DateTimeImmutable());
+        foreach ($members as [$user, $role]) {
+            $project->assign((int) $user->getId(), $role);
+        }
+        $this->em->persist($project);
+        $this->em->flush();
+
+        return $project;
     }
 
     protected function loginAs(User $user): void

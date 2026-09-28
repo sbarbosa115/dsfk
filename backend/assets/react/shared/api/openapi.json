@@ -400,6 +400,333 @@
                 }
             }
         },
+        "/api/projects": {
+            "get": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Admins see every project; everyone else the projects they belong to. Newest first.",
+                "operationId": "get_api_projects_list",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 50,
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "One page of projects",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectPageOutput"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Projects"
+                ],
+                "operationId": "post_api_projects_create",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateProjectInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The new project (DRAFT)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Not an admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}": {
+            "get": {
+                "tags": [
+                    "Projects"
+                ],
+                "operationId": "get_api_projects_show",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The project with its members",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also when the user is not in it)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Admin only. Only the fields sent change.",
+                "operationId": "patch_api_projects_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateProjectInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The project",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed or currency_locked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/members": {
+            "post": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Admin only. Adds a person, or changes their role if they are already in the project.",
+                "operationId": "post_api_projects_members_add",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MemberInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The project with its members",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "project_manager_exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "user_not_found, admin_is_global, user_inactive or validation_failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/members/{memberId}": {
+            "delete": {
+                "tags": [
+                    "Projects"
+                ],
+                "operationId": "delete_api_projects_members_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    },
+                    {
+                        "name": "memberId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Removed"
+                    },
+                    "404": {
+                        "description": "project_not_found or member_not_found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/settings": {
             "get": {
                 "tags": [
@@ -571,6 +898,126 @@
                     "active": {
                         "type": "boolean",
                         "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "ProjectStatus": {
+                "type": "string",
+                "enum": [
+                    "DRAFT",
+                    "ACTIVE",
+                    "COMPLETED",
+                    "ARCHIVED"
+                ]
+            },
+            "CreateProjectInput": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 150
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 5000
+                    },
+                    "currency": {
+                        "title": "Default: the currency in Settings.",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "status": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ProjectStatus"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "plannedStart": {
+                        "title": "YYYY-MM-DD",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "plannedEnd": {
+                        "title": "YYYY-MM-DD",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateProjectInput": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 150
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 5000
+                    },
+                    "currency": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "status": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ProjectStatus"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "plannedStart": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "plannedEnd": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "ProjectRole": {
+                "type": "string",
+                "enum": [
+                    "PROJECT_MANAGER",
+                    "TEAM_LEAD"
+                ]
+            },
+            "MemberInput": {
+                "properties": {
+                    "userId": {
+                        "type": "integer",
+                        "default": 0,
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                    },
+                    "role": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ProjectRole"
+                            }
+                        ],
                         "default": null
                     }
                 },
@@ -764,6 +1211,131 @@
                 },
                 "type": "object"
             },
+            "MemberUserOutput": {
+                "required": [
+                    "id",
+                    "email",
+                    "fullName"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "fullName": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "MemberOutput": {
+                "required": [
+                    "id",
+                    "role",
+                    "user"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/ProjectRole"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/MemberUserOutput"
+                    }
+                },
+                "type": "object"
+            },
+            "ProjectOutput": {
+                "required": [
+                    "id",
+                    "name",
+                    "currency",
+                    "status",
+                    "createdAt",
+                    "myRole",
+                    "members"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/ProjectStatus"
+                    },
+                    "plannedStart": {
+                        "title": "YYYY-MM-DD",
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "plannedEnd": {
+                        "title": "YYYY-MM-DD",
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "myRole": {
+                        "title": "The signed-in user's role here: ADMIN (global), PROJECT_MANAGER or TEAM_LEAD",
+                        "type": "string",
+                        "enum": [
+                            "ADMIN",
+                            "PROJECT_MANAGER",
+                            "TEAM_LEAD"
+                        ]
+                    },
+                    "members": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MemberOutput"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ProjectPageOutput": {
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "perPage"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProjectOutput"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "perPage": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
             "SettingsOutput": {
                 "required": [
                     "defaultCurrency",
@@ -802,6 +1374,9 @@
         },
         {
             "name": "Users"
+        },
+        {
+            "name": "Projects"
         },
         {
             "name": "Settings"
