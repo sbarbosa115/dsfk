@@ -51,6 +51,18 @@ describe('api', () => {
     expect(error.data['available']).toBe('1000.00');
   });
 
+  it('finds a field error reported on one item of a list field', async () => {
+    mockFetch(422, {
+      error: 'validation_failed',
+      violations: {'budgetWarningPercents[1]': ['Fuera de rango.']},
+    });
+
+    const error = (await api('/x').catch((e: unknown) => e)) as ApiError;
+
+    expect(error.fieldError('budgetWarningPercents')).toBe('Fuera de rango.');
+    expect(error.fieldError('budget')).toBeUndefined();
+  });
+
   it('falls back to unknown_error when the body is not JSON', async () => {
     vi.stubGlobal(
       'fetch',

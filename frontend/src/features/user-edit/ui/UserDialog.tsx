@@ -2,7 +2,7 @@ import {FormControlLabel, Switch, TextField, Typography} from '@mui/material';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useSession} from '@/entities/session';
+import {SWITCHABLE_USERS_KEY, useSession} from '@/entities/session';
 import {createUser, updateUser, USERS_KEY, type User} from '@/entities/user';
 import {fieldError} from '@/shared/lib/errors';
 import {FormDialog} from '@/shared/ui/FormDialog';
@@ -42,6 +42,8 @@ export function UserDialog({
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({queryKey: USERS_KEY});
+      // The "Ver como" menu keeps its own copy of the users.
+      void queryClient.invalidateQueries({queryKey: SWITCHABLE_USERS_KEY});
       onClose();
     },
   });

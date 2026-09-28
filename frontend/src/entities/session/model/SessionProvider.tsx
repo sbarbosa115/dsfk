@@ -7,6 +7,7 @@ import {
   switchUser,
   type CurrentUser,
 } from '../api/sessionApi';
+import {SESSION_KEY, SWITCHABLE_USERS_KEY} from './keys';
 
 interface Session {
   user: CurrentUser | null;
@@ -18,10 +19,6 @@ interface Session {
 }
 
 const SessionContext = createContext<Session | null>(null);
-
-export const SESSION_KEY = ['me'];
-/** Kept across user switches, so a super admin can jump between users while viewing as someone. */
-export const SWITCHABLE_USERS_KEY = ['switchable-users'];
 
 export function SessionProvider({children}: {children: ReactNode}) {
   const queryClient = useQueryClient();

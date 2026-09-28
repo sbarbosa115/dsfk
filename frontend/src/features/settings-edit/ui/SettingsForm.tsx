@@ -9,12 +9,7 @@ import {parsePercents} from '../model/percents';
 export function SettingsForm({initial}: {initial: Settings}) {
   const {t} = useTranslation();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({
-    defaultCurrency: initial.defaultCurrency,
-    teamLeadExpenseLimit: initial.teamLeadExpenseLimit,
-    pettyCashLowBalancePercent: String(initial.pettyCashLowBalancePercent),
-    budgetWarningPercents: initial.budgetWarningPercents.join(', '),
-  });
+  const [form, setForm] = useState(() => toForm(initial));
 
   const save = useMutation({
     mutationFn: () =>
@@ -24,7 +19,11 @@ export function SettingsForm({initial}: {initial: Settings}) {
         pettyCashLowBalancePercent: Number(form.pettyCashLowBalancePercent),
         budgetWarningPercents: parsePercents(form.budgetWarningPercents),
       }),
-    onSuccess: (saved) => queryClient.setQueryData(SETTINGS_KEY, saved),
+    onSuccess: (saved) => {
+      queryClient.setQueryData(SETTINGS_KEY, saved);
+      // Show what was stored (thresholds sorted and without repeats).
+      setForm(toForm(saved));
+    },
   });
 
   const field = (name: keyof typeof form) => ({
@@ -70,4 +69,13 @@ export function SettingsForm({initial}: {initial: Settings}) {
       </Stack>
     </Paper>
   );
+}
+
+function toForm(settings: Settings) {
+  return {
+    defaultCurrency: settings.defaultCurrency,
+    teamLeadExpenseLimit: settings.teamLeadExpenseLimit,
+    pettyCashLowBalancePercent: String(settings.pettyCashLowBalancePercent),
+    budgetWarningPercents: settings.budgetWarningPercents.join(', '),
+  };
 }

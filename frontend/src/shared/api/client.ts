@@ -17,8 +17,14 @@ export class ApiError extends Error {
     this.data = data;
   }
 
+  /** The first message for a field, including messages on its items ("items[2]") or sub-fields ("a.b"). */
   fieldError(field: string): string | undefined {
-    return this.violations[field]?.[0];
+    const key = Object.keys(this.violations).find(
+      (k) =>
+        k === field || k.startsWith(`${field}[`) || k.startsWith(`${field}.`),
+    );
+
+    return key === undefined ? undefined : this.violations[key]?.[0];
   }
 }
 
