@@ -17,10 +17,14 @@ use App\Shared\Application\Security\Actor;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -31,10 +35,15 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[OA\Response(response: 403, description: 'Not an admin', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
 final class UserController extends AbstractController
 {
+    /**
+     * @param UserProviderInterface<UserInterface> $userProvider
+     */
     public function __construct(
         private readonly CommandBus $bus,
         private readonly UserQueries $users,
         private readonly MembershipDirectory $memberships,
+        private readonly TokenStorageInterface $tokens,
+        #[Autowire(service: 'security.user.provider.concrete.app_users')] private readonly UserProviderInterface $userProvider,
     ) {
     }
 
@@ -70,6 +79,11 @@ final class UserController extends AbstractController
     public function update(int $id, #[CurrentUser] Actor $actor, #[MapRequestPayload] UpdateUserInput $input): JsonResponse
     {
         $this->bus->dispatch(new UpdateUser($actor->getId(), $id, $input->email, $input->fullName, $input->password, $input->admin, $input->superAdmin, $input->active));
+        $token = $this->tokens->getToken();
+        if ($id === $actor->getId() && null !== $token?->getUser()) {
+            // An admin who resets their own password here stays signed in (see AuthController::changePassword).
+            $token->setUser($this->userProvider->refreshUser($token->getUser()));
+        }
 
         return $this->present($id);
     }

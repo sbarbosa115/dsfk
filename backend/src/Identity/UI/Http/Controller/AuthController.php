@@ -13,18 +13,27 @@ use App\Shared\Application\Security\Actor;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[OA\Tag(name: 'Auth')]
 final class AuthController extends AbstractController
 {
-    public function __construct(private readonly CurrentUserPresenter $presenter, private readonly TokenStorageInterface $tokens)
-    {
+    /**
+     * @param UserProviderInterface<UserInterface> $users
+     */
+    public function __construct(
+        private readonly CurrentUserPresenter $presenter,
+        private readonly TokenStorageInterface $tokens,
+        #[Autowire(service: 'security.user.provider.concrete.app_users')] private readonly UserProviderInterface $users,
+    ) {
     }
 
     /** Sign in with email and password (session cookie). Handled by the json_login authenticator. */
@@ -76,6 +85,13 @@ final class AuthController extends AbstractController
     public function changePassword(#[CurrentUser] Actor $actor, #[MapRequestPayload] ChangePasswordInput $input, CommandBus $bus): Response
     {
         $bus->dispatch(new ChangeOwnPassword($actor->getId(), $input->currentPassword, $input->newPassword));
+
+        // The session holds the old hash; without this the next request would see a changed user and sign this
+        // session out too. Other sessions still end.
+        $token = $this->tokens->getToken();
+        if (null !== $token && null !== $token->getUser()) {
+            $token->setUser($this->users->refreshUser($token->getUser()));
+        }
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

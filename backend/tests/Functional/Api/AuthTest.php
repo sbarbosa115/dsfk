@@ -102,4 +102,16 @@ final class AuthTest extends ApiTestCase
 
         $this->assertError(401, 'too_many_attempts');
     }
+
+    public function testChangingYourPasswordKeepsYouSignedIn(): void
+    {
+        $this->createUser('pm@example.com');
+        $this->request('POST', '/api/login', ['email' => 'pm@example.com', 'password' => self::PASSWORD]);
+
+        $this->request('POST', '/api/me/password', ['currentPassword' => self::PASSWORD, 'newPassword' => 'brand-new-password']);
+        $this->assertStatus(204);
+
+        $this->request('GET', '/api/me');
+        $this->assertStatus(200);
+    }
 }

@@ -164,4 +164,16 @@ final class UserApiTest extends ApiTestCase
         $this->request('GET', '/api/me');
         $this->assertStatus(401);
     }
+
+    public function testAnAdminResettingTheirOwnPasswordStaysSignedIn(): void
+    {
+        $admin = $this->createUser('admin@example.com', admin: true);
+        $this->request('POST', '/api/login', ['email' => 'admin@example.com', 'password' => self::PASSWORD]);
+
+        $this->request('PATCH', '/api/users/'.$admin->getId(), ['password' => 'another-password']);
+        $this->assertStatus(200);
+
+        $this->request('GET', '/api/users');
+        $this->assertStatus(200);
+    }
 }
