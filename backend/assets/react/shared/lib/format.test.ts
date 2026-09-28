@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {
   formatDate,
+  formatDateRange,
   formatMoney,
   formatPercent,
   formatAmountForInput,
@@ -35,6 +36,15 @@ describe('dates', () => {
   it('renders a dash for empty dates', () => {
     expect(formatDate(null)).toBe('—');
     expect(toDateInput(null)).toBe('');
+  });
+
+  it('writes a range once, with an ellipsis for the missing end', () => {
+    expect(formatDateRange('2026-10-01', '2027-06-30')).toBe(
+      '1 de oct de 2026 – 30 de jun de 2027',
+    );
+    expect(formatDateRange('2026-10-01', null)).toBe('1 de oct de 2026 – …');
+    expect(formatDateRange(null, '2027-06-30')).toBe('… – 30 de jun de 2027');
+    expect(formatDateRange(null, null)).toBe('—');
   });
 });
 

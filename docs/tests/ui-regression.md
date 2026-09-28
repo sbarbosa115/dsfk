@@ -144,8 +144,8 @@ Archivado.
 **PRJ-02 · Create a project**
 Nuevo proyecto › `Torre Norte`, description `Edificio de doce pisos`, Inicio `1/10/2026`, Fin `30/06/2026` ›
 Crear. **Expected:** "La fecha de fin no puede ser anterior a la de inicio." under Fin planeado. Fin
-`30/06/2027` › Crear: the project page opens: Resumen tab, Estado "Borrador", Moneda COP (the Settings
-default), the dates written day first, Mi rol "Administrador".
+`30/06/2027` › Crear: the project page opens on Presupuesto y plan; its Resumen tab shows Estado "Borrador",
+Moneda COP (the Settings default), the dates written day first, Mi rol "Administrador".
 
 **PRJ-03 · The currency is chosen once**
 Editar proyecto. **Expected:** Moneda is disabled; the Estado hint changes with the chosen status. Change the
@@ -163,7 +163,7 @@ Gerente: both change. "Quitar" on a row asks "… dejará de ver este proyecto�
 says so. Put the team back as in PRJ-04 (Laura PM, Carlos Team Lead).
 
 **PRJ-06 · Search and filter the list**
-Create a second project `Casa 50%`. Proyectos › Buscar `50%`: only "Casa 50%". Estado › Archivado: "Ningún
+Create a second project `Casa 50%` (no dates: its Fechas cell shows "—"). Proyectos › Buscar `50%`: only "Casa 50%". Estado › Archivado: "Ningún
 proyecto coincide con la búsqueda." and "Ver todos", which brings every project back.
 
 **PRJ-07 · Members see only their projects, read-only**
@@ -295,12 +295,12 @@ Laura › Aprobar › Aprobar: green "Aprobado"; the tiles say Por reembolsar 1 
 and Estructura's Presupuesto cell says "Gastado: $ 110.000 (3,4%)".
 
 **EXP-05 · Above the limit an Admin approves too**
-Carlos records `Alquiler de andamios`, Estructura, `600.000`, with a receipt. Laura › Aprobar: the dialog says
-"Supera el límite de $ 500.000…" › Aprobar: the row says "Espera al administrador" and Laura has no Aprobar. The
+Carlos records `Alquiler de andamios`, Estructura, `800.000`, with a receipt. Laura › Aprobar: the dialog says
+"Supera el límite de $ 750.000…" (the limit SET-02 set) › Aprobar: the row says "Espera al administrador" and Laura has no Aprobar. The
 super admin › Aprobar: "Aprobado".
 
 **EXP-06 · Paying Team Leads back from the caja menor**
-Laura › Reembolsar: both expenses listed; tick both › "Reembolsar $ 710.000": "Fondos insuficientes. Disponible:
+Laura › Reembolsar: both expenses listed; tick both › "Reembolsar $ 910.000": "Fondos insuficientes. Disponible:
 $ 300.000." under the list. Only Cemento gris › "Reembolsar $ 110.000": its row turns teal "Reembolsado", Ver gasto
 shows "Reembolso: <fecha> · Transferencia". Caja menor: saldo $ 190.000.
 
@@ -336,17 +336,17 @@ mes" and who signed and when.
 
 ## 10. Tablero
 
-After section 9. Torre Norte's stages budget $ 4.637.506,25; approved spending $ 755.000 (Cemento gris
-$ 110.000, Alquiler de andamios $ 600.000, Clavos $ 45.000; Arena was voided).
+After section 9. Torre Norte's stages budget $ 4.637.506,25; approved spending $ 955.000 (Cemento gris
+$ 110.000, Alquiler de andamios $ 800.000, Clavos $ 45.000; Arena was voided).
 
 **DSH-01 · The portfolio**
 Super admin › Tablero (sidebar). **Expected:** a card per project, by name; Torre Norte: Presupuesto
-$ 4.637.506,25, Gastado $ 755.000 · 16,3%, its progress bar and "Según el plan debería ir en …", CPI and SPI read
+$ 4.637.506,25, Gastado $ 955.000 · 20,6%, its progress bar and "Según el plan debería ir en …", CPI and SPI read
 in words ("Bien", "Atención", "Crítico" or "Sin datos"), never by colour alone; the card opens the project's
 Tablero tab. Laura's Tablero shows only Torre Norte; Carlos has no Tablero in the sidebar.
 
 **DSH-02 · A project's Tablero**
-Torre Norte › Tablero. **Expected:** tiles Gastado ($ 755.000, "16,3% de $ 4.637.506,25"), Avance, Indicadores
+Torre Norte › Tablero. **Expected:** tiles Gastado ($ 955.000, "20,6% de $ 4.637.506,25"), Avance, Indicadores
 (CPI, SPI), Costo final estimado; "Lo que necesita atención" lists "1 gasto aprobado falta por reembolsar." (the
 andamios); the stage table has Cimentación green and Estructura; both charts draw, and "Ver como tabla" shows the
 same figures (Dinero por mes: this month deposited and spent). In Oscuro the bars and axes stay readable.

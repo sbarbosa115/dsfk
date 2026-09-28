@@ -115,9 +115,10 @@ Push to GitHub, then on the server:
 ~/dsfk-src/deploy/cpanel-update.sh v1.2.0    # a tag, branch or commit
 ```
 It does, in order:
-1. fetches the ref and builds the frontend (`npm ci`, `tsc`, `vite build`);
-2. installs PHP dependencies without dev tools in `~/dsfk-build/stage`, checks they load on PHP 8.4,
-   and writes a `MANIFEST` of every shipped file;
+1. fetches the ref, installs PHP dependencies, then builds the frontend with Webpack Encore into
+   `public/build` (`npm ci`, `tsc`, `npm run build`) and removes the frontend sources;
+2. (all of it in `~/dsfk-build/stage`, without dev tools) checks the dependencies load on PHP 8.4 and
+   writes a `MANIFEST` of every shipped file;
 3. copies the release into the app folder. `.env.local` and `var/` (uploads, logs, sessions) are
    never touched;
 4. runs `deploy/update.sh`: backs up the database and uploads, deletes code files not in the
@@ -151,8 +152,8 @@ deploy outside working hours. Only one deployment can run at a time.
 | Frontend build is killed (out of memory) | The host's per-account memory limit is too low: ask the host to raise it |
 | `git fetch` asks for a password or is denied | The deploy key (1.3) is missing on GitHub, or not in `~/.ssh/config` |
 | Blank page or error 500 | `public_html/dsfk/var/log/prod-<date>.log`, and the domain's PHP version in *MultiPHP Manager* |
-| "Frontend not built" | `public/app/index.html` is missing: run the deployment again |
+| "Frontend not built" | `public/build/entrypoints.json` is missing: run the deployment again |
 | 403 on every page | The Document Root of `omaha.lentti.shop` must be `public_html/dsfk/public`, not `public_html/dsfk` |
-| Emails never arrive | Is the `messenger:consume` cron running? Is `MAILER_DSN` correct? Also check `php bin/console messenger:failed:show` |
+| Emails never arrive | Is the `messenger:consume` cron running? Is `MAILER_DSN` correct? Also check `php bin/console messenger:failed:show` and `var/log` for "Notification email failed" or "Event handler failed" |
 | Login works, then you're logged out immediately | `var/sessions` must be writable. Run `php bin/console app:doctor` |
 | Upload rejected as too large | The PHP limits `upload_max_filesize` and `post_max_size` must be at least 12M (*MultiPHP INI Editor*) |

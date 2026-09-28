@@ -20,6 +20,7 @@ make up                 # php/apache :18081, mysql :13306, mailpit :18025, worke
 make install
 make migrate
 make admin EMAIL=admin@example.com NAME="Administrador"
+make seed               # or: replace the database with three demo projects (admin@demo.test and the rest, all demo1234)
 ```
 
 Ports are overridable so the stack can sit next to other Docker projects (another worktree, say): set
@@ -28,6 +29,7 @@ Ports are overridable so the stack can sit next to other Docker projects (anothe
 - The app: http://localhost:18081. The `node` service rebuilds the UI on every save (`docker compose logs node`);
   reload the page to see it. `make build` makes the production build.
 - Captured emails: http://localhost:18025
+- User help: the Documentación page (`/help`, `pages/help`), with screenshots taken from the demo data.
 
 ## Quality
 
@@ -150,6 +152,8 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
 - The audit trail starts with this rebuild: changes made before it was deployed are not in it.
 - An expense of a closed caja menor cycle still shows Anular; the server refuses it ("…ciclo de caja menor
   cerrado…"), since an expense does not know its cycle's state.
+- While viewing the app as someone ("Ver como"), switching to another person means going back to your account
+  first; after a page reload the list only offers "Nadie" and the current person.
 - `app:create-admin` asks for the password interactively or prints a generated one; there is no
   non-interactive `--password` option.
 
@@ -161,4 +165,6 @@ Deployed on cPanel by pulling from GitHub and building on the server:
 ~/dsfk-src/deploy/cpanel-update.sh          # latest main (or pass a tag, branch or commit)
 ```
 
+The script ends with `php bin/console app:doctor`, a checklist of the server (PHP and its extensions, the
+configuration, writable folders, the built frontend, the database) where every row must be OK.
 Setup, cron jobs and backups: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).

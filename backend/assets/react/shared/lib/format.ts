@@ -53,6 +53,18 @@ export function formatDate(iso: string | null | undefined): string {
   }).format(localDate(iso));
 }
 
+/** "1 de oct de 2026 – 30 de jun de 2027"; "…" stands for a missing end, "—" when both are missing. */
+export function formatDateRange(
+  from: string | null | undefined,
+  to: string | null | undefined,
+): string {
+  if (!from && !to) {
+    return '—';
+  }
+
+  return `${from ? formatDate(from) : '…'} – ${to ? formatDate(to) : '…'}`;
+}
+
 /** Date and time: "1 de oct de 2026, 3:04 p. m.". */
 export function formatDateTime(iso: string | null | undefined): string {
   if (!iso) {

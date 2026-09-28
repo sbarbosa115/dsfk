@@ -23,8 +23,11 @@ migrate:       ## Run migrations on the dev and test databases
 admin:         ## Create an admin: make admin EMAIL=you@example.com NAME="Your Name"
 	$(DC) exec -it -u www-data php bin/console app:create-admin "$(EMAIL)" "$(NAME)"
 
-seed:          ## Replace the local database with demo data (asks for confirmation)
-	$(DC) exec -it -u www-data php bin/console doctrine:fixtures:load
+seed:          ## Replace the local database with demo data (every password: demo1234). Dev only.
+	$(PHP) bin/console doctrine:database:drop --force --if-exists
+	$(PHP) bin/console doctrine:database:create
+	$(PHP) bin/console doctrine:migrations:migrate -n
+	$(PHP) bin/console doctrine:fixtures:load --append -n
 
 test: test-backend test-frontend  ## Full test suite (required before marking work done)
 

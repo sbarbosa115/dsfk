@@ -275,6 +275,7 @@ export const es = {
     editMilestone: 'Editar hito',
     deleteMilestone: 'Eliminar hito',
     deleteMilestoneConfirm: 'Se eliminará el hito “{{name}}”.',
+    removeCategoryConfirm: 'Se eliminará la categoría “{{name}}”.',
     noMilestones: 'Esta etapa aún no tiene hitos.',
     milestoneName: 'Nombre del hito',
     weight: 'Peso en la etapa (%)',
@@ -612,6 +613,18 @@ export const es = {
     planned: 'Planeado',
     actual: 'Real',
     delayed: 'Atrasada',
+  },
+  help: {
+    title: 'Documentación',
+    subtitle: 'Guías paso a paso de lo que puedes hacer en la aplicación.',
+    search: 'Buscar en la ayuda',
+    searchHint: 'Ej.: registrar gasto, caja menor, contraseña…',
+    showAll: 'Ver todas las guías (también las de otros roles)',
+    noResults:
+      'Ninguna guía coincide con la búsqueda. Prueba con otras palabras.',
+    back: 'Volver a la documentación',
+    notFound: 'Esta guía no existe.',
+    related: 'Guías relacionadas',
   },
   members: {
     title: 'Equipo del proyecto',
