@@ -320,6 +320,7 @@ export const es = {
     receivedDetail:
       'Depositado: {{deposited}} · contingencia: {{draws}} · de la etapa anterior: {{carriedIn}}',
     beyondBudget: '{{amount}} por encima del presupuesto',
+    spentOf: 'Gastado: {{amount}} ({{percent}})',
     funded: 'Financiado',
     fundedOf: 'Financiado de {{name}}',
     available: 'Disponible',
@@ -335,8 +336,7 @@ export const es = {
     date: 'Fecha',
     voided: 'Anulado',
     voidedBy: 'Anulado por {{by}} el {{date}}: “{{reason}}”',
-    noMovements:
-      'Aún no hay depósitos. El primero se registra cuando el presupuesto está aprobado.',
+    noMovements: 'Aún no hay movimientos de dinero.',
     noMatches: 'Ningún movimiento coincide con la búsqueda.',
     type: {
       DEPOSIT: 'Depósito',

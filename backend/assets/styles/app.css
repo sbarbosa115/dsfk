@@ -2099,3 +2099,16 @@ select.filter-select {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* A figure's note in a money column may wrap, so the table fits without scrolling sideways. */
+.num .cell-note {
+  white-space: normal;
+}
+
+.col-progress .progress {
+  min-width: 96px;
+}
+
+.card > .stat-grid:last-child {
+  margin-bottom: 0;
+}

@@ -27,5 +27,10 @@ export function useFinanceAction(projectId: number) {
     return result.value;
   };
 
-  return {...submit, error, run};
+  const reset = () => {
+    submit.reset();
+    setError(null);
+  };
+
+  return {...submit, error, run, reset};
 }

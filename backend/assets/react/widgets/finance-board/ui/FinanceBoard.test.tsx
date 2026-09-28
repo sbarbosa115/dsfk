@@ -165,6 +165,12 @@ describe('FinanceBoard', () => {
       'La etapa ya está finalizada.',
     );
     expect(error.closest('label')).toHaveTextContent('Destino 2');
+
+    // Fixing the row clears the old message.
+    await userEvent.type(within(dialog).getByLabelText('Monto 2'), '0');
+    expect(
+      within(dialog).queryByText('La etapa ya está finalizada.'),
+    ).not.toBeInTheDocument();
   });
 
   it('voids a movement with the reason', async () => {

@@ -55,10 +55,13 @@ export function DepositModal({
     note: '',
   });
   const [parts, setParts] = useState<Part[]>(() => [newPart(firstTarget)]);
-  const change = (key: number, patch: Partial<Part>) =>
+  // Typing again clears the last refusal, so an old message never sits under a corrected field.
+  const change = (key: number, patch: Partial<Part>) => {
+    action.reset();
     setParts((current) =>
       current.map((p) => (p.key === key ? {...p, ...patch} : p)),
     );
+  };
   const total = parts.reduce(
     (sum, p) => sum + Number(parseAmountInput(p.amount) ?? 0),
     0,
@@ -148,7 +151,7 @@ export function DepositModal({
                   </option>
                 </select>
               </Field>
-              {stage && finance.categories.length > 0 && (
+              {stage && finance.categories.length > 0 ? (
                 <Field
                   label={t('finance.earmark', {n})}
                   optional
@@ -168,6 +171,9 @@ export function DepositModal({
                     ))}
                   </select>
                 </Field>
+              ) : (
+                // Keeps the amount in the same column on every row.
+                <span aria-hidden="true" />
               )}
               <Field
                 label={t('finance.amountN', {n})}

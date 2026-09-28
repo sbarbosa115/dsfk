@@ -203,7 +203,6 @@ function StagesCard({
           t('finance.budget'),
           t('finance.received'),
           t('finance.funded'),
-          t('finance.spent'),
           t('finance.available'),
         ]}
         rows={f.stages}
@@ -222,7 +221,15 @@ function StagesCard({
                 </div>
               )}
             </td>
-            <td className="num">{money(s.budget)}</td>
+            <td className="num">
+              {money(s.budget)}
+              <div className="small muted cell-note">
+                {t('finance.spentOf', {
+                  amount: money(s.spent),
+                  percent: formatPercent(s.executed),
+                })}
+              </div>
+            </td>
             <td
               className="num"
               title={t('finance.receivedDetail', {
@@ -233,19 +240,16 @@ function StagesCard({
             >
               {money(s.received)}
               {Number(s.beyondBudget) > 0 && (
-                <div className="small muted">
+                <div className="small muted cell-note">
                   {t('finance.beyondBudget', {amount: money(s.beyondBudget)})}
                 </div>
               )}
             </td>
-            <td>
+            <td className="col-progress">
               <ProgressBar
                 value={s.funded}
                 label={t('finance.fundedOf', {name: s.name})}
               />
-            </td>
-            <td className="num">
-              {money(s.spent)} ({formatPercent(s.executed)})
             </td>
             <td className="num">
               <strong>{money(s.available)}</strong>
