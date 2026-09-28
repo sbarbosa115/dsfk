@@ -60,6 +60,12 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
 | `GET /users?q=&status=active\|inactive\|all` | admin | page of users by name, with project roles | 403 |
 | `POST /users` `{email, fullName, password, admin, superAdmin}` | admin | 201 user | 403 `super_admin_required`, 422 `email_taken`, `validation_failed` |
 | `PATCH /users/{id}` (fields sent change) | admin | 200 user | 403 `super_admin_required`, 404 `user_not_found`, 422 `email_taken`, `cannot_change_own_access`, `validation_failed` |
+| `GET /projects?q=&status=` | signed in | page of projects, newest first: admins all, others their own; each with `myRole` and members | 4xx on an unknown status |
+| `POST /projects` `{name, description?, currency?, status?, plannedStart?, plannedEnd?}` | admin | 201 project (currency defaults to Settings) | 403, 422 `validation_failed` |
+| `GET /projects/{id}` | member or admin | project with members | 404 `project_not_found` (also when not a member) |
+| `PATCH /projects/{id}` (fields sent change; `null` clears a date) | admin | 200 project | 404, 422 `currency_locked`, `validation_failed` |
+| `POST /projects/{id}/members` `{userId, role}` | admin | 200 project (adds, or changes the role) | 409 `project_manager_exists`, 422 `admin_is_global`, `user_inactive`, `user_not_found` |
+| `DELETE /projects/{id}/members/{memberId}` | admin | 204 | 404 `member_not_found` (also a member of another project) |
 | `GET /settings` | signed in | settings | |
 | `PUT /settings` (fields sent change) | admin | 200 settings | 403, 422 `validation_failed` |
 
@@ -73,6 +79,8 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   command bus has committed.
 - **Only a super admin edits a super admin** (any field): otherwise an ordinary admin could reset a super
   admin's password and sign in as them.
+- **Outside a project is 404, not 403.** `ProjectGuard` answers every project-scoped endpoint: someone who is
+  not in the project cannot tell it exists; a member whose role does not allow the action gets 403.
 - **Handlers register through marker interfaces** (`CommandHandler`, `EventHandler`) wired in `services.yaml`,
   so the Application layer names no framework class.
 
@@ -80,6 +88,8 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
 
 - Per-project setting overrides, milestone evidence files, automatic project status, Excel/PDF export, budget
   templates and a Gantt chart are out of scope (PRD §9).
+- A member who is later made an admin keeps their project membership (harmless: admins pass every check), while
+  an admin cannot be added as a member.
 - The theme choice (Claro/Oscuro/Según el dispositivo) is kept in the browser, not on the user's account.
 - Light theme input borders are below 3:1 contrast (inherited from the MDX design; `styles.test.ts` lists it).
 - `app:create-admin` asks for the password interactively or prints a generated one; there is no
