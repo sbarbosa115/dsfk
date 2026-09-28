@@ -182,4 +182,28 @@ final class ProjectApiTest extends ApiTestCase
         $row = array_values(array_filter($users, static fn (array $u): bool => 'pm@example.com' === $u['email']))[0];
         self::assertSame('Torre Norte', $row['memberships'][0]['projectName']);
     }
+
+    public function testAMemberOfAnotherProjectCannotBeRemovedThroughThisOne(): void
+    {
+        $this->loginAs($this->createUser('admin@example.com', admin: true));
+        $lead = $this->createUser('lead@example.com');
+        $other = $this->createProject('Otro', [[$lead, ProjectRole::TeamLead]]);
+        $mine = $this->createProject('Mío');
+        $memberId = $this->json('GET', '/api/projects/'.$other->getId())['members'][0]['id'];
+
+        $this->request('DELETE', '/api/projects/'.$mine->getId().'/members/'.$memberId);
+
+        $this->assertError(404, 'member_not_found');
+        self::assertCount(1, $this->json('GET', '/api/projects/'.$other->getId())['members']);
+    }
+
+    public function testAnUnknownStatusFilterIsAClientError(): void
+    {
+        $this->loginAs($this->createUser('admin@example.com', admin: true));
+
+        $this->request('GET', '/api/projects?status=DELETED');
+
+        self::assertGreaterThanOrEqual(400, $this->client->getResponse()->getStatusCode());
+        self::assertLessThan(500, $this->client->getResponse()->getStatusCode());
+    }
 }
