@@ -30,11 +30,15 @@ final class NewIdTest extends TestCase
     {
         $this->expectException(\LogicException::class);
 
-        NewId::of(new class {
+        $record = new class {
+            public ?int $id = null;
+
             public function getId(): ?int
             {
-                return null;
+                return $this->id;
             }
-        })->value();
+        };
+
+        NewId::of($record)->value();
     }
 }
