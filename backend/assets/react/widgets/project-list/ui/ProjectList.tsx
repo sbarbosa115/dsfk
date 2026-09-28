@@ -10,7 +10,7 @@ import {
 import {useSession} from '@/entities/session';
 import {ProjectFormModal} from '@/features/project-edit';
 import {t} from '@/shared/i18n';
-import {formatDate} from '@/shared/lib/format';
+import {formatDateRange} from '@/shared/lib/format';
 import {useList} from '@/shared/lib/list';
 import {
   Actions,
@@ -94,8 +94,7 @@ export function ProjectList() {
               )}
             </td>
             <td className="nowrap">
-              {formatDate(project.plannedStart)} –{' '}
-              {formatDate(project.plannedEnd)}
+              {formatDateRange(project.plannedStart, project.plannedEnd)}
             </td>
             <td className="nowrap">{project.currency}</td>
             <td>{t(`roles.${project.myRole}`)}</td>

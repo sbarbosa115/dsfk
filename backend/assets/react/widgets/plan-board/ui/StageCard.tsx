@@ -13,6 +13,7 @@ import {StageActions} from '@/features/plan-stages';
 import {t} from '@/shared/i18n';
 import {
   formatDate,
+  formatDateRange,
   formatMoney,
   formatPercent,
   formatQuantity,
@@ -67,7 +68,7 @@ export function StageCard({
           </div>
           {/* Wraps: with its start and end, a finished stage's line is longer than its column. */}
           <div className="small muted">
-            {formatDate(stage.plannedStart)} – {formatDate(stage.plannedEnd)}
+            {formatDateRange(stage.plannedStart, stage.plannedEnd)}
             {stage.actualStart &&
               ` · ${t('plan.started', {date: formatDate(stage.actualStart)})}`}
             {stage.actualEnd &&

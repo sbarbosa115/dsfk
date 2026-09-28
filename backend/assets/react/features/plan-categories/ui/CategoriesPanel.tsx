@@ -175,7 +175,7 @@ function RemoveModal({
       }}
       onClose={onClose}
     >
-      {category.name}
+      {t('plan.removeCategoryConfirm', {name: category.name})}
     </ConfirmModal>
   );
 }

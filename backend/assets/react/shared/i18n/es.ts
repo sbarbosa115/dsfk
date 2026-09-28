@@ -275,6 +275,7 @@ export const es = {
     editMilestone: 'Editar hito',
     deleteMilestone: 'Eliminar hito',
     deleteMilestoneConfirm: 'Se eliminará el hito “{{name}}”.',
+    removeCategoryConfirm: 'Se eliminará la categoría “{{name}}”.',
     noMilestones: 'Esta etapa aún no tiene hitos.',
     milestoneName: 'Nombre del hito',
     weight: 'Peso en la etapa (%)',

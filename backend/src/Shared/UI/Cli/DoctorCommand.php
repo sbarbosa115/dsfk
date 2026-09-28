@@ -47,7 +47,7 @@ final readonly class DoctorCommand
         $check('Environment is prod', 'prod' === $this->environment, $this->environment);
         $check('APP_SECRET set', \strlen($this->appSecret) >= 16);
         $check('APP_URL set', str_starts_with($this->appUrl, 'http') && !str_contains($this->appUrl, 'localhost'), $this->appUrl);
-        $check('MAILER_DSN set', !str_starts_with($this->mailerDsn, 'null://'), (string) preg_replace('#//[^@]*@#', '//***@', $this->mailerDsn));
+        $check('MAILER_DSN set', !str_starts_with($this->mailerDsn, 'null://'), self::maskDsn($this->mailerDsn));
 
         foreach (['var/cache', 'var/log', 'var/sessions'] as $dir) {
             $path = $this->projectDir.'/'.$dir;
@@ -76,5 +76,11 @@ final readonly class DoctorCommand
         $io->success('Server ready.');
 
         return Command::SUCCESS;
+    }
+
+    /** "smtp://user:pass@host" → "smtp://***@host", up to the last "@" of the authority, since passwords may contain one. */
+    public static function maskDsn(string $dsn): string
+    {
+        return (string) preg_replace('#//[^/?]*@#', '//***@', $dsn);
     }
 }
