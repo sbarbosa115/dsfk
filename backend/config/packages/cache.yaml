@@ -21,5 +21,9 @@ framework:
 when@test:
     framework:
         cache:
-            # Keeps login throttling state from leaking between test runs.
             app: cache.adapter.array
+            pools:
+                # Login throttling must survive the kernel reboot between two requests of one test; ApiTestCase
+                # clears it before every test so state never leaks between tests.
+                cache.rate_limiter:
+                    adapter: cache.adapter.filesystem

@@ -1,7 +1,8 @@
 DC = docker compose
 PHP = $(DC) exec -u www-data php
 NODE = $(DC) run --rm --no-deps node
-GATE = ~/.claude/skills/symfony-react-app/scripts/gate.sh
+# The worker runs as www-data, so the skill scripts (which exec as the default user) never leave root-owned files.
+GATE = PHP_SERVICE=worker ~/.claude/skills/symfony-react-app/scripts/gate.sh
 
 .PHONY: up down install migrate admin seed test test-backend test-frontend build api gate fix
 

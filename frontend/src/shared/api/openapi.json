@@ -4,7 +4,432 @@
         "title": "Control de Proyectos API",
         "version": "1.0.0"
     },
-    "paths": {},
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Sign in with email and password (session cookie). Handled by the json_login authenticator.",
+                "operationId": "post_api_login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The signed-in user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CurrentUserOutput"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "invalid_credentials, account_disabled or too_many_attempts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Sign out. Intercepted by the firewall's logout listener.",
+                "operationId": "post_api_logout",
+                "responses": {
+                    "204": {
+                        "description": "Signed out"
+                    }
+                }
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "get_api_me",
+                "responses": {
+                    "200": {
+                        "description": "The signed-in user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CurrentUserOutput"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/impersonate": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "\"Ver como\": POST /api/impersonate?_switch_user=<email|_exit> is handled by the firewall (switch_user), which\nthen redirects here without the parameter; the answer is the new current user.",
+                "operationId": "get_api_impersonate",
+                "parameters": [
+                    {
+                        "name": "_switch_user",
+                        "in": "query",
+                        "description": "Email of the user to view as, or _exit",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The user now signed in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CurrentUserOutput"
+                                }
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Switched; follow to GET /api/impersonate"
+                    },
+                    "403": {
+                        "description": "switch_user_not_allowed, or not allowed to view as that user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "\"Ver como\": POST /api/impersonate?_switch_user=<email|_exit> is handled by the firewall (switch_user), which\nthen redirects here without the parameter; the answer is the new current user.",
+                "operationId": "post_api_impersonate",
+                "parameters": [
+                    {
+                        "name": "_switch_user",
+                        "in": "query",
+                        "description": "Email of the user to view as, or _exit",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The user now signed in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CurrentUserOutput"
+                                }
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Switched; follow to GET /api/impersonate"
+                    },
+                    "403": {
+                        "description": "switch_user_not_allowed, or not allowed to view as that user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me/password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "post_api_me_password",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangePasswordInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Password changed"
+                    },
+                    "422": {
+                        "description": "validation_failed (currentPassword wrong, newPassword too short or unchanged)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Every user with their project roles (the users table and the \"Ver como\" menu).",
+                "operationId": "get_api_users_list",
+                "responses": {
+                    "200": {
+                        "description": "Users sorted by name",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserOutput"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Not an admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "operationId": "post_api_users_create",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUserInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The new user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserOutput"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed or email_taken",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Not an admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{id}": {
+            "patch": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Edit a user. Only the fields sent change.",
+                "operationId": "patch_api_users_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserOutput"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "user_not_found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed, email_taken or cannot_change_own_access",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Not an admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/settings": {
+            "get": {
+                "tags": [
+                    "Settings"
+                ],
+                "operationId": "get_api_settings_show",
+                "responses": {
+                    "200": {
+                        "description": "The global settings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsOutput"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Change some settings; the ones not sent stay. Admin only.",
+                "operationId": "put_api_settings_update",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SettingsInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The global settings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Not an admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
     "components": {
         "schemas": {
             "Error": {
@@ -27,7 +452,293 @@
                     }
                 },
                 "type": "object"
+            },
+            "ChangePasswordInput": {
+                "properties": {
+                    "currentPassword": {
+                        "type": "string",
+                        "default": ""
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 4096,
+                        "minLength": 8
+                    }
+                },
+                "type": "object"
+            },
+            "CreateUserInput": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 180
+                    },
+                    "fullName": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 150
+                    },
+                    "password": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 4096,
+                        "minLength": 8
+                    },
+                    "admin": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "superAdmin": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateUserInput": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 180
+                    },
+                    "fullName": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 150
+                    },
+                    "password": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 4096,
+                        "minLength": 8
+                    },
+                    "admin": {
+                        "type": "boolean",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "superAdmin": {
+                        "type": "boolean",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "SettingsInput": {
+                "properties": {
+                    "defaultCurrency": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "teamLeadExpenseLimit": {
+                        "type": "string",
+                        "pattern": "\\d{1,13}(\\.\\d{1,2})?",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "pettyCashLowBalancePercent": {
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null,
+                        "maximum": 100,
+                        "minimum": 1
+                    },
+                    "budgetWarningPercents": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "nullable": true,
+                        "default": null,
+                        "maxItems": 5,
+                        "minItems": 1
+                    }
+                },
+                "type": "object"
+            },
+            "MembershipOutput": {
+                "required": [
+                    "projectId",
+                    "projectName",
+                    "role"
+                ],
+                "properties": {
+                    "projectId": {
+                        "type": "integer"
+                    },
+                    "projectName": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "PROJECT_MANAGER",
+                            "TEAM_LEAD"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "ImpersonatorOutput": {
+                "required": [
+                    "id",
+                    "fullName"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "fullName": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "CurrentUserOutput": {
+                "required": [
+                    "id",
+                    "email",
+                    "fullName",
+                    "admin",
+                    "superAdmin",
+                    "memberships",
+                    "canImpersonate"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "fullName": {
+                        "type": "string"
+                    },
+                    "admin": {
+                        "type": "boolean"
+                    },
+                    "superAdmin": {
+                        "type": "boolean"
+                    },
+                    "memberships": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MembershipOutput"
+                        }
+                    },
+                    "impersonator": {
+                        "title": "Set while a super admin is viewing the app as this user.",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ImpersonatorOutput"
+                            }
+                        ]
+                    },
+                    "canImpersonate": {
+                        "title": "Shows the \"Ver como\" menu: a super admin, or someone being viewed as (to offer the way back).",
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "UserOutput": {
+                "required": [
+                    "id",
+                    "email",
+                    "fullName",
+                    "admin",
+                    "superAdmin",
+                    "active",
+                    "createdAt",
+                    "memberships"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "fullName": {
+                        "type": "string"
+                    },
+                    "admin": {
+                        "type": "boolean"
+                    },
+                    "superAdmin": {
+                        "type": "boolean"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "memberships": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MembershipOutput"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "SettingsOutput": {
+                "required": [
+                    "defaultCurrency",
+                    "teamLeadExpenseLimit",
+                    "pettyCashLowBalancePercent",
+                    "budgetWarningPercents"
+                ],
+                "properties": {
+                    "defaultCurrency": {
+                        "title": "ISO 4217 code for new projects",
+                        "type": "string"
+                    },
+                    "teamLeadExpenseLimit": {
+                        "title": "Major units; a Team Lead expense above it also needs an Admin's approval",
+                        "type": "string"
+                    },
+                    "pettyCashLowBalancePercent": {
+                        "title": "Caja menor alert when the balance drops below this % of the last top-up",
+                        "type": "integer"
+                    },
+                    "budgetWarningPercents": {
+                        "title": "Budget alert thresholds, % of a stage or category budget, ascending",
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "type": "object"
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Auth"
+        },
+        {
+            "name": "Users"
+        },
+        {
+            "name": "Settings"
+        }
+    ]
 }
