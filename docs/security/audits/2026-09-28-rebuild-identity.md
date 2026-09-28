@@ -5,8 +5,10 @@
   `GET|POST /api/impersonate` (switch_user), `GET|POST /api/users`, `PATCH /api/users/{id}`,
   `GET|PUT /api/settings`, `app:create-admin`; the security config (provider, json_login, throttling,
   switch_user); the login, users, settings and "Ver como" screens.
-- **Tools:** `composer audit` clean, `npm audit --omit=dev` 0 vulnerabilities, secrets grep 0 found,
-  `debug:firewall main` reviewed.
+- **Tools:** `composer audit` clean, `npm audit --omit=dev` 0 vulnerabilities, `debug:firewall main` reviewed.
+  Secrets grep: 5 lines, all false positives: fixture passwords in tests (`ApiTestCase::PASSWORD`,
+  `ChangePasswordButton.test.tsx`, `UserDialog.test.tsx`) and the Spanish label `password: 'Contraseña'`.
+  The 76 SSRF leads are the functional tests' requests to the kernel, not the network.
 
 ## Leads from audit.py
 
