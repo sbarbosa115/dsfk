@@ -295,7 +295,7 @@ expenses, caja menor, dashboard), `/help`, `/help/:topicId`, and Admin-only `/us
   projects and demo accounts (password `demo1234`).
 - **Production (cPanel):** `deploy/cpanel-update.sh [ref]` pulls a branch, tag or commit from GitHub,
   builds the frontend and a production `vendor/` on PHP 8.4, writes a `MANIFEST`, copies the release,
-  then `deploy/update.sh` backs up, removes dropped files, warms the cache, migrates and runs `app:doctor`.
+  then `deploy/server/update.sh` backs up, removes dropped files, warms the cache, migrates and runs `app:doctor`.
   `.env.local` and `var/` are never touched.
 - **Cron:** every minute `messenger:consume async --time-limit=50`; daily 07:00 `app:alerts:daily`;
   daily 02:30 `backup.sh` (database + `var/uploads`, 14 days kept).
