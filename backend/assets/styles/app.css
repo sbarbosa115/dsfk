@@ -2216,3 +2216,16 @@ select.filter-select {
   border-color: var(--color-border) !important;
   color: var(--color-text);
 }
+
+.index-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.chart-card .card-header {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}

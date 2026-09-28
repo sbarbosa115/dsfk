@@ -333,3 +333,48 @@ modifica."
 **CAJ-04 · The Admin signs it off**
 Super admin › Caja menor › Firmar on #1 › Firmar: green "Firmado"; Ver (eye) shows the cycle's movements, "Fin de
 mes" and who signed and when.
+
+## 10. Tablero
+
+After section 9. Torre Norte's stages budget $ 4.637.506,25; approved spending $ 755.000 (Cemento gris
+$ 110.000, Alquiler de andamios $ 600.000, Clavos $ 45.000; Arena was voided).
+
+**DSH-01 · The portfolio**
+Super admin › Tablero (sidebar). **Expected:** a card per project, by name; Torre Norte: Presupuesto
+$ 4.637.506,25, Gastado $ 755.000 · 16,3%, its progress bar and "Según el plan debería ir en …", CPI and SPI read
+in words ("Bien", "Atención", "Crítico" or "Sin datos"), never by colour alone; the card opens the project's
+Tablero tab. Laura's Tablero shows only Torre Norte; Carlos has no Tablero in the sidebar.
+
+**DSH-02 · A project's Tablero**
+Torre Norte › Tablero. **Expected:** tiles Gastado ($ 755.000, "16,3% de $ 4.637.506,25"), Avance, Indicadores
+(CPI, SPI), Costo final estimado; "Lo que necesita atención" lists "1 gasto aprobado falta por reembolsar." (the
+andamios); the stage table has Cimentación green and Estructura; both charts draw, and "Ver como tabla" shows the
+same figures (Dinero por mes: this month deposited and spent). In Oscuro the bars and axes stay readable.
+
+## 11. Auditoría
+
+**AUD-01 · Who changed what**
+Super admin › Auditoría. **Expected:** newest first; rows of Gasto, Movimiento de dinero, Ciclo de caja menor…
+with the project; changes made through "Ver como" say "Laura Gómez (vía Administrador)"; Registro › Gasto narrows
+the list; the eye shows each field before and after (e.g. status SUBMITTED → APPROVED). A user's password change
+shows `***`, never the hash.
+
+**AUD-02 · Admins only**
+Laura: no Auditoría in the sidebar, and `/audit` sends her home.
+
+## 12. Correos
+
+Mailpit (`MAILPIT_PORT`) next to the app; the worker sends the queue.
+
+**MAIL-01 · An expense waiting for the PM**
+Carlos records `Pintura` $ 30.000 (Estructura, Materiales). **Expected:** an email to pm@demo.test "Gasto por
+aprobar: Pintura" naming Carlos, the amount and the stage; its button opens Torre Norte's Gastos tab.
+
+**MAIL-02 · A rejection reaches the Team Lead**
+Laura rejects Pintura with `Sin factura`. **Expected:** an email to lider@demo.test "Gasto rechazado: Pintura" with
+the reason.
+
+**MAIL-03 · The daily digest**
+`docker compose exec -u www-data php bin/console app:alerts:daily`. **Expected:** "1 project digest(s) queued."
+(or one per active project with something pending) and "Resumen diario: Torre Norte" to the super admin and
+Laura, listing the late milestones and the expenses to approve or pay back.

@@ -20,6 +20,15 @@ import {
 } from '@/shared/ui';
 import {MonthlyChart, StageChart} from './charts';
 
+/** "1 oct – 15 dic", "1 oct – …" while it runs, "—" when it has neither date. */
+function span(from?: string | null, to?: string | null): string {
+  if (!from && !to) {
+    return '—';
+  }
+
+  return `${formatDate(from)} – ${to ? formatDate(to) : '…'}`;
+}
+
 /** The "Tablero" tab: is the project spending in line with its progress, is it on time, what needs attention. */
 export function ProjectDashboard({projectId}: {projectId: number}) {
   const query = useQuery({
@@ -75,17 +84,15 @@ export function ProjectDashboard({projectId}: {projectId: number}) {
               })}
             </span>
           </Stat>
-          <Stat
-            label={t('dashboard.indices')}
-            value={<HealthBadge index={d.cpi} />}
-          >
-            <span className="small muted" title={t('dashboard.cpiHelp')}>
-              {t('dashboard.cpi')}
-            </span>
-            <HealthBadge index={d.spi} />
-            <span className="small muted" title={t('dashboard.spiHelp')}>
-              {t('dashboard.spi')}
-            </span>
+          <Stat label={t('dashboard.indices')} value={null}>
+            <div className="index-row" title={t('dashboard.cpiHelp')}>
+              <span className="small muted">{t('dashboard.cpi')}</span>
+              <HealthBadge index={d.cpi} />
+            </div>
+            <div className="index-row" title={t('dashboard.spiHelp')}>
+              <span className="small muted">{t('dashboard.spi')}</span>
+              <HealthBadge index={d.spi} />
+            </div>
           </Stat>
           <Stat
             label={t('dashboard.forecast')}
@@ -163,12 +170,8 @@ export function ProjectDashboard({projectId}: {projectId: number}) {
                   <div className="small">{t('dashboard.delayed')}</div>
                 )}
               </td>
-              <td>
-                {formatDate(s.plannedStart)} – {formatDate(s.plannedEnd)}
-              </td>
-              <td>
-                {formatDate(s.actualStart)} – {formatDate(s.actualEnd)}
-              </td>
+              <td>{span(s.plannedStart, s.plannedEnd)}</td>
+              <td>{span(s.actualStart, s.actualEnd)}</td>
               <td className="num">
                 {formatPercent(s.progress)}
                 <div className="small muted">
