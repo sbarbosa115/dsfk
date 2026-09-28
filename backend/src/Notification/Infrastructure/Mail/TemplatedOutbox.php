@@ -24,6 +24,8 @@ final readonly class TemplatedOutbox implements Outbox
 
     public function send(array $to, string $subject, string $template, array $context): void
     {
+        // Subjects carry people's text (an expense's description): one line, no control characters.
+        $subject = trim((string) preg_replace('/[\x00-\x1F\x7F]+/u', ' ', $subject));
         $seen = [];
         foreach ($to as $recipient) {
             if (!$recipient instanceof Recipient || isset($seen[strtolower($recipient->email)])) {

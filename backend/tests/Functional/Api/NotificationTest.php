@@ -77,6 +77,18 @@ final class NotificationTest extends ApiTestCase
         self::assertStringContainsString('$ 120.000', $mails[0]['html']);
     }
 
+    public function testPeoplesTextStaysOnOneSubjectLineAndIsEscapedInTheBody(): void
+    {
+        $this->approve();
+        $this->mails();
+        $this->loginAs($this->lead);
+        $this->json('POST', $this->base.'/expenses', ['description' => "Cemento\r\nBcc: spy@example.com <b>x</b>"] + $this->expense('1000'));
+
+        $mail = $this->mails()[0];
+        self::assertSame(['pm@example.com', 'Gasto por aprobar: Cemento Bcc: spy@example.com <b>x</b>'], $mail['head']);
+        self::assertStringContainsString('&lt;b&gt;x&lt;/b&gt;', $mail['html']);
+    }
+
     public function testCrossingABudgetWarningTellsTheAdminsAndThePmOnce(): void
     {
         $this->approve();
