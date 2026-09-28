@@ -7,6 +7,7 @@ namespace App\Expense\Domain\Model;
 use App\Shared\Domain\Error\Conflict;
 use App\Shared\Domain\Error\InvalidValue;
 use App\Shared\Domain\Error\NotAllowed;
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -21,7 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: 'expense')]
 #[ORM\Index(name: 'idx_expense_project_status', columns: ['project_id', 'status'])]
-class Expense
+class Expense implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -350,5 +351,10 @@ class Expense
     private static function clean(?string $value): ?string
     {
         return null === $value || '' === trim($value) ? null : trim($value);
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->projectId;
     }
 }

@@ -17,6 +17,26 @@ interface ExpenseDirectory
     public function usesCategory(int $categoryId): bool;
 
     /**
+     * Spending (approved and reimbursed) per month from `$from` on, by the expense's date.
+     *
+     * @return array<string, int> minor units by YYYY-MM
+     */
+    public function monthlySpending(int $projectId, \DateTimeImmutable $from): array;
+
+    /** Team Lead expenses waiting for the PM or an Admin. */
+    public function pendingCount(int $projectId): int;
+
+    /** Approved Team Lead expenses not paid back yet. */
+    public function toReimburseCount(int $projectId): int;
+
+    /**
+     * What a notification says about an expense. null: no such expense.
+     *
+     * @return array{projectId: int, stageId: int, categoryId: int, amount: int, description: string, paidById: int, rejectionReason: ?string}|null
+     */
+    public function facts(int $expenseId): ?array;
+
+    /**
      * @param list<int> $movementIds
      *
      * @return array<int, int> expense id by its EXPENSE movement id

@@ -94,6 +94,9 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
 | `GET /projects/{id}/petty-cash` · `GET /petty-cash-cycles/{id}` | PM, admin | balance, current cycle with movements, closed cycles; one cycle | 403 Team Lead, 404 `cycle_not_found` |
 | `POST /projects/{id}/petty-cash/close {note?}` | PM, admin | the closed cycle (its balance opens the next) | 409 `cycle_not_open` |
 | `POST /petty-cash-cycles/{id}/sign-off` | admin | the signed-off cycle | 409 `cycle_not_closed` |
+| `GET /dashboard` | signed in | the projects whose money the person sees (Admins all, a PM theirs, a Team Lead none), each with budget, spent, progress, planned progress, CPI, SPI and its warnings count | |
+| `GET /projects/{id}/dashboard` | PM, admin | earned value (EV, PV, CPI, SPI, forecast final cost), per stage, money in and out per month (last 12), and what needs attention | 403 Team Lead, 404 |
+| `GET /audit?projectId=&entityType=&q=` | admin | page of the audit trail, newest first, with `entityTypes` for the filter; `q` searches the person | 403 |
 | `GET /settings` | signed in | settings | |
 | `PUT /settings` (fields sent change) | admin | 200 settings | 403, 422 `validation_failed` |
 
@@ -123,6 +126,14 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   pass.
 - **Completing a stage is a Planning command that settles the stage's money through Finance** in the same
   transaction; the endpoint answers with the funding summary.
+- **The audit trail records every `Audited` entity** (a Shared interface each says its project through) in the
+  change's own transaction; while an Admin uses "Ver como", entries name both ("Laura Gómez (vía Administrador)").
+  Passwords are masked.
+- **Emails follow domain events.** The Notification context handles the other contexts' events after their
+  command commits and queues templated emails on Messenger (the cron consumer sends them); a failing handler is
+  logged and never turns a saved change into an error. `app:alerts:daily` sends the daily digest.
+- **Dashboards are a read side** (Reporting) computing earned value from Planning's stages and Expense's spending;
+  each chart can be read as a table.
 - **Upload folders are 0750** in production (`UPLOAD_DIR_MODE`); the Docker dev stack uses 0755 so the node
   service's tools can walk the project.
 - **Handlers register through marker interfaces** (`CommandHandler`, `EventHandler`) wired in `services.yaml`,
@@ -136,6 +147,7 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   an admin cannot be added as a member.
 - The theme choice (Claro/Oscuro/Según el dispositivo) is kept in the browser, not on the user's account.
 - Light theme input borders are below 3:1 contrast (inherited from the MDX design; `styles.test.ts` lists it).
+- The audit trail starts with this rebuild: changes made before it was deployed are not in it.
 - An expense of a closed caja menor cycle still shows Anular; the server refuses it ("…ciclo de caja menor
   cerrado…"), since an expense does not know its cycle's state.
 - `app:create-admin` asks for the password interactively or prints a generated one; there is no

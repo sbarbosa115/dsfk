@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Finance\Domain\Model;
 
 use App\Shared\Domain\Error\Conflict;
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: 'petty_cash_cycle')]
 #[ORM\UniqueConstraint(name: 'uniq_cycle_number', columns: ['project_id', 'number'])]
-class PettyCashCycle
+class PettyCashCycle implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -148,5 +149,10 @@ class PettyCashCycle
     public function getSignedOffById(): ?int
     {
         return $this->signedOffById;
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->projectId;
     }
 }

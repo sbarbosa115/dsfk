@@ -142,6 +142,54 @@ final readonly class DoctrineExpenseRepository implements ExpenseRepository, Exp
         return $spent;
     }
 
+    public function monthlySpending(int $projectId, \DateTimeImmutable $from): array
+    {
+        /** @var list<array{date: \DateTimeImmutable, amount: int|string}> $rows */
+        $rows = $this->em->createQueryBuilder()
+            ->select('e.date AS date', 'e.amount AS amount')
+            ->from(Expense::class, 'e')
+            ->where('e.projectId = :project')
+            ->andWhere('e.status IN (:spent)')
+            ->andWhere('e.date >= :from')
+            ->setParameter('project', $projectId)
+            ->setParameter('spent', ExpenseStatus::spent())
+            ->setParameter('from', $from->format('Y-m-d'))
+            ->getQuery()
+            ->getArrayResult();
+        $months = [];
+        foreach ($rows as $row) {
+            $month = $row['date']->format('Y-m');
+            $months[$month] = ($months[$month] ?? 0) + (int) $row['amount'];
+        }
+
+        return $months;
+    }
+
+    public function pendingCount(int $projectId): int
+    {
+        return $this->em->getRepository(Expense::class)->count(['projectId' => $projectId, 'status' => [ExpenseStatus::Submitted, ExpenseStatus::PmApproved]]);
+    }
+
+    public function toReimburseCount(int $projectId): int
+    {
+        return $this->em->getRepository(Expense::class)->count(['projectId' => $projectId, 'status' => ExpenseStatus::Approved, 'paidFrom' => PaidFrom::OutOfPocket]);
+    }
+
+    public function facts(int $expenseId): ?array
+    {
+        $e = $this->em->find(Expense::class, $expenseId);
+
+        return null === $e ? null : [
+            'projectId' => $e->getProjectId(),
+            'stageId' => $e->getStageId(),
+            'categoryId' => $e->getCategoryId(),
+            'amount' => $e->getAmount(),
+            'description' => $e->getDescription(),
+            'paidById' => $e->getPaidById(),
+            'rejectionReason' => $e->getRejectionReason(),
+        ];
+    }
+
     public function usesCategory(int $categoryId): bool
     {
         return null !== $this->em->getRepository(Expense::class)->findOneBy(['categoryId' => $categoryId]);

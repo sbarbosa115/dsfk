@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/api/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Who changed what, newest first: Admins only. `q` searches the person's name. */
+        get: operations["get_api_audit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/attachments/{id}": {
         parameters: {
             query?: never;
@@ -793,6 +810,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every project whose money the person may see (all for Admins, their own for a PM), by name. */
+        get: operations["get_api_dashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_api_project_dashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings": {
         parameters: {
             query?: never;
@@ -1126,6 +1176,30 @@ export interface components {
             pettyCashLowBalancePercent: number | null;
             /** @default null */
             budgetWarningPercents: number[] | null;
+        };
+        AuditEntryOutput: {
+            id: number;
+            projectId?: number | null;
+            projectName?: string | null;
+            /** "Laura Gómez", or "Laura Gómez (vía Ana Admin)" while an Admin viewed the app as her */
+            user?: string | null;
+            /** @enum {string} */
+            action: "create" | "update" | "delete";
+            /** Project, Stage, Expense, FundMovement… */
+            entityType: string;
+            entityId?: number | null;
+            changes: {
+                [key: string]: unknown[];
+            };
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AuditPageOutput: {
+            entityTypes: string[];
+            items: components["schemas"]["AuditEntryOutput"][];
+            total: number;
+            page: number;
+            perPage: number;
         };
         ExpenseSummaryOutput: {
             /** Waiting for the PM, or for an Admin above the limit. */
@@ -1592,6 +1666,104 @@ export interface components {
             page: number;
             perPage: number;
         };
+        PortfolioRowOutput: {
+            id: number;
+            name: string;
+            /** @enum {string} */
+            status: "DRAFT" | "ACTIVE" | "COMPLETED" | "ARCHIVED";
+            currency: string;
+            budgetApproved: boolean;
+            budget: string;
+            deposited: string;
+            spent: string;
+            progress: number;
+            plannedProgress: number;
+            executed: number;
+            /** Format: float */
+            cpi?: number | null;
+            /** Format: float */
+            spi?: number | null;
+            /** Warnings and errors (not the informative ones). */
+            alerts: number;
+        };
+        DashboardTotalsOutput: {
+            /** The stages' budget (BAC), contingency apart. */
+            budget: string;
+            contingency: string;
+            deposited: string;
+            spent: string;
+            /** Still held in every account. */
+            available: string;
+            pettyCash: string;
+        };
+        StageHealthOutput: {
+            id: number;
+            name: string;
+            /** @enum {string} */
+            status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+            /** Major units. */
+            budget: string;
+            spent: string;
+            /** Basis points of the budget spent. */
+            executed: number;
+            /** Basis points met. */
+            progress: number;
+            /** Basis points that should be met by today. */
+            plannedProgress: number;
+            earnedValue: string;
+            plannedValue: string;
+            /** Format: float */
+            cpi?: number | null;
+            /** Format: float */
+            spi?: number | null;
+            /** Format: date */
+            plannedStart?: string | null;
+            /** Format: date */
+            plannedEnd?: string | null;
+            /** Format: date */
+            actualStart?: string | null;
+            /** Format: date */
+            actualEnd?: string | null;
+            delayed: boolean;
+        };
+        MonthFlowOutput: {
+            /** YYYY-MM */
+            month: string;
+            /** Major units. */
+            deposited: string;
+            spent: string;
+        };
+        DashboardAlertOutput: {
+            /** @enum {string} */
+            level: "error" | "warning" | "info";
+            /** @enum {string} */
+            code: "stage_over_budget" | "stage_near_budget" | "stage_delayed" | "milestones_overdue" | "expenses_pending" | "expenses_to_reimburse" | "cycles_unsigned";
+            stage?: string | null;
+            /** Basis points. */
+            executed?: number | null;
+            /** Format: date */
+            plannedEnd?: string | null;
+            count?: number | null;
+        };
+        ProjectDashboardOutput: {
+            currency: string;
+            budgetApproved: boolean;
+            totals: components["schemas"]["DashboardTotalsOutput"];
+            progress: number;
+            plannedProgress: number;
+            executed: number;
+            earnedValue: string;
+            plannedValue: string;
+            /** Format: float */
+            cpi?: number | null;
+            /** Format: float */
+            spi?: number | null;
+            forecastAtCompletion?: string | null;
+            varianceAtCompletion?: string | null;
+            stages: components["schemas"]["StageHealthOutput"][];
+            monthly: components["schemas"]["MonthFlowOutput"][];
+            alerts: components["schemas"]["DashboardAlertOutput"][];
+        };
         SettingsOutput: {
             /** ISO 4217 code for new projects */
             defaultCurrency: string;
@@ -1611,6 +1783,41 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_api_audit: {
+        parameters: {
+            query?: {
+                projectId?: number | null;
+                entityType?: string | null;
+                q?: string | null;
+                page?: number;
+                perPage?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of the audit trail */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditPageOutput"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     get_api_attachments_download: {
         parameters: {
             query?: never;
@@ -3970,6 +4177,66 @@ export interface operations {
                 content?: never;
             };
             /** @description project_not_found or member_not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_dashboard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The portfolio */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioRowOutput"][];
+                };
+            };
+        };
+    };
+    get_api_project_dashboard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The project dashboard */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDashboardOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description project_not_found (also outside the project) */
             404: {
                 headers: {
                     [name: string]: unknown;

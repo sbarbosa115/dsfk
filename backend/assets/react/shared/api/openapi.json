@@ -5,6 +5,90 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/audit": {
+            "get": {
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Who changed what, newest first: Admins only. `q` searches the person's name.",
+                "operationId": "get_api_audit",
+                "parameters": [
+                    {
+                        "name": "projectId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "entityType",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 50,
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "One page of the audit trail",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuditPageOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Not an admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/attachments/{id}": {
             "get": {
                 "tags": [
@@ -3266,6 +3350,81 @@
                 }
             }
         },
+        "/api/dashboard": {
+            "get": {
+                "tags": [
+                    "Dashboards"
+                ],
+                "summary": "Every project whose money the person may see (all for Admins, their own for a PM), by name.",
+                "operationId": "get_api_dashboard",
+                "responses": {
+                    "200": {
+                        "description": "The portfolio",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PortfolioRowOutput"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/{id}/dashboard": {
+            "get": {
+                "tags": [
+                    "Dashboards"
+                ],
+                "operationId": "get_api_project_dashboard",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The project dashboard",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProjectDashboardOutput"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also outside the project)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/settings": {
             "get": {
                 "tags": [
@@ -4043,6 +4202,94 @@
                         "default": null,
                         "maxItems": 5,
                         "minItems": 1
+                    }
+                },
+                "type": "object"
+            },
+            "AuditEntryOutput": {
+                "required": [
+                    "id",
+                    "action",
+                    "entityType",
+                    "changes",
+                    "createdAt"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "projectId": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "projectName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "user": {
+                        "title": "\"Laura G\u00f3mez\", or \"Laura G\u00f3mez (v\u00eda Ana Admin)\" while an Admin viewed the app as her",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "action": {
+                        "type": "string",
+                        "enum": [
+                            "create",
+                            "update",
+                            "delete"
+                        ]
+                    },
+                    "entityType": {
+                        "title": "Project, Stage, Expense, FundMovement\u2026",
+                        "type": "string"
+                    },
+                    "entityId": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "changes": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {}
+                        }
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "AuditPageOutput": {
+                "required": [
+                    "entityTypes",
+                    "items",
+                    "total",
+                    "page",
+                    "perPage"
+                ],
+                "properties": {
+                    "entityTypes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuditEntryOutput"
+                        }
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "perPage": {
+                        "type": "integer"
                     }
                 },
                 "type": "object"
@@ -5750,6 +5997,347 @@
                 },
                 "type": "object"
             },
+            "PortfolioRowOutput": {
+                "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "currency",
+                    "budgetApproved",
+                    "budget",
+                    "deposited",
+                    "spent",
+                    "progress",
+                    "plannedProgress",
+                    "executed",
+                    "alerts"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "DRAFT",
+                            "ACTIVE",
+                            "COMPLETED",
+                            "ARCHIVED"
+                        ]
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "budgetApproved": {
+                        "type": "boolean"
+                    },
+                    "budget": {
+                        "type": "string"
+                    },
+                    "deposited": {
+                        "type": "string"
+                    },
+                    "spent": {
+                        "type": "string"
+                    },
+                    "progress": {
+                        "type": "integer"
+                    },
+                    "plannedProgress": {
+                        "type": "integer"
+                    },
+                    "executed": {
+                        "type": "integer"
+                    },
+                    "cpi": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "spi": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "alerts": {
+                        "title": "Warnings and errors (not the informative ones).",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "DashboardTotalsOutput": {
+                "required": [
+                    "budget",
+                    "contingency",
+                    "deposited",
+                    "spent",
+                    "available",
+                    "pettyCash"
+                ],
+                "properties": {
+                    "budget": {
+                        "title": "The stages' budget (BAC), contingency apart.",
+                        "type": "string"
+                    },
+                    "contingency": {
+                        "type": "string"
+                    },
+                    "deposited": {
+                        "type": "string"
+                    },
+                    "spent": {
+                        "type": "string"
+                    },
+                    "available": {
+                        "title": "Still held in every account.",
+                        "type": "string"
+                    },
+                    "pettyCash": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "StageHealthOutput": {
+                "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "budget",
+                    "spent",
+                    "executed",
+                    "progress",
+                    "plannedProgress",
+                    "earnedValue",
+                    "plannedValue",
+                    "delayed"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "IN_PROGRESS",
+                            "COMPLETED"
+                        ]
+                    },
+                    "budget": {
+                        "title": "Major units.",
+                        "type": "string"
+                    },
+                    "spent": {
+                        "type": "string"
+                    },
+                    "executed": {
+                        "title": "Basis points of the budget spent.",
+                        "type": "integer"
+                    },
+                    "progress": {
+                        "title": "Basis points met.",
+                        "type": "integer"
+                    },
+                    "plannedProgress": {
+                        "title": "Basis points that should be met by today.",
+                        "type": "integer"
+                    },
+                    "earnedValue": {
+                        "type": "string"
+                    },
+                    "plannedValue": {
+                        "type": "string"
+                    },
+                    "cpi": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "spi": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "plannedStart": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "plannedEnd": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "actualStart": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "actualEnd": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "delayed": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "MonthFlowOutput": {
+                "required": [
+                    "month",
+                    "deposited",
+                    "spent"
+                ],
+                "properties": {
+                    "month": {
+                        "title": "YYYY-MM",
+                        "type": "string"
+                    },
+                    "deposited": {
+                        "title": "Major units.",
+                        "type": "string"
+                    },
+                    "spent": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "DashboardAlertOutput": {
+                "required": [
+                    "level",
+                    "code"
+                ],
+                "properties": {
+                    "level": {
+                        "type": "string",
+                        "enum": [
+                            "error",
+                            "warning",
+                            "info"
+                        ]
+                    },
+                    "code": {
+                        "type": "string",
+                        "enum": [
+                            "stage_over_budget",
+                            "stage_near_budget",
+                            "stage_delayed",
+                            "milestones_overdue",
+                            "expenses_pending",
+                            "expenses_to_reimburse",
+                            "cycles_unsigned"
+                        ]
+                    },
+                    "stage": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "executed": {
+                        "title": "Basis points.",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "plannedEnd": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "count": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ProjectDashboardOutput": {
+                "required": [
+                    "currency",
+                    "budgetApproved",
+                    "totals",
+                    "progress",
+                    "plannedProgress",
+                    "executed",
+                    "earnedValue",
+                    "plannedValue",
+                    "stages",
+                    "monthly",
+                    "alerts"
+                ],
+                "properties": {
+                    "currency": {
+                        "type": "string"
+                    },
+                    "budgetApproved": {
+                        "type": "boolean"
+                    },
+                    "totals": {
+                        "$ref": "#/components/schemas/DashboardTotalsOutput"
+                    },
+                    "progress": {
+                        "type": "integer"
+                    },
+                    "plannedProgress": {
+                        "type": "integer"
+                    },
+                    "executed": {
+                        "type": "integer"
+                    },
+                    "earnedValue": {
+                        "type": "string"
+                    },
+                    "plannedValue": {
+                        "type": "string"
+                    },
+                    "cpi": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "spi": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "forecastAtCompletion": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "varianceAtCompletion": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "stages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StageHealthOutput"
+                        }
+                    },
+                    "monthly": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MonthFlowOutput"
+                        }
+                    },
+                    "alerts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DashboardAlertOutput"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "SettingsOutput": {
                 "required": [
                     "defaultCurrency",
@@ -5784,6 +6372,9 @@
     },
     "tags": [
         {
+            "name": "Audit"
+        },
+        {
             "name": "Documents"
         },
         {
@@ -5806,6 +6397,9 @@
         },
         {
             "name": "Projects"
+        },
+        {
+            "name": "Dashboards"
         },
         {
             "name": "Settings"

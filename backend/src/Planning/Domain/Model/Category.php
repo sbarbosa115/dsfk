@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Planning\Domain\Model;
 
 use App\Shared\Domain\Error\InvalidValue;
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: 'category')]
 #[ORM\UniqueConstraint(name: 'uniq_category_name', fields: ['projectId', 'name'])]
-class Category
+class Category implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -57,5 +58,10 @@ class Category
     public function isNamed(string $name): bool
     {
         return mb_strtolower($this->name) === mb_strtolower(trim($name));
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->projectId;
     }
 }

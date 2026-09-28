@@ -6,6 +6,7 @@ namespace App\Identity\Domain\Model;
 
 use App\Shared\Domain\Error\InvalidValue;
 use App\Shared\Domain\Error\NotAllowed;
+use App\Shared\Domain\Model\Audited;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -16,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'uniq_user_email', fields: ['email'])]
-class User
+class User implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -168,5 +169,10 @@ class User
     private function isSameAs(self $other): bool
     {
         return $this === $other || (null !== $this->id && $this->id === $other->id);
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return null;
     }
 }

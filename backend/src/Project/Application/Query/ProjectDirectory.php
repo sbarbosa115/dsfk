@@ -21,4 +21,9 @@ interface ProjectDirectory
      * @return list<ProjectInfo> projects whose status is ACTIVE
      */
     public function active(): array;
+
+    /**
+     * @return list<ProjectInfo> every project, by name
+     */
+    public function all(): array;
 }

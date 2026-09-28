@@ -6,6 +6,7 @@ namespace App\Planning\Domain\Model;
 
 use App\Shared\Domain\Error\Conflict;
 use App\Shared\Domain\Error\InvalidValue;
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -19,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'budget')]
-class Budget
+class Budget implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -166,5 +167,10 @@ class Budget
         if ([] !== $issues) {
             throw new InvalidValue('budget_incomplete', ['issues' => $issues]);
         }
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->projectId;
     }
 }

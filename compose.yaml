@@ -11,6 +11,8 @@ services:
       MAILER_DSN: "smtp://mailpit:1025"
       # Upload folders readable by the node service's tools (Prettier walks the project); production keeps 0750.
       UPLOAD_DIR_MODE: "0755"
+      # Links in the emails point at this checkout's app.
+      APP_URL: "http://localhost:${APP_PORT:-18091}"
     depends_on:
       mysql:
         condition: service_healthy
@@ -45,6 +47,8 @@ services:
       MAILER_DSN: "smtp://mailpit:1025"
       # Upload folders readable by the node service's tools (Prettier walks the project); production keeps 0750.
       UPLOAD_DIR_MODE: "0755"
+      # Links in the emails point at this checkout's app.
+      APP_URL: "http://localhost:${APP_PORT:-18091}"
     command: sh -c "while [ ! -f vendor/autoload.php ]; do sleep 5; done; exec php bin/console messenger:consume async --time-limit=3600 -vv"
     restart: unless-stopped
     depends_on:

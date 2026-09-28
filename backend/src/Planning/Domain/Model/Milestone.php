@@ -6,6 +6,7 @@ namespace App\Planning\Domain\Model;
 
 use App\Shared\Domain\Error\Conflict;
 use App\Shared\Domain\Error\InvalidValue;
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 /** A weighted step of a stage. The weights of a stage add up to 100 %; progress is what is met. */
 #[ORM\Entity]
 #[ORM\Table(name: 'milestone')]
-class Milestone
+class Milestone implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -148,5 +149,10 @@ class Milestone
         $this->completedAt = null;
         $this->completedById = null;
         $this->completionNotes = null;
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->stage->getProjectId();
     }
 }

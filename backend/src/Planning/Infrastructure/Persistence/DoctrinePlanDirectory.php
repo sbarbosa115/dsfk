@@ -6,9 +6,12 @@ namespace App\Planning\Infrastructure\Persistence;
 
 use App\Planning\Application\Query\CategorySummary;
 use App\Planning\Application\Query\PlanDirectory;
+use App\Planning\Application\Query\StageSchedule;
 use App\Planning\Application\Query\StageSummary;
+use App\Planning\Domain\Model\Milestone;
 use App\Planning\Domain\Model\Stage;
 use App\Planning\Domain\Repository\PlanRepository;
+use App\Planning\Domain\Service\Progress;
 
 final readonly class DoctrinePlanDirectory implements PlanDirectory
 {
@@ -45,6 +48,43 @@ final readonly class DoctrinePlanDirectory implements PlanDirectory
         }
 
         return $categories;
+    }
+
+    public function schedule(int $projectId): array
+    {
+        return array_map(static fn (Stage $s): StageSchedule => new StageSchedule(
+            (int) $s->getId(),
+            $s->getName(),
+            $s->getStatus()->value,
+            $s->budgetTotal(),
+            $s->progress(),
+            $s->getPlannedStart(),
+            $s->getPlannedEnd(),
+            $s->getActualStart(),
+            $s->getActualEnd(),
+            array_map(static fn (Milestone $m): array => ['weight' => $m->getWeight(), 'plannedDate' => $m->getPlannedDate(), 'completed' => $m->isCompleted()], $s->getMilestones()),
+        ), $this->plans->stagesOf($projectId));
+    }
+
+    public function overdueMilestones(int $projectId, \DateTimeImmutable $today): array
+    {
+        $overdue = [];
+        foreach ($this->plans->stagesOf($projectId) as $stage) {
+            foreach ($stage->getMilestones() as $m) {
+                $date = $m->getPlannedDate();
+                if (null !== $date && $m->isOverdue($today)) {
+                    $overdue[] = ['stage' => $stage->getName(), 'name' => $m->getName(), 'plannedDate' => $date];
+                }
+            }
+        }
+        usort($overdue, static fn (array $a, array $b): int => $a['plannedDate'] <=> $b['plannedDate']);
+
+        return $overdue;
+    }
+
+    public function progress(int $projectId): int
+    {
+        return Progress::ofProject($this->plans->stagesOf($projectId));
     }
 
     public function contingency(int $projectId): int

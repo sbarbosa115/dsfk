@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Expense\Domain\Model;
 
+use App\Shared\Domain\Model\Audited;
 use App\Shared\Domain\Model\References;
 use Doctrine\ORM\Mapping as ORM;
 
 /** The PM (or an Admin) paying back approved Team Lead expenses from the caja menor, as one movement. */
 #[ORM\Entity]
 #[ORM\Table(name: 'reimbursement')]
-class Reimbursement
+class Reimbursement implements Audited
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -58,5 +59,10 @@ class Reimbursement
     public function getReference(): ?string
     {
         return $this->reference;
+    }
+
+    public function auditProjectId(): ?int
+    {
+        return $this->projectId;
     }
 }

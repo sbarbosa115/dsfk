@@ -27,12 +27,15 @@ import {
 import {ExpenseBoard} from '@/widgets/expense-board';
 import {FinanceBoard} from '@/widgets/finance-board';
 import {PettyCashBoard} from '@/widgets/petty-cash-board';
+import {ProjectDashboard} from '@/widgets/project-dashboard';
 import {PlanBoard} from '@/widgets/plan-board';
 
-type Tab = 'plan' | 'expenses' | 'finance' | 'petty-cash' | 'overview';
+type Tab =
+  'plan' | 'dashboard' | 'expenses' | 'finance' | 'petty-cash' | 'overview';
 // Team Leads see no project money (only their own expenses): a link to ?tab=finance lands them on the plan.
 const MANAGER_TABS: readonly Tab[] = [
   'plan',
+  'dashboard',
   'expenses',
   'finance',
   'petty-cash',
@@ -95,6 +98,15 @@ function ProjectView({project}: {project: Project}) {
         onChange={setTab}
         options={[
           {value: 'plan', label: t('projects.tabs.plan'), icon: 'clipboard'},
+          ...(manager
+            ? [
+                {
+                  value: 'dashboard' as const,
+                  label: t('projects.tabs.dashboard'),
+                  icon: 'chart' as const,
+                },
+              ]
+            : []),
           {
             value: 'expenses',
             label: t('projects.tabs.expenses'),
@@ -123,6 +135,7 @@ function ProjectView({project}: {project: Project}) {
       />
       <TabPanel id="project" value={tab}>
         {tab === 'plan' && <PlanBoard projectId={project.id} />}
+        {tab === 'dashboard' && <ProjectDashboard projectId={project.id} />}
         {tab === 'expenses' && (
           <ExpenseBoard projectId={project.id} manager={manager} />
         )}
