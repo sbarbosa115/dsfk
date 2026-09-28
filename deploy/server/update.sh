@@ -28,7 +28,8 @@ fi
 log "Removing files deleted in this version"
 if [ -f MANIFEST ]; then
   dirs=""
-  for dir in src config templates migrations vendor public/app translations bin; do
+  # public/app: the frontend of versions before the move to Symfony UX (public/build), removed once.
+  for dir in src config templates migrations vendor public/build public/app translations bin; do
     [ -d "$dir" ] && dirs="$dirs $dir"
   done
   # Files on disk that the new release does not contain (LC_ALL=C: same sort order as the build).

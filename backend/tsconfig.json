@@ -1,0 +1,24 @@
+{
+  "//": "Everything under assets/ is TypeScript, strict. The API's types come from its OpenAPI schema (`npm run api:types`). `npm run typecheck`.",
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {"@/*": ["./assets/react/*"]}
+  },
+  "include": ["assets/**/*", "vitest.config.mts"],
+  "exclude": ["node_modules", "public", "vendor", "var"]
+}

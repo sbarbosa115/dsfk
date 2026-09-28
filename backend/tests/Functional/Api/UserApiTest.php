@@ -38,16 +38,30 @@ final class UserApiTest extends ApiTestCase
         $this->assertStatus(200);
     }
 
-    public function testTheListIsSortedByNameAndCarriesProjectRoles(): void
+    public function testTheListIsAPageSortedByNameWithProjectRoles(): void
     {
         $this->loginAs($this->createUser('zoe@example.com', admin: true));
         $this->createUser('ana@example.com');
 
-        $data = $this->jsonList('GET', '/api/users');
+        $data = $this->json('GET', '/api/users');
 
         $this->assertStatus(200);
-        self::assertSame(['Ana', 'Zoe'], array_column($data, 'fullName'));
-        self::assertSame([], $data[0]['memberships']);
+        self::assertSame(['Ana', 'Zoe'], array_column($data['items'], 'fullName'));
+        self::assertSame([], $data['items'][0]['memberships']);
+        self::assertSame(['total' => 2, 'page' => 1, 'perPage' => 50], ['total' => $data['total'], 'page' => $data['page'], 'perPage' => $data['perPage']]);
+    }
+
+    public function testTheListSearchesNameAndEmailAndHidesInactiveUsersUnlessAsked(): void
+    {
+        $this->loginAs($this->createUser('admin@example.com', admin: true));
+        $this->createUser('ana_perez@example.com');
+        $this->createUser('anaXperez@example.com');
+        $this->createUser('old@example.com', active: false);
+
+        self::assertSame(['ana_perez@example.com'], array_column($this->json('GET', '/api/users?q=ana_p')['items'], 'email'), '_ is matched literally');
+        self::assertNotContains('old@example.com', array_column($this->json('GET', '/api/users')['items'], 'email'));
+        self::assertContains('old@example.com', array_column($this->json('GET', '/api/users?status=all')['items'], 'email'));
+        self::assertSame(['old@example.com'], array_column($this->json('GET', '/api/users?status=inactive')['items'], 'email'));
     }
 
     public function testCreatingValidatesEveryField(): void

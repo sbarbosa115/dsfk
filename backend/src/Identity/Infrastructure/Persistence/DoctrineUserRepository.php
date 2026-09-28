@@ -7,8 +7,11 @@ namespace App\Identity\Infrastructure\Persistence;
 use App\Identity\Application\Query\UserQueries;
 use App\Identity\Domain\Model\User;
 use App\Identity\Domain\Repository\UserRepository;
+use App\Shared\Application\Query\Page;
 use App\Shared\Domain\Error\NotFound;
+use App\Shared\Infrastructure\Doctrine\Search;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 final readonly class DoctrineUserRepository implements UserRepository, UserQueries
 {
@@ -31,9 +34,17 @@ final readonly class DoctrineUserRepository implements UserRepository, UserQueri
         $this->em->persist($user);
     }
 
-    public function all(): array
+    public function page(?string $search, string $status, int $page, int $perPage): Page
     {
-        return $this->em->getRepository(User::class)->findBy([], ['fullName' => 'ASC', 'id' => 'ASC']);
+        $qb = $this->em->createQueryBuilder()->select('u')->from(User::class, 'u')->orderBy('u.fullName', 'ASC')->addOrderBy('u.id', 'ASC');
+        if ('all' !== $status) {
+            $qb->andWhere('u.active = :active')->setParameter('active', 'inactive' !== $status);
+        }
+        Search::apply($qb, $search, ['u.fullName', 'u.email']);
+        $qb->setFirstResult(($page - 1) * $perPage)->setMaxResults($perPage);
+        $paginator = new Paginator($qb);
+
+        return new Page(array_values(iterator_to_array($paginator)), \count($paginator));
     }
 
     public function byId(int $id): ?User

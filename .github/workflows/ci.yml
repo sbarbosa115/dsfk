@@ -28,6 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           $PHP composer install --no-interaction --no-progress --prefer-dist
+          # After composer: @symfony/ux-react is installed from vendor/.
           $NODE npm ci --no-audit --no-fund
 
       - name: Prepare the test database
@@ -48,9 +49,9 @@ jobs:
 
       - name: API contract is up to date
         run: |
-          $PHP bin/console nelmio:apidoc:dump --format=json > frontend/src/shared/api/openapi.json
+          $PHP sh -c "bin/console nelmio:apidoc:dump --format=json > assets/react/shared/api/openapi.json"
           $NODE npm run -s api:types
-          git diff --exit-code -- frontend/src/shared/api
+          git diff --exit-code -- backend/assets/react/shared/api
 
       - name: Security (dependencies)
         run: |
@@ -61,6 +62,9 @@ jobs:
         run: |
           $PHP bin/phpunit
           $NODE npm test
+
+      - name: Production build
+        run: $NODE npm run build
 
       - name: Logs on failure
         if: failure()
