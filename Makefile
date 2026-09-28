@@ -6,7 +6,7 @@ GATE = PHP_SERVICE=worker ~/.claude/skills/symfony-react-app/scripts/gate.sh
 
 .PHONY: up down install migrate admin seed test test-backend test-frontend build api gate fix
 
-up:            ## Start the stack (ports in .env; defaults app :18081, vite :15173, mailpit :18025)
+up:            ## Start the stack (ports in .env; defaults app :18081, mailpit :18025)
 	$(DC) up -d --build
 
 down:
@@ -32,19 +32,17 @@ test-backend:
 	$(PHP) bin/phpunit
 
 test-frontend:
-	$(NODE) sh -c "npx tsc -b && npx vitest run"
+	$(NODE) sh -c "npx tsc --noEmit && npx vitest run"
 
 api:           ## Regenerate the OpenAPI schema and the UI's TypeScript types from the controllers
-	$(DC) exec -T -u www-data php bin/console nelmio:apidoc:dump --format=json > frontend/src/shared/api/openapi.json
-	$(DC) exec -T node npm run -s api:types
+	$(DC) exec -T -u www-data php sh -c "bin/console nelmio:apidoc:dump --format=json > assets/react/shared/api/openapi.json"
+	$(NODE) npm run -s api:types
 
 gate:          ## Static analysis and code style: every check must pass
-	$(GATE) --skip=prettier,eslint,tsc
+	$(GATE)
 
 fix:           ## Apply the formatters, then run the gate
-	$(PHP) vendor/bin/php-cs-fixer fix -q
-	$(DC) exec -T node npm run -s format
-	$(GATE) --skip=prettier,eslint,tsc
+	$(GATE) --fix
 
-build:         ## Build the React app into backend/public/app
-	$(NODE) npx vite build
+build:         ## Build the React app for production into backend/public/build
+	$(NODE) npm run build

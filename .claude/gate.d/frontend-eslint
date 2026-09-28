@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-# Frontend eslint for the symfony-react-app gate: the frontend lives in frontend/, outside APP_DIR (backend), so the
-# skill's built-in eslint check cannot see it. Run the gate with --skip=prettier,eslint,tsc.
-cd "$(git rev-parse --show-toplevel)" && docker compose exec -T node npm run -s lint

@@ -11,6 +11,7 @@ use App\Identity\Application\Query\UserQueries;
 use App\Identity\UI\Http\Input\CreateUserInput;
 use App\Identity\UI\Http\Input\UpdateUserInput;
 use App\Identity\UI\Http\Output\UserOutput;
+use App\Identity\UI\Http\Output\UserPageOutput;
 use App\Shared\Application\Bus\CommandBus;
 use App\Shared\Application\Bus\NewId;
 use App\Shared\Application\Security\Actor;
@@ -20,6 +21,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -47,16 +49,23 @@ final class UserController extends AbstractController
     ) {
     }
 
-    /** Every user with their project roles (the users table and the "Ver como" menu). */
+    /** Users with their project roles (the users table and the "Ver como" menu), sorted by name. */
     #[Route('', name: 'api_users_list', methods: ['GET'])]
-    #[OA\Response(response: 200, description: 'Users sorted by name', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: UserOutput::class))))]
-    public function list(): JsonResponse
-    {
+    #[OA\Response(response: 200, description: 'One page of users', content: new Model(type: UserPageOutput::class))]
+    public function list(
+        #[MapQueryParameter] ?string $q = null,
+        #[MapQueryParameter(filter: \FILTER_VALIDATE_REGEXP, options: ['regexp' => '/^(active|inactive|all)$/'])] string $status = 'active',
+        #[MapQueryParameter(options: ['min_range' => 1])] int $page = 1,
+        #[MapQueryParameter(options: ['min_range' => 1, 'max_range' => 200])] int $perPage = 50,
+    ): JsonResponse {
+        $result = $this->users->page($q, $status, $page, $perPage);
         $memberships = $this->memberships->ofAllUsers();
 
-        return $this->json(array_map(
-            static fn ($user): UserOutput => UserOutput::from($user, $memberships[(int) $user->getId()] ?? []),
-            $this->users->all(),
+        return $this->json(new UserPageOutput(
+            array_map(static fn ($user): UserOutput => UserOutput::from($user, $memberships[(int) $user->getId()] ?? []), $result->items),
+            $result->total,
+            $page,
+            $perPage,
         ));
     }
 
