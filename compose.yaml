@@ -2,6 +2,11 @@ services:
   php:
     build:
       context: ./docker/php
+      # www-data takes the host user's ids, so files written in the bind mount (vendor/, var/) stay the host's and
+      # the mount is writable wherever the checkout is (a laptop, CI). The Makefile and the CI workflow set them.
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
     ports:
       - "${APP_PORT:-18081}:80"
     volumes:
@@ -40,6 +45,11 @@ services:
   worker:
     build:
       context: ./docker/php
+      # www-data takes the host user's ids, so files written in the bind mount (vendor/, var/) stay the host's and
+      # the mount is writable wherever the checkout is (a laptop, CI). The Makefile and the CI workflow set them.
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
     user: www-data
     volumes:
       - ./backend:/var/www/backend
@@ -59,7 +69,7 @@ services:
   # Builds the React app into backend/public/build on every save (Webpack Encore); Symfony serves it.
   node:
     image: node:22-alpine
-    user: "1000:1000"
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     working_dir: /app
     volumes:
       - ./backend:/app

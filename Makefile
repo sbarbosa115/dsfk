@@ -1,3 +1,6 @@
+# The containers run as this user (compose.yaml), so the files they write in backend/ stay yours.
+export HOST_UID := $(shell id -u)
+export HOST_GID := $(shell id -g)
 DC = docker compose
 PHP = $(DC) exec -u www-data php
 NODE = $(DC) run --rm --no-deps node
