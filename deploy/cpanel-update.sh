@@ -103,7 +103,8 @@ main() {
   rsync -a "$src/backend/" "$stage/" \
     --exclude '/vendor/' --exclude '/var/' --exclude '/tests/' --exclude '/.phpunit.cache/' \
     --exclude '/.env.local' --exclude '/.env.local.php' --exclude '/.env.*.local' --exclude '/.env.dev' --exclude '/.env.test' \
-    --exclude '/phpunit.dist.xml' --exclude '/phpunit.xml' --exclude '/node_modules/' --exclude '/public/build/'
+    --exclude '/phpunit.dist.xml' --exclude '/phpunit.xml' --exclude '/bin/phpunit' --exclude '/node_modules/' --exclude '/public/build/' \
+    --exclude '/.php-cs-fixer.dist.php' --exclude '/phpstan.dist.neon' --exclude '/deptrac.*.yaml'
   sed -i 's/^APP_ENV=.*/APP_ENV=prod/' "$stage/.env"
   cp -r "$src/deploy/server" "$stage/deploy"
   chmod +x "$stage/deploy/"*.sh
@@ -117,7 +118,10 @@ main() {
   # --- Frontend (Webpack Encore into public/build, served by Symfony) ---------------------------
   # After composer: @symfony/ux-react is installed from vendor/. npm ci only reads the lock file.
   log "Building frontend"
-  (cd "$stage" && npm ci --no-audit --no-fund --no-update-notifier --loglevel=error && npx tsc --noEmit && npm run -s build >/dev/null)
+  export NPM_CONFIG_UPDATE_NOTIFIER=false
+  local build_log="$build_dir/frontend-build.log"
+  (cd "$stage" && npm ci --no-audit --no-fund --loglevel=error && npx tsc --noEmit && npx encore production) >"$build_log" 2>&1 \
+    || { tail -n 40 "$build_log" >&2; die "frontend build failed (full output: $build_log)"; }
   [ -f "$stage/public/build/entrypoints.json" ] || die "frontend build produced no public/build/entrypoints.json"
   # Only the build ships: sources and tooling stay out of the app folder.
   (cd "$stage" && rm -rf node_modules assets package.json package-lock.json webpack.config.js tsconfig.json \

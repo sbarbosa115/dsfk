@@ -32,10 +32,15 @@ if [ -f MANIFEST ]; then
   for dir in src config templates migrations vendor public/build public/app translations bin; do
     [ -d "$dir" ] && dirs="$dirs $dir"
   done
-  # Files on disk that the new release does not contain (LC_ALL=C: same sort order as the build).
-  find $dirs -type f | LC_ALL=C sort | LC_ALL=C comm -23 - <(LC_ALL=C sort MANIFEST) | while read -r file; do
-    rm -f "$file" && echo "  removed $file"
-  done
+  # Never run find without folders: it would walk the whole app folder, .env.local and var/ included.
+  if [ -n "$dirs" ]; then
+    # Files on disk that the new release does not contain (LC_ALL=C: same sort order as the build).
+    find $dirs -type f | LC_ALL=C sort | LC_ALL=C comm -23 - <(LC_ALL=C sort MANIFEST) | while read -r file; do
+      rm -f "$file" && echo "  removed $file"
+    done
+    # Folders left empty, such as public/app from before the move to Symfony UX.
+    find $dirs -type d -empty -delete
+  fi
 fi
 
 log "Refreshing cache"
