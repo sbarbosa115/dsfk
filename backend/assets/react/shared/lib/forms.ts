@@ -82,7 +82,13 @@ export function useSubmit() {
     [],
   );
 
-  return {...state, run};
+  /** Forget the last errors (the user is typing again). */
+  const reset = useCallback(
+    () => setState({busy: false, errors: {}, formError: null}),
+    [],
+  );
+
+  return {...state, run, reset};
 }
 
 /** Empty strings become null, so optional fields are cleared on the API. */

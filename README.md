@@ -66,6 +66,16 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
 | `PATCH /projects/{id}` (fields sent change; `null` clears a date) | admin | 200 project | 404, 422 `currency_locked`, `validation_failed` |
 | `POST /projects/{id}/members` `{userId, role}` | admin | 200 project (adds, or changes the role) | 409 `project_manager_exists`, 422 `admin_is_global`, `user_inactive`, `user_not_found` |
 | `DELETE /projects/{id}/members/{memberId}` | admin | 204 | 404 `member_not_found` (also a member of another project) |
+| `GET /projects/{id}/plan` | member | the plan: stages with lines and milestones, categories, budget, progress, what blocks submitting, `permissions`; amounts `null` for Team Leads | 404 |
+| `POST /projects/{id}/categories` `{name}` · `PATCH\|DELETE /categories/{id}` | PM, admin | the plan (every plan write answers with it) | 409 `category_in_use`, 422 name taken |
+| `POST /projects/{id}/stages` · `PATCH\|DELETE /stages/{id}` · `PUT /projects/{id}/stages/order {ids}` | PM, admin | the plan | 409 `budget_locked` (dates after approval, anything while submitted) |
+| `POST /stages/{id}/lines` · `PUT\|DELETE /budget-lines/{id}` `{categoryId, description, unit, quantity, unitPrice}` | PM, admin, while editable | the plan (line total = quantity × unit price, half up) | 409 `budget_locked`, 422 |
+| `POST /stages/{id}/milestones` · `PATCH\|DELETE /milestones/{id}` `{name, weight %, plannedDate}` | PM, admin, while editable | the plan | 422 weights over 100 % |
+| `PUT /projects/{id}/budget/contingency` `{contingency}` | PM, admin, while editable | the plan | 409 `budget_locked` |
+| `POST /projects/{id}/budget/submit` | PM, admin | the plan | 422 `budget_incomplete` with `issues` |
+| `POST /projects/{id}/budget/{return {comment}\|approve}` | admin | the plan; approving activates the project | 409 `budget_not_submitted` |
+| `POST /stages/{id}/start {actualStart}` · `POST /milestones/{id}/complete {completedAt, notes}` | PM, admin, after approval | the plan | 409 `budget_not_approved`, `stage_already_started`, `milestone_already_completed`; 422 future date |
+| `POST /milestones/{id}/reopen` | admin | the plan | 409 `stage_completed` |
 | `GET /settings` | signed in | settings | |
 | `PUT /settings` (fields sent change) | admin | 200 settings | 403, 422 `validation_failed` |
 
@@ -81,6 +91,10 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   admin's password and sign in as them.
 - **Outside a project is 404, not 403.** `ProjectGuard` answers every project-scoped endpoint: someone who is
   not in the project cannot tell it exists; a member whose role does not allow the action gets 403.
+- **A project's budget row is created lazily** the first time its plan is written (projects are created in the
+  Project context, which knows nothing of budgets); reading a plan with no budget yet shows an empty draft.
+- **Pesos show centavos only when there are some** (`$ 35.000,50`, `$ 437.506`), so no amount is ever rounded
+  on screen.
 - **Handlers register through marker interfaces** (`CommandHandler`, `EventHandler`) wired in `services.yaml`,
   so the Application layer names no framework class.
 

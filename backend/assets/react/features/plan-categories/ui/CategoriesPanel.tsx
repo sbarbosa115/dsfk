@@ -47,7 +47,13 @@ export function CategoriesPanel({plan}: {plan: Plan}) {
       {manage && (
         <form className="toolbar" onSubmit={onAdd} noValidate>
           <Field label={t('plan.newCategory')} error={add.errors['name']}>
-            <input value={name} onChange={(e) => setName(e.target.value)} />
+            <input
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                add.reset();
+              }}
+            />
           </Field>
           <ActionButton
             action="setup"

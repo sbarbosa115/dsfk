@@ -170,3 +170,50 @@ proyecto coincide con la búsqueda." and "Ver todos", which brings every project
 "Ver como" › Carlos Pérez. **Expected:** Proyectos lists only Torre Norte, Mi rol "Líder de equipo", no "Nuevo
 proyecto"; the project page has no "Editar proyecto", no Agregar and no Quitar. Opening `/projects/<Casa's id>`
 says "Este proyecto no existe o no participas en él."
+
+## 6. Presupuesto y plan
+
+Run as Laura (PM of Torre Norte, from PRJ-04) unless the case says otherwise: sign in as her, or use "Ver como".
+
+**PLN-01 · Categories**
+Torre Norte › Presupuesto y plan › Nueva categoría `Materiales` › Agregar, then `Nómina`. **Expected:** both in the
+Categorías table with "$ 0". `materiales` again: "Ya existe una categoría con ese nombre." under the field.
+
+**PLN-02 · Build the plan and let the server do the arithmetic**
+Agregar etapa `Cimentación` (1/10/2026 – 15/12/2026). Agregar partida: Materiales, `Concreto 3000 PSI`, `m³`,
+`12,5`, `35.000,50` (the hint says "Total de la partida: $ 437.506,25") › Agregar partida; Nómina, `Cuadrilla`,
+`global`, `1`, `1.000.000`. Agregar hito `Excavación` 40 % planned 20/10/2026, then `Vaciado de zapatas` (the
+weight field suggests 60). Etapa `Estructura` (16/12/2026 – 30/04/2027) with Materiales `Acero` `kg` `100`
+`30.000` and hito `Columnas y placas` 100. Contingencia (pencil) `500.000`. **Expected:** Total etapas
+$ 4.437.506,25, Contingencia $ 500.000, Presupuesto total $ 4.937.506,25; Cimentación 32,4 % del presupuesto,
+Estructura 67,6 %; unit price shown as $ 35.000,50 (never rounded).
+
+**PLN-03 · What blocks sending it is listed**
+Before the last milestone of PLN-02: "Para enviar el presupuesto falta: … deben sumar 100 %" and Enviar a
+aprobación disabled. A milestone that would pass 100 % (e.g. `40,01` when 60 % is used) says "La suma de los
+pesos … no puede superar el 100 %." under Peso.
+
+**PLN-04 · Send it: it is locked for everyone**
+Enviar a aprobación › confirm. **Expected:** badge "Enviado a aprobación", the note "espera la aprobación…", no
+Agregar etapa / partida / hito, no pencil on the contingency; Laura sees no Aprobar or Devolver.
+
+**PLN-05 · The Admin returns it with a comment**
+Super admin › Torre Norte › Devolver › `Revisar el precio del acero` › Devolver. **Expected:** "Devuelto con
+observaciones" and "Devuelto por Administrador: “Revisar el precio del acero”"; the plan is editable again. Laura
+edits the Acero line (pencil) and sends it again.
+
+**PLN-06 · The Admin approves: the baseline is fixed and the project is active**
+Aprobar presupuesto › confirm. **Expected:** "Aprobado", the note "Presupuesto aprobado el … Ya no se puede
+modificar…", the project's status Activo (Resumen tab and the Proyectos list); Iniciar etapa and Marcar cumplido
+appear; stage delete buttons are gone; a stage's name can still be edited but its dates cannot (they are
+disabled, with "Las fechas planeadas quedaron fijas…").
+
+**PLN-07 · Progress**
+Cimentación › Iniciar etapa (today) › then Excavación › Marcar cumplido with a note. **Expected:** the stage says
+"En curso · Iniciada el …", the Excavación row turns green with the date, who and the note; the stage shows 40 %,
+and the Avance tile its share of the project (12,4 % with the Acero at $ 32.000 after PLN-05). A milestone whose planned date has gone by and is not met is red ("Atrasado").
+
+**PLN-08 · Only the Admin reopens a milestone; Team Leads see no money**
+As Laura: no Reabrir. As the super admin: Reabrir on Excavación puts the stage back to 0 %. Then mark it met again.
+"Ver como" Carlos (Team Lead): the plan shows the stages and milestones, with no amounts, no Partidas, no
+Categorías amounts and no buttons that change anything.
