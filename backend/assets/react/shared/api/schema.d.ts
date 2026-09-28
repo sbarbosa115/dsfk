@@ -128,6 +128,73 @@ export interface paths {
         patch: operations["patch_api_users_update"];
         trace?: never;
     };
+    "/api/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admins see every project; everyone else the projects they belong to. Newest first. */
+        get: operations["get_api_projects_list"];
+        put?: never;
+        post: operations["post_api_projects_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_api_projects_show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Admin only. Only the fields sent change. */
+        patch: operations["patch_api_projects_update"];
+        trace?: never;
+    };
+    "/api/projects/{id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin only. Adds a person, or changes their role if they are already in the project. */
+        post: operations["post_api_projects_members_add"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{id}/members/{memberId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete_api_projects_members_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings": {
         parameters: {
             query?: never;
@@ -188,6 +255,53 @@ export interface components {
             /** @default null */
             active: boolean | null;
         };
+        /** @enum {string} */
+        ProjectStatus: "DRAFT" | "ACTIVE" | "COMPLETED" | "ARCHIVED";
+        CreateProjectInput: {
+            /** @default  */
+            name: string;
+            /** @default null */
+            description: string | null;
+            /**
+             * Default: the currency in Settings.
+             * @default null
+             */
+            currency: string | null;
+            /** @default null */
+            status: components["schemas"]["ProjectStatus"] | null;
+            /**
+             * YYYY-MM-DD
+             * @default null
+             */
+            plannedStart: string | null;
+            /**
+             * YYYY-MM-DD
+             * @default null
+             */
+            plannedEnd: string | null;
+        };
+        UpdateProjectInput: {
+            /** @default null */
+            name: string | null;
+            /** @default null */
+            description: string | null;
+            /** @default null */
+            currency: string | null;
+            /** @default null */
+            status: components["schemas"]["ProjectStatus"] | null;
+            /** @default null */
+            plannedStart: string | null;
+            /** @default null */
+            plannedEnd: string | null;
+        };
+        /** @enum {string} */
+        ProjectRole: "PROJECT_MANAGER" | "TEAM_LEAD";
+        MemberInput: {
+            /** @default 0 */
+            userId: number;
+            /** @default null */
+            role: components["schemas"]["ProjectRole"] | null;
+        };
         SettingsInput: {
             /** @default null */
             defaultCurrency: string | null;
@@ -233,6 +347,47 @@ export interface components {
         };
         UserPageOutput: {
             items: components["schemas"]["UserOutput"][];
+            total: number;
+            page: number;
+            perPage: number;
+        };
+        MemberUserOutput: {
+            id: number;
+            email: string;
+            fullName: string;
+        };
+        MemberOutput: {
+            id: number;
+            role: components["schemas"]["ProjectRole"];
+            user: components["schemas"]["MemberUserOutput"];
+        };
+        ProjectOutput: {
+            id: number;
+            name: string;
+            description?: string | null;
+            currency: string;
+            status: components["schemas"]["ProjectStatus"];
+            /**
+             * YYYY-MM-DD
+             * Format: date
+             */
+            plannedStart?: string | null;
+            /**
+             * YYYY-MM-DD
+             * Format: date
+             */
+            plannedEnd?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /**
+             * The signed-in user's role here: ADMIN (global), PROJECT_MANAGER or TEAM_LEAD
+             * @enum {string}
+             */
+            myRole: "ADMIN" | "PROJECT_MANAGER" | "TEAM_LEAD";
+            members: components["schemas"]["MemberOutput"][];
+        };
+        ProjectPageOutput: {
+            items: components["schemas"]["ProjectOutput"][];
             total: number;
             page: number;
             perPage: number;
@@ -559,6 +714,231 @@ export interface operations {
             };
             /** @description validation_failed, email_taken or cannot_change_own_access */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_projects_list: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                status?: unknown;
+                page?: number;
+                perPage?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of projects */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectPageOutput"];
+                };
+            };
+        };
+    };
+    post_api_projects_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateProjectInput"];
+            };
+        };
+        responses: {
+            /** @description The new project (DRAFT) */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectOutput"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get_api_projects_show: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The project with its members */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectOutput"];
+                };
+            };
+            /** @description project_not_found (also when the user is not in it) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    patch_api_projects_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProjectInput"];
+            };
+        };
+        responses: {
+            /** @description The project */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectOutput"];
+                };
+            };
+            /** @description forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description project_not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed or currency_locked */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post_api_projects_members_add: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberInput"];
+            };
+        };
+        responses: {
+            /** @description The project with its members */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectOutput"];
+                };
+            };
+            /** @description project_manager_exists */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description user_not_found, admin_is_global, user_inactive or validation_failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    delete_api_projects_members_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description project_not_found or member_not_found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

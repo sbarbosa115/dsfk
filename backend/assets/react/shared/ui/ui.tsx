@@ -270,6 +270,9 @@ const TONES: Record<string, string> = {
   project_active: 'success',
   project_completed: 'info',
   project_archived: 'muted',
+  // A member's role in a project.
+  PROJECT_MANAGER: 'accent',
+  TEAM_LEAD: 'teal',
 };
 
 export function Badge({

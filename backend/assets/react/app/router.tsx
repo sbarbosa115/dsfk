@@ -11,6 +11,14 @@ const UsersPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('@/pages/settings').then((m) => ({default: m.SettingsPage})),
 );
+const ProjectsPage = lazy(() =>
+  import('@/pages/projects').then((m) => ({default: m.ProjectsPage})),
+);
+const ProjectDetailPage = lazy(() =>
+  import('@/pages/project-detail').then((m) => ({
+    default: m.ProjectDetailPage,
+  })),
+);
 const NotFoundPage = lazy(() =>
   import('@/pages/not-found').then((m) => ({default: m.NotFoundPage})),
 );
@@ -24,6 +32,8 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           {index: true, element: <HomeRedirect />},
+          {path: 'projects', element: <ProjectsPage />},
+          {path: 'projects/:id', element: <ProjectDetailPage />},
           {
             element: <RequireAdmin />,
             children: [

@@ -61,7 +61,7 @@ final class ProjectApiTest extends ApiTestCase
         $other = $this->createProject('Ajeno');
         $this->loginAs($lead);
 
-        self::assertSame(['Mío'], array_column($this->jsonList('GET', '/api/projects'), 'name'));
+        self::assertSame(['Mío'], array_column($this->json('GET', '/api/projects')['items'], 'name'));
         self::assertSame('TEAM_LEAD', $this->json('GET', '/api/projects/'.$mine->getId())['myRole']);
 
         $this->request('GET', '/api/projects/'.$other->getId());
@@ -77,11 +77,14 @@ final class ProjectApiTest extends ApiTestCase
         $this->createProject('Casa 50%');
         $this->createProject('Torre Sur');
 
-        self::assertSame(['Torre Sur', 'Casa 50%', 'Torre Norte'], array_column($this->jsonList('GET', '/api/projects'), 'name'));
-        self::assertSame('3', $this->client->getResponse()->headers->get('X-Total-Count'));
-        self::assertSame(['Torre Sur', 'Torre Norte'], array_column($this->jsonList('GET', '/api/projects?q=torre'), 'name'));
-        self::assertSame(['Casa 50%'], array_column($this->jsonList('GET', '/api/projects?q=50%25'), 'name'), '% is matched literally');
-        self::assertSame(['Torre Norte'], array_column($this->jsonList('GET', '/api/projects?page=2&perPage=2'), 'name'));
+        $page = $this->json('GET', '/api/projects');
+        self::assertSame(['Torre Sur', 'Casa 50%', 'Torre Norte'], array_column($page['items'], 'name'));
+        self::assertSame(3, $page['total']);
+        self::assertSame(['Torre Sur', 'Torre Norte'], array_column($this->json('GET', '/api/projects?q=torre')['items'], 'name'));
+        self::assertSame(['Casa 50%'], array_column($this->json('GET', '/api/projects?q=50%25')['items'], 'name'), '% is matched literally');
+        self::assertSame(['Torre Norte'], array_column($this->json('GET', '/api/projects?page=2&perPage=2')['items'], 'name'));
+        self::assertSame(['Torre Norte'], array_column($this->json('GET', '/api/projects?status=DRAFT&q=norte')['items'], 'name'));
+        self::assertSame([], $this->json('GET', '/api/projects?status=ACTIVE')['items']);
     }
 
     public function testMembersCannotEditProjects(): void
@@ -174,7 +177,8 @@ final class ProjectApiTest extends ApiTestCase
         self::assertSame([['projectId' => $project->getId(), 'projectName' => 'Torre Norte', 'role' => 'PROJECT_MANAGER']], $this->json('GET', '/api/me')['memberships']);
 
         $this->loginAs($this->createUser('admin@example.com', admin: true));
-        $users = $this->jsonList('GET', '/api/users');
+        $users = $this->json('GET', '/api/users?q=pm@')['items'];
+        self::assertIsArray($users);
         $row = array_values(array_filter($users, static fn (array $u): bool => 'pm@example.com' === $u['email']))[0];
         self::assertSame('Torre Norte', $row['memberships'][0]['projectName']);
     }

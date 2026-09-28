@@ -8,14 +8,15 @@ use App\Project\Application\Query\MembershipQueries;
 use App\Project\Application\Query\ProjectAccess;
 use App\Project\Application\Query\ProjectDirectory;
 use App\Project\Application\Query\ProjectInfo;
-use App\Project\Application\Query\ProjectPage;
 use App\Project\Application\Query\ProjectQueries;
 use App\Project\Domain\Model\Project;
 use App\Project\Domain\Model\ProjectMember;
 use App\Project\Domain\Model\ProjectRole;
 use App\Project\Domain\Model\ProjectStatus;
 use App\Project\Domain\Repository\ProjectRepository;
+use App\Shared\Application\Query\Page;
 use App\Shared\Domain\Error\NotFound;
+use App\Shared\Infrastructure\Doctrine\Search;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -35,7 +36,7 @@ final readonly class DoctrineProjectRepository implements ProjectRepository, Pro
         $this->em->persist($project);
     }
 
-    public function page(?int $memberId, ?string $search, int $page, int $perPage): ProjectPage
+    public function page(?int $memberId, ?string $search, ?ProjectStatus $status, int $page, int $perPage): Page
     {
         $qb = $this->em->createQueryBuilder()
             ->select('p', 'm')
@@ -47,14 +48,14 @@ final readonly class DoctrineProjectRepository implements ProjectRepository, Pro
             $qb->andWhere('EXISTS (SELECT 1 FROM '.ProjectMember::class.' mine WHERE mine.project = p AND mine.userId = :member)')
                 ->setParameter('member', $memberId);
         }
-        if (null !== $search && '' !== trim($search)) {
-            $qb->andWhere("LOWER(p.name) LIKE :search ESCAPE '!'")
-                ->setParameter('search', '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($search))).'%');
+        if (null !== $status) {
+            $qb->andWhere('p.status = :status')->setParameter('status', $status);
         }
+        Search::apply($qb, $search, ['p.name']);
         $qb->setFirstResult(($page - 1) * $perPage)->setMaxResults($perPage);
         $paginator = new Paginator($qb, fetchJoinCollection: true);
 
-        return new ProjectPage(array_values(iterator_to_array($paginator)), \count($paginator));
+        return new Page(array_values(iterator_to_array($paginator)), \count($paginator));
     }
 
     public function byId(int $id): ?Project

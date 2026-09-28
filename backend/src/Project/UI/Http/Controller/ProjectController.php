@@ -10,10 +10,12 @@ use App\Project\Application\Command\RemoveMember;
 use App\Project\Application\Command\UpdateProject;
 use App\Project\Application\Query\ProjectQueries;
 use App\Project\Domain\Model\ProjectRole;
+use App\Project\Domain\Model\ProjectStatus;
 use App\Project\UI\Http\Input\CreateProjectInput;
 use App\Project\UI\Http\Input\MemberInput;
 use App\Project\UI\Http\Input\UpdateProjectInput;
 use App\Project\UI\Http\Output\ProjectOutput;
+use App\Project\UI\Http\Output\ProjectPageOutput;
 use App\Project\UI\Http\Presenter\ProjectPresenter;
 use App\Shared\Application\Bus\CommandBus;
 use App\Shared\Application\Bus\NewId;
@@ -46,16 +48,17 @@ final class ProjectController extends AbstractController
 
     /** Admins see every project; everyone else the projects they belong to. Newest first. */
     #[Route('', name: 'api_projects_list', methods: ['GET'])]
-    #[OA\Response(response: 200, description: 'One page of projects; X-Total-Count has the total', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: ProjectOutput::class))))]
+    #[OA\Response(response: 200, description: 'One page of projects', content: new Model(type: ProjectPageOutput::class))]
     public function list(
         #[CurrentUser] Actor $actor,
         #[MapQueryParameter] ?string $q = null,
+        #[MapQueryParameter] ?ProjectStatus $status = null,
         #[MapQueryParameter(options: ['min_range' => 1])] int $page = 1,
         #[MapQueryParameter(options: ['min_range' => 1, 'max_range' => 100])] int $perPage = 50,
     ): JsonResponse {
-        $result = $this->projects->page($actor->isAdmin() ? null : $actor->getId(), $q, $page, $perPage);
+        $result = $this->projects->page($actor->isAdmin() ? null : $actor->getId(), $q, $status, $page, $perPage);
 
-        return $this->json($this->presenter->presentMany($result->items, $actor), headers: ['X-Total-Count' => (string) $result->total]);
+        return $this->json(new ProjectPageOutput($this->presenter->presentMany($result->items, $actor), $result->total, $page, $perPage));
     }
 
     #[Route('', name: 'api_projects_create', methods: ['POST'])]
