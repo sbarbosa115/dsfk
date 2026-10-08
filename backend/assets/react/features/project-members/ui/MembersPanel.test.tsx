@@ -65,7 +65,10 @@ describe('MembersPanel', () => {
     renderWithProviders(<MembersPanel project={project} canManage />);
 
     const person = screen.getByLabelText('Persona');
-    await screen.findByRole('option', {name: 'Carlos Pérez (lider@x.co)'});
+    // Within the select: a role query over the whole page is slow enough in jsdom to miss its one-second wait.
+    await within(person).findByRole('option', {
+      name: 'Carlos Pérez (lider@x.co)',
+    });
     expect(
       within(person).queryByRole('option', {name: /Laura/}),
     ).not.toBeInTheDocument();
@@ -93,7 +96,10 @@ describe('MembersPanel', () => {
     });
     renderWithProviders(<MembersPanel project={project} canManage />);
 
-    await screen.findByRole('option', {name: 'Carlos Pérez (lider@x.co)'});
+    // Within the select: a role query over the whole page is slow enough in jsdom to miss its one-second wait.
+    await within(screen.getByLabelText('Persona')).findByRole('option', {
+      name: 'Carlos Pérez (lider@x.co)',
+    });
     await userEvent.selectOptions(screen.getByLabelText('Persona'), '3');
     await userEvent.selectOptions(
       screen.getByLabelText('Rol'),

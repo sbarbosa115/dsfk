@@ -62,6 +62,8 @@ export const es = {
     actions: 'Acciones',
     saved: 'Cambios guardados.',
     home: 'Ir al inicio',
+    notFoundHelp:
+      'La página que buscas no existe o cambió de dirección. Vuelve al inicio para seguir.',
     notFound: 'Esta página no existe.',
     confirm: 'Confirmar',
   },
@@ -306,6 +308,8 @@ export const es = {
     remove: 'Quitar',
   },
   finance: {
+    noStages:
+      'Las etapas aparecen aquí con el dinero que reciben, una vez aprobado el presupuesto.',
     intro:
       'El dinero recibido y dónde está: en cada etapa, en la caja menor y en la contingencia, frente al presupuesto aprobado.',
     notApproved:
@@ -561,6 +565,7 @@ export const es = {
     showChart: 'Ver gráfica',
   },
   dashboard: {
+    noStages: 'Las etapas aparecen aquí cuando el plan tiene al menos una.',
     title: 'Tablero',
     subtitle:
       'Cómo van las obras: presupuesto, gasto, avance y lo que necesita atención.',

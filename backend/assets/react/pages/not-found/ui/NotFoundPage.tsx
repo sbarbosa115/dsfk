@@ -12,7 +12,9 @@ export function NotFoundPage() {
             {t('common.home')}
           </Link>
         }
-      />
+      >
+        {t('common.notFoundHelp')}
+      </EmptyState>
     </>
   );
 }

@@ -20,6 +20,7 @@ import {
   Actions,
   Alert,
   DataTable,
+  EmptyState,
   ErrorState,
   Loading,
   ProgressBar,
@@ -205,6 +206,7 @@ function StagesCard({
         <h2>{t('finance.byStage')}</h2>
       </div>
       <DataTable
+        empty={<EmptyState>{t('finance.noStages')}</EmptyState>}
         columns={[
           t('finance.stage'),
           t('finance.budget'),

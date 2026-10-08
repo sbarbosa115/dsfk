@@ -116,13 +116,18 @@ export function MovementList({
             label={m.voided ? t('finance.voided') : null}
             muted={m.voided !== null && m.voided !== undefined}
           >
-            <td>{formatDate(m.date)}</td>
+            <td className="nowrap">{formatDate(m.date)}</td>
             <td>
               <strong>{t(`finance.type.${m.type}`)}</strong>
               {m.method && (
                 <div className="small muted">
                   {t(`finance.methods.${m.method}`)}
-                  {m.reference && ` · ${m.reference}`}
+                  {m.reference && (
+                    <>
+                      {' · '}
+                      <span className="nowrap">{m.reference}</span>
+                    </>
+                  )}
                 </div>
               )}
             </td>

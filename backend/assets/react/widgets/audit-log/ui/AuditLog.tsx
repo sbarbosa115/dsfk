@@ -100,7 +100,7 @@ export function AuditLog() {
 
           return (
             <tr key={entry.id}>
-              <td>{formatDateTime(entry.createdAt)}</td>
+              <td className="nowrap">{formatDateTime(entry.createdAt)}</td>
               <td>{entry.user ?? t('audit.system')}</td>
               <td>{entry.projectName ?? '—'}</td>
               <td>

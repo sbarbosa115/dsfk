@@ -11,6 +11,7 @@ import {formatDate, formatMoney, formatPercent} from '@/shared/lib/format';
 import {
   Alert,
   DataTable,
+  EmptyState,
   ErrorState,
   Loading,
   ProgressBar,
@@ -148,6 +149,7 @@ export function ProjectDashboard({projectId}: {projectId: number}) {
           <h2>{t('dashboard.stagesTitle')}</h2>
         </div>
         <DataTable
+          empty={<EmptyState>{t('dashboard.noStages')}</EmptyState>}
           columns={[
             t('finance.stage'),
             t('dashboard.planned'),

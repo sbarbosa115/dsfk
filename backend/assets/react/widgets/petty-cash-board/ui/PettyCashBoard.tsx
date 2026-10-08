@@ -115,73 +115,72 @@ export function PettyCashBoard({projectId}: {projectId: number}) {
         <div className="card-header">
           <h2>{t('pettyCash.history')}</h2>
         </div>
-        {c.history.length === 0 ? (
-          <EmptyState>{t('pettyCash.noHistory')}</EmptyState>
-        ) : (
-          <>
+        <>
+          {c.history.length > 0 && (
             <RowLegend
               statuses={CYCLE_STATUSES.map((s) => ({
                 value: cycleTone(s),
                 label: t(`pettyCash.status.${s}`),
               }))}
             />
-            <DataTable
-              columns={[
-                t('pettyCash.cycle'),
-                t('pettyCash.closed'),
-                t('pettyCash.opening'),
-                t('pettyCash.topUps'),
-                t('pettyCash.outflows'),
-                t('pettyCash.closing'),
-              ]}
-              rows={c.history}
-              renderRow={(cycle) => (
-                <Row
-                  key={cycle.id}
-                  status={cycleTone(cycle.status)}
-                  label={t(`pettyCash.status.${cycle.status}`)}
-                >
-                  <td>
-                    <strong>#{cycle.number}</strong>
-                  </td>
-                  <td>
-                    {formatDate(cycle.closedAt)}
-                    {cycle.closedBy && (
-                      <div className="small muted">{cycle.closedBy}</div>
-                    )}
-                  </td>
-                  <td className="num">{money(cycle.openingBalance)}</td>
-                  <td className="num">{money(cycle.topUps)}</td>
-                  <td className="num">
-                    {money(
-                      String(Number(cycle.spent) + Number(cycle.reimbursed)),
-                    )}
-                  </td>
-                  <td className="num">
-                    <strong>{money(cycle.closingBalance)}</strong>
-                  </td>
-                  <Actions>
-                    <RowActions
-                      name={t('pettyCash.cycleNumber', {number: cycle.number})}
-                      main={
-                        c.permissions.signOff &&
-                        cycle.status === 'CLOSED' && {
-                          label: t('pettyCash.signOff'),
-                          action: 'confirm',
-                          onClick: () => setDialog({kind: 'signOff', cycle}),
-                        }
+          )}
+          <DataTable
+            empty={<EmptyState>{t('pettyCash.noHistory')}</EmptyState>}
+            columns={[
+              t('pettyCash.cycle'),
+              t('pettyCash.closed'),
+              t('pettyCash.opening'),
+              t('pettyCash.topUps'),
+              t('pettyCash.outflows'),
+              t('pettyCash.closing'),
+            ]}
+            rows={c.history}
+            renderRow={(cycle) => (
+              <Row
+                key={cycle.id}
+                status={cycleTone(cycle.status)}
+                label={t(`pettyCash.status.${cycle.status}`)}
+              >
+                <td>
+                  <strong>#{cycle.number}</strong>
+                </td>
+                <td>
+                  {formatDate(cycle.closedAt)}
+                  {cycle.closedBy && (
+                    <div className="small muted">{cycle.closedBy}</div>
+                  )}
+                </td>
+                <td className="num">{money(cycle.openingBalance)}</td>
+                <td className="num">{money(cycle.topUps)}</td>
+                <td className="num">
+                  {money(
+                    String(Number(cycle.spent) + Number(cycle.reimbursed)),
+                  )}
+                </td>
+                <td className="num">
+                  <strong>{money(cycle.closingBalance)}</strong>
+                </td>
+                <Actions>
+                  <RowActions
+                    name={t('pettyCash.cycleNumber', {number: cycle.number})}
+                    main={
+                      c.permissions.signOff &&
+                      cycle.status === 'CLOSED' && {
+                        label: t('pettyCash.signOff'),
+                        action: 'confirm',
+                        onClick: () => setDialog({kind: 'signOff', cycle}),
                       }
-                      view={{
-                        label: t('pettyCash.viewCycle', {number: cycle.number}),
-                        onClick: () => setDialog({kind: 'view', cycle}),
-                      }}
-                    />
-                  </Actions>
-                </Row>
-              )}
-            />
-          </>
-        )}
+                    }
+                    view={{
+                      label: t('pettyCash.viewCycle', {number: cycle.number}),
+                      onClick: () => setDialog({kind: 'view', cycle}),
+                    }}
+                  />
+                </Actions>
+              </Row>
+            )}
+          />
+        </>
       </section>
 
       {dialog?.kind === 'close' && (
@@ -209,12 +208,9 @@ function Movements({
   movements: CycleMovement[];
   money: (amount: string) => string;
 }) {
-  if (movements.length === 0) {
-    return <EmptyState>{t('pettyCash.noMovements')}</EmptyState>;
-  }
-
   return (
     <DataTable
+      empty={<EmptyState>{t('pettyCash.noMovements')}</EmptyState>}
       columns={[
         t('finance.date'),
         t('finance.movement'),
@@ -229,7 +225,7 @@ function Movements({
           status={m.voided ? 'movement_voided' : null}
           label={m.voided ? t('finance.voided') : null}
         >
-          <td>{formatDate(m.date)}</td>
+          <td className="nowrap">{formatDate(m.date)}</td>
           <td>
             <strong>{t(`finance.type.${m.type}`)}</strong>
             {(m.description || m.method) && (

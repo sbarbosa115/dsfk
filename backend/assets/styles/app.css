@@ -2507,3 +2507,115 @@ select.filter-select {
     animation: none;
   }
 }
+
+/* An empty table says so inside itself, under its header (DataTable `empty`, QA-0006). */
+.table-state td {
+  padding: 0;
+}
+
+.table-state .state {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+/*
+ * On a phone every table becomes a list of cards (QA-0001): the first cell is the card's title, every other cell
+ * reads "Column: value" (DataTable puts the column's name in data-label), and the row's actions sit underneath, the
+ * main one as wide as the card and a thumb's height. The status tint and its edge stay on the card.
+ */
+@media (max-width: 600px) {
+  .table-wrap {
+    overflow: visible;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table,
+  .table tbody {
+    display: block;
+  }
+
+  .table tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .table tbody tr.row-tone {
+    background: var(--row-tint);
+    box-shadow:
+      inset 4px 0 0 var(--row-accent),
+      var(--shadow);
+  }
+
+  .table tbody tr td,
+  .table tbody tr.row-tone td {
+    display: block;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    text-align: right;
+  }
+
+  .table tbody tr.row-tone td:first-child {
+    box-shadow: none;
+  }
+
+  .table td[data-label]::before {
+    content: attr(data-label);
+    float: left;
+    margin-right: 12px;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+  }
+
+  .table tbody tr td:first-child {
+    padding-bottom: 8px;
+    font-size: 1.02rem;
+    text-align: left;
+  }
+
+  .table tbody tr td.actions {
+    width: auto;
+    padding-top: 12px;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .table tbody tr td.actions .row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .table td.actions .split {
+    flex: 1;
+  }
+
+  .table td.actions .split > :first-child {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .table td.actions .btn {
+    min-height: 44px;
+  }
+
+  .table td.actions .split.is-split > .split-toggle {
+    width: 44px;
+  }
+
+  .table tbody tr.table-state {
+    padding: 0;
+  }
+}

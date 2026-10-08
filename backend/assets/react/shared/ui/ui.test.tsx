@@ -1,7 +1,15 @@
 import {render, screen} from '@testing-library/react';
 import {describe, expect, it, vi} from 'vitest';
 import {ConfirmModal} from './ConfirmModal';
-import {ActionButton, FormModal, SubmitButton} from './ui';
+import {
+  ActionButton,
+  Actions,
+  DataTable,
+  FormModal,
+  ListView,
+  Row,
+  SubmitButton,
+} from './ui';
 
 const idle = {busy: false, formError: null};
 
@@ -104,5 +112,109 @@ describe('ConfirmModal', () => {
       'btn-action-confirm',
       'is-main',
     );
+  });
+});
+
+describe('DataTable', () => {
+  it('names every cell\'s column, for a phone to show as "Label: value", except the title and the actions', () => {
+    render(
+      <DataTable
+        columns={['Fecha', 'Gasto', 'Monto']}
+        rows={[{id: 1}]}
+        renderRow={(row) => (
+          <Row key={row.id} status="expense_submitted" label="Pendiente">
+            <td>4 oct 2026</td>
+            <td>Cinta</td>
+            <td className="num">$ 95.000</td>
+            <Actions>
+              <span>acciones</span>
+            </Actions>
+          </Row>
+        )}
+      />,
+    );
+
+    const cells = screen.getAllByRole('cell');
+    expect(cells.map((cell) => cell.getAttribute('data-label'))).toEqual([
+      null,
+      'Gasto',
+      'Monto',
+      null,
+    ]);
+    expect(screen.getByRole('row', {name: /Cinta/})).toHaveClass(
+      'row-tone-info',
+    );
+  });
+
+  it('says it is empty inside the table, under its header', () => {
+    render(
+      <DataTable
+        columns={['Etapa', 'Presupuesto']}
+        rows={[]}
+        renderRow={() => null}
+        empty="Las etapas aparecen aquí cuando el presupuesto está aprobado."
+      />,
+    );
+
+    expect(
+      screen.getByRole('columnheader', {name: 'Presupuesto'}),
+    ).toBeInTheDocument();
+    const state = screen.getByRole('cell', {
+      name: 'Las etapas aparecen aquí cuando el presupuesto está aprobado.',
+    });
+    expect(state).toHaveAttribute('colspan', '3');
+    expect(state.closest('tr')).toHaveClass('table-state');
+  });
+});
+
+describe('ListView', () => {
+  const list = (items: object[], filters = {q: ''}) => ({
+    data: {items, total: items.length, page: 1, perPage: 50},
+    error: null,
+    loading: false,
+    reload: vi.fn(),
+    filters,
+    update: vi.fn(),
+    setPage: vi.fn(),
+  });
+
+  it('keeps the column headers over an empty list, with what the section is for and its action', () => {
+    render(
+      <ListView
+        list={list([])}
+        columns={['Fecha', 'Movimiento']}
+        renderRow={() => null}
+        empty="Nada coincide."
+        emptyAll="Aún no hay movimientos de dinero."
+        emptyAction={<button type="button">Registrar depósito</button>}
+      />,
+    );
+
+    expect(
+      screen.getByRole('columnheader', {name: 'Movimiento'}),
+    ).toBeInTheDocument();
+    const state = screen
+      .getByText('Aún no hay movimientos de dinero.')
+      .closest('tr');
+    expect(state).toHaveClass('table-state');
+    expect(
+      screen.getByRole('button', {name: 'Registrar depósito'}),
+    ).toBeInTheDocument();
+  });
+
+  it('offers to show everything when the filters hide every row', async () => {
+    const result = list([], {q: 'cemento'});
+    render(
+      <ListView
+        list={result}
+        columns={['Fecha']}
+        renderRow={() => null}
+        showAll={{}}
+        empty="Nada coincide con la búsqueda."
+      />,
+    );
+
+    screen.getByRole('button', {name: 'Ver todos'}).click();
+    expect(result.update).toHaveBeenCalledWith({q: ''});
   });
 });

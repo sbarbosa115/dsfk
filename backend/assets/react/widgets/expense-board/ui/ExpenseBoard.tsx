@@ -288,7 +288,11 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
                 <strong>{e.description}</strong>
                 {(e.supplier || e.invoiceNumber) && (
                   <div className="small muted">
-                    {[e.supplier, e.invoiceNumber].filter(Boolean).join(' · ')}
+                    {e.supplier}
+                    {e.supplier && e.invoiceNumber && ' · '}
+                    {e.invoiceNumber && (
+                      <span className="nowrap">{e.invoiceNumber}</span>
+                    )}
                   </div>
                 )}
                 {e.status === 'REJECTED' && e.rejectionReason && (

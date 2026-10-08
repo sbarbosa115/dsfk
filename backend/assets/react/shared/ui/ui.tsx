@@ -811,6 +811,64 @@ interface DataTableProps<T> {
   renderRow: (row: T, index: number) => ReactNode;
   actions?: boolean;
   className?: string;
+  /** Shown inside the table, under its header, when there are no rows: what will appear, and its action. */
+  empty?: ReactNode;
+}
+
+/** The words of a header, whatever it is wrapped in. */
+function textOf(node: ReactNode): string {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(textOf).join('');
+  }
+  if (React.isValidElement<{children?: ReactNode}>(node)) {
+    return textOf(node.props.children);
+  }
+  return '';
+}
+
+/** A row's cells, with the ones a page groups in a fragment (`<>…</>`) counted one by one. */
+function cellsOf(nodes: ReactNode): ReactNode[] {
+  return React.Children.toArray(nodes).flatMap((node) =>
+    React.isValidElement<{children?: ReactNode}>(node) &&
+    node.type === React.Fragment
+      ? cellsOf(node.props.children)
+      : [node],
+  );
+}
+
+/**
+ * Each cell carries its column's name (`data-label`), which a phone shows as "Label: value" when the row becomes a
+ * card (app.css, up to 600px; QA-0001). Not the first cell (the card's title), not the actions, not a spanning cell.
+ */
+function labelCells(
+  row: ReactNode,
+  headers: ReadonlyArray<ReactNode>,
+): ReactNode {
+  if (!React.isValidElement<{children?: ReactNode}>(row)) {
+    return row;
+  }
+  const cells = cellsOf(row.props.children).map((cell, i) => {
+    if (!React.isValidElement<{className?: string; colSpan?: number}>(cell)) {
+      return cell;
+    }
+    // Keyed by position: cells lifted out of a fragment would otherwise share the fragment's keys.
+    const key = `cell-${i}`;
+    const label =
+      cell.type === 'td' &&
+      i > 0 &&
+      !cell.props.colSpan &&
+      cell.props.className !== 'actions'
+        ? textOf(headers[i])
+        : '';
+    return React.cloneElement(
+      cell as React.ReactElement<Record<string, unknown>>,
+      label ? {key, 'data-label': label} : {key},
+    );
+  });
+  return React.cloneElement(row, {}, cells);
 }
 
 export function DataTable<T>({
@@ -819,6 +877,7 @@ export function DataTable<T>({
   renderRow,
   actions = true,
   className = '',
+  empty,
 }: DataTableProps<T>) {
   const headers = actions ? [...columns, t('common.actions')] : columns;
 
@@ -841,7 +900,15 @@ export function DataTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody>{rows.map(renderRow)}</tbody>
+        <tbody>
+          {rows.length === 0 && empty ? (
+            <tr className="table-state">
+              <td colSpan={headers.length}>{empty}</td>
+            </tr>
+          ) : (
+            rows.map((row, index) => labelCells(renderRow(row, index), headers))
+          )}
+        </tbody>
       </table>
     </div>
   );
@@ -891,6 +958,7 @@ export function ListView<T, F extends Filters>({
   if (list.error)
     return <ErrorState error={list.error} onRetry={list.reload} />;
   if (!list.data) return <Loading />;
+  let state: ReactNode = null;
   if (list.data.items.length === 0) {
     const all = {
       ...(list.filters.q !== undefined ? {q: ''} : {}),
@@ -899,8 +967,9 @@ export function ListView<T, F extends Filters>({
     const filtered = Object.entries(all).some(
       ([name, value]) => (list.filters[name] ?? '') !== value,
     );
-    if (filtered && showAll) {
-      return (
+    // Inside the table, under its header (QA-0006): the columns still say what the list holds.
+    state =
+      filtered && showAll ? (
         <EmptyState
           action={
             <Button variant="ghost" onClick={() => list.update(all)}>
@@ -910,13 +979,11 @@ export function ListView<T, F extends Filters>({
         >
           {empty}
         </EmptyState>
+      ) : (
+        <EmptyState action={filtered ? null : emptyAction}>
+          {filtered ? empty : emptyAll || empty}
+        </EmptyState>
       );
-    }
-    return (
-      <EmptyState action={filtered ? null : emptyAction}>
-        {filtered ? empty : emptyAll || empty}
-      </EmptyState>
-    );
   }
 
   return (
@@ -927,6 +994,7 @@ export function ListView<T, F extends Filters>({
         renderRow={renderRow}
         actions={actions}
         className={list.loading ? 'is-reloading' : ''}
+        empty={state}
       />
       <Pager data={list.data} onPage={list.setPage} />
     </>

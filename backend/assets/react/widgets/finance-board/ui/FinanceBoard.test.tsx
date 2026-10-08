@@ -64,7 +64,7 @@ describe('FinanceBoard', () => {
     expect(
       within(voided).queryByRole('button', {name: 'Anular'}),
     ).not.toBeInTheDocument();
-    const live = screen.getByText('Transferencia · TRX-001').closest('tr')!;
+    const live = screen.getByText('TRX-001').closest('tr')!;
     expect(
       text(within(live).getByText(/Cimentación · Materiales/).textContent!),
     ).toBe('Cimentación · Materiales: $ 1.500.000');
