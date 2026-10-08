@@ -20,7 +20,6 @@ import {
   EmptyState,
   Row,
   RowActions,
-  RowLegend,
   Select,
 } from '@/shared/ui';
 
@@ -141,22 +140,14 @@ export function MembersPanel({
         </div>
       )}
       <>
-        {project.members.length > 0 && (
-          <RowLegend
-            statuses={ROLES.map((r) => ({value: r, label: t(`roles.${r}`)}))}
-          />
-        )}
         <DataTable
           empty={<EmptyState>{t('members.empty')}</EmptyState>}
           columns={[t('members.person'), t('users.email'), t('members.role')]}
           actions={canManage}
           rows={project.members}
           renderRow={(member) => (
-            <Row
-              key={member.id}
-              status={member.role}
-              label={t(`roles.${member.role}`)}
-            >
+            // A role is not a status: the row stays plain, and the role is the select beside it (QA-0016).
+            <Row key={member.id}>
               <td className="strong">{member.user.fullName}</td>
               <td>{member.user.email}</td>
               <td>

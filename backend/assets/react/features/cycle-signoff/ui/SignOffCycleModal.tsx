@@ -32,8 +32,8 @@ export function SignOffCycleModal({
       }
     >
       {t('pettyCash.signOffConfirm', {
-        opening: formatMoney(cycle.openingBalance, currency),
-        closing: formatMoney(cycle.closingBalance, currency),
+        opening: formatMoney(cycle.openingBalance, currency, {exact: true}),
+        closing: formatMoney(cycle.closingBalance, currency, {exact: true}),
       })}
     </ConfirmModal>
   );

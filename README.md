@@ -133,8 +133,10 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   not in the project cannot tell it exists; a member whose role does not allow the action gets 403.
 - **A project's budget row is created lazily** the first time its plan is written (projects are created in the
   Project context, which knows nothing of budgets); reading a plan with no budget yet shows an empty draft.
-- **Pesos show centavos only when there are some** (`$ 35.000,50`, `$ 437.506`), so no amount is ever rounded
-  on screen.
+- **Pesos are whole on screen, exact where a decision is made** (QA-0013): tables, cards and charts show
+  `$ 62.494`, so figures side by side read the same way, with the exact amount in a table cell's tooltip (`<Money>`);
+  modals, totals and confirmations show the centavos (`formatMoney(…, {exact: true})`: `$ 62.493,75`). Amounts are
+  stored and sent exactly; only the display rounds.
 - **Money moves only through the ledger.** A movement's entries are signed amounts per account (a stage, the caja
   menor, the contingency); balances are sums of the entries of movements that are not voided, and movements are
   never deleted. Every money write locks the project's row for its transaction, so two writes cannot spend the

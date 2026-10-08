@@ -18,9 +18,18 @@ describe('formatMoney', () => {
     expect(plain(formatMoney('1500000', 'COP'))).toBe('$ 1.500.000');
   });
 
-  it('shows cents only when the amount has them, so a price is never rounded away', () => {
-    expect(plain(formatMoney('35000.50', 'COP'))).toBe('$ 35.000,50');
+  it('shows pesos whole on screen, so figures side by side read the same way (QA-0013)', () => {
+    expect(plain(formatMoney('62493.75', 'COP'))).toBe('$ 62.494');
     expect(plain(formatMoney('437506.00', 'COP'))).toBe('$ 437.506');
+  });
+
+  it('keeps the cents where a decision is made: a modal, a total, a confirmation', () => {
+    expect(plain(formatMoney('35000.50', 'COP', {exact: true}))).toBe(
+      '$ 35.000,50',
+    );
+    expect(plain(formatMoney('437506.00', 'COP', {exact: true}))).toBe(
+      '$ 437.506',
+    );
   });
 
   it('keeps two decimals for other currencies', () => {

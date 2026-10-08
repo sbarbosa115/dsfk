@@ -15,10 +15,11 @@ import {
   Actions,
   FilterBar,
   ListView,
+  Money,
   Row,
+  type RowAction,
   RowActions,
   RowLegend,
-  type RowAction,
 } from '@/shared/ui';
 import {movementRowActions, type MovementRowAction} from '../model/rowActions';
 
@@ -156,7 +157,9 @@ export function MovementList({
                 </div>
               )}
             </td>
-            <td className="num">{money(m.amount)}</td>
+            <td className="num">
+              <Money amount={m.amount} currency={finance.currency} />
+            </td>
             <Actions>
               <MovementActions
                 movement={m}

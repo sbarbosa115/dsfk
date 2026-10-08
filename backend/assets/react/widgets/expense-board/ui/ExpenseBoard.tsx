@@ -31,12 +31,13 @@ import {
   FilterBar,
   ListView,
   Loading,
+  Money,
   Row,
+  type RowAction,
   RowActions,
   RowLegend,
   Stat,
   TabIntro,
-  type RowAction,
 } from '@/shared/ui';
 import {expenseRowActions, type ExpenseRowAction} from '../model/rowActions';
 import {ExpenseDetailModal} from './ExpenseDetailModal';
@@ -307,7 +308,9 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
                 <div className="small muted">{e.category.name}</div>
               </td>
               <td>{paidFromLabel(e)}</td>
-              <td className="num">{money(e.amount)}</td>
+              <td className="num">
+                <Money amount={e.amount} currency={currency} />
+              </td>
               <Actions>
                 <ExpenseActions
                   expense={e}

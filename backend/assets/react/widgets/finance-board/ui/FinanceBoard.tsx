@@ -7,7 +7,7 @@ import {
   type Movement,
   type StageFunding,
 } from '@/entities/finance';
-import {stageTone} from '@/entities/plan';
+import {stageLegend, stageTone} from '@/entities/plan';
 import {DepositModal} from '@/features/finance-deposit';
 import {DrawModal} from '@/features/finance-draw';
 import {AttachProofModal} from '@/features/movement-proof';
@@ -26,6 +26,7 @@ import {
   ProgressBar,
   Row,
   RowActions,
+  RowLegend,
   Stat,
   TabIntro,
 } from '@/shared/ui';
@@ -202,6 +203,7 @@ function StagesCard({
       <div className="card-header">
         <h2>{t('finance.byStage')}</h2>
       </div>
+      {f.stages.length > 0 && <RowLegend statuses={stageLegend()} />}
       <DataTable
         empty={<EmptyState>{t('finance.noStages')}</EmptyState>}
         columns={[

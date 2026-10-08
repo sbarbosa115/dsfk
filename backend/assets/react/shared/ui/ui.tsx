@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import {t} from '@/shared/i18n';
 import {errorMessage} from '@/shared/lib/errors';
+import {formatMoney} from '@/shared/lib/format';
 import type {Filters, ListPage} from '@/shared/lib/list';
 import Icon, {type IconName} from './Icon';
 
@@ -336,10 +337,12 @@ const TONES: Record<string, string> = {
   health_none: 'muted',
   // Expenses.
   expense_submitted: 'info',
-  expense_pm_approved: 'accent',
+  // Waiting on an Admin: amber, like everything that needs attention.
+  expense_pm_approved: 'warning',
   expense_approved: 'success',
   expense_rejected: 'danger',
-  expense_reimbursed: 'teal',
+  // Settled by a reimbursement: its own colour, never mistaken for Aprobado (QA-0012).
+  expense_reimbursed: 'accent',
   expense_voided: 'muted',
   // Petty cash cycles.
   cycle_open: 'info',
@@ -347,9 +350,6 @@ const TONES: Record<string, string> = {
   cycle_signed_off: 'success',
   // Money movements: a voided one stays listed, greyed out.
   movement_voided: 'muted',
-  // A member's role in a project.
-  PROJECT_MANAGER: 'accent',
-  TEAM_LEAD: 'teal',
 };
 
 export function Badge({
@@ -447,17 +447,31 @@ export function TabIntro({
 export function PageHeader({
   title,
   subtitle,
+  clampSubtitle = false,
   actions,
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
+  /** A subtitle someone wrote (a description): two lines, the whole text as its tooltip. */
+  clampSubtitle?: boolean;
   actions?: ReactNode;
 }) {
   return (
     <div className="page-header">
       <div>
         <h1>{title}</h1>
-        {subtitle && <p className="page-subtitle">{subtitle}</p>}
+        {subtitle && (
+          <p
+            className={`page-subtitle${clampSubtitle ? ' cell-clamp' : ''}`}
+            title={
+              clampSubtitle && typeof subtitle === 'string'
+                ? subtitle
+                : undefined
+            }
+          >
+            {subtitle}
+          </p>
+        )}
       </div>
       {actions && <div className="page-actions">{actions}</div>}
     </div>
@@ -920,6 +934,22 @@ export function DataTable<T>({
   empty,
 }: DataTableProps<T>) {
   const headers = actions ? [...columns, t('common.actions')] : columns;
+  const body = rows.map((row, index) =>
+    labelCells(renderRow(row, index), headers),
+  );
+  // A column of figures (cells with `num`) gets its header aligned with them, to the right (QA-0013).
+  const numeric = new Set<number>();
+  const first = body[0];
+  if (React.isValidElement<{children?: ReactNode}>(first)) {
+    cellsOf(first.props.children).forEach((cell, index) => {
+      if (
+        React.isValidElement<{className?: string}>(cell) &&
+        /\bnum\b/.test(cell.props.className ?? '')
+      ) {
+        numeric.add(index);
+      }
+    });
+  }
 
   return (
     <div className={`table-wrap ${className}`.trim()}>
@@ -932,7 +962,9 @@ export function DataTable<T>({
                 className={
                   actions && index === headers.length - 1
                     ? 'col-actions'
-                    : undefined
+                    : numeric.has(index)
+                      ? 'num'
+                      : undefined
                 }
               >
                 {column}
@@ -946,7 +978,7 @@ export function DataTable<T>({
               <td colSpan={headers.length}>{empty}</td>
             </tr>
           ) : (
-            rows.map((row, index) => labelCells(renderRow(row, index), headers))
+            body
           )}
         </tbody>
       </table>
@@ -1219,4 +1251,17 @@ export function FieldGroup({
       {error && <span className="field-error">{error}</span>}
     </fieldset>
   );
+}
+
+/** An amount in a table: whole pesos, with the exact amount as its tooltip when it has cents (QA-0013). */
+export function Money({
+  amount,
+  currency,
+}: {
+  amount: string | number;
+  currency: string;
+}) {
+  const shown = formatMoney(amount, currency);
+  const exact = formatMoney(amount, currency, {exact: true});
+  return <span title={exact !== shown ? exact : undefined}>{shown}</span>;
 }

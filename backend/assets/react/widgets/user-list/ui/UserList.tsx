@@ -96,11 +96,9 @@ export function UserList() {
       <Alert kind="success" onDismiss={() => setNotice(null)}>
         {notice}
       </Alert>
+      {/* Active is how users start: only the inactive ones are tinted (QA-0017). */}
       <RowLegend
-        statuses={[
-          {value: 'active', label: t('common.active')},
-          {value: 'inactive', label: t('common.inactive')},
-        ]}
+        statuses={[{value: 'inactive', label: t('common.inactive')}]}
       />
       <ListView
         list={list}
@@ -117,12 +115,14 @@ export function UserList() {
           return (
             <Row
               key={user.id}
-              status={user.active ? 'active' : 'inactive'}
-              label={user.active ? t('common.active') : t('common.inactive')}
+              status={user.active ? null : 'inactive'}
+              label={user.active ? null : t('common.inactive')}
               muted={!user.active}
             >
-              <td className="strong">
-                {user.fullName} <UserAccess user={user} />
+              {/* The access level always under the name, so both badges sit in the same place (QA-0017). */}
+              <td>
+                <div className="strong">{user.fullName}</div>
+                <UserAccess user={user} />
               </td>
               <td>{user.email}</td>
               <td className="small">

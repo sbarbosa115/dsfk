@@ -47,7 +47,7 @@ describe('FinanceBoard', () => {
     );
     const foundation = screen.getByText('Cimentación').closest('tr')!;
     expect(text(foundation.textContent ?? '')).toContain(
-      '$ 62.493,75 por encima del presupuesto',
+      '$ 62.494 por encima del presupuesto',
     );
     expect(
       within(foundation).getByRole('button', {name: 'Finalizar etapa'}),

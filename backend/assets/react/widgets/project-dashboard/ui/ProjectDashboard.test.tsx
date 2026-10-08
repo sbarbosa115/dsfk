@@ -86,7 +86,7 @@ describe('ProjectDashboard', () => {
         screen.getByText('Costo final estimado').parentElement!.textContent ??
           '',
       ),
-    ).toContain('$ 5.546.882,77');
+    ).toContain('$ 5.546.883');
     expect(
       screen.getByText('2 hitos pasaron su fecha planeada sin cumplirse.'),
     ).toBeInTheDocument();

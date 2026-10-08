@@ -32,7 +32,9 @@ export function CloseCycleModal({
       <div className="span-2">
         <Alert kind="info">
           {t('pettyCash.closeConfirm', {
-            balance: formatMoney(pettyCash.balance, pettyCash.currency),
+            balance: formatMoney(pettyCash.balance, pettyCash.currency, {
+              exact: true,
+            }),
           })}
         </Alert>
       </div>

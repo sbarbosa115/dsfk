@@ -74,6 +74,8 @@ export function StageCard({
             {stage.actualEnd &&
               ` · ${t('plan.finished', {date: formatDate(stage.actualEnd)})}`}
           </div>
+          {/* The stage's own controls, under its name rather than loose below the header (QA-0014). */}
+          <StageActions plan={plan} stage={stage} index={index} />
         </div>
         <div>
           {stage.budgetTotal != null && (
@@ -94,7 +96,6 @@ export function StageCard({
           label={`${t('plan.progress')}: ${stage.name}`}
         />
       </div>
-      <StageActions plan={plan} stage={stage} index={index} />
 
       {stage.lines != null && (
         <>
@@ -163,16 +164,24 @@ export function StageCard({
       )}
 
       <div className="section-title">
-        <h3>{t('plan.milestones')}</h3>
-        <span className={`small ${weightsOk ? 'muted' : 'text-danger'}`}>
-          {t('plan.weightTotal', {
-            total: formatPercent(stage.milestoneWeightTotal),
-          })}
-        </span>
+        <div className="section-title-text">
+          <h3>{t('plan.milestones')}</h3>
+          <span className={`small ${weightsOk ? 'muted' : 'text-danger'}`}>
+            {t('plan.weightTotal', {
+              total: formatPercent(stage.milestoneWeightTotal),
+            })}
+          </span>
+        </div>
         {edit && (
           <ActionButton
             action="setup"
             disabled={stage.milestoneWeightTotal >= 10000}
+            // A disabled button says why (QA-0014).
+            title={
+              stage.milestoneWeightTotal >= 10000
+                ? t('plan.weightsFull')
+                : undefined
+            }
             onClick={() => setDialog({kind: 'addMilestone'})}
           >
             {t('plan.addMilestone')}
@@ -180,7 +189,8 @@ export function StageCard({
         )}
       </div>
       <>
-        {stage.milestones.length > 0 && (
+        {/* Rows are tinted (met, late) only once the budget is approved: no key before that (QA-0009). */}
+        {stage.milestones.length > 0 && plan.budgetStatus === 'APPROVED' && (
           <RowLegend
             statuses={[
               {

@@ -4,12 +4,17 @@ import {LOCALE} from '@/shared/i18n';
 export const TIME_ZONE = 'America/Bogota';
 
 /**
- * An amount in major units: formatMoney('1500000', 'COP') → "$ 1.500.000". Pesos show cents only when there
- * are some ("$ 35.000,50"), so no figure is ever rounded on screen; other currencies always show two.
+ * An amount in major units: formatMoney('1500000', 'COP') → "$ 1.500.000". Pesos are whole on screen, so figures
+ * side by side read the same way (QA-0013); `exact` keeps the cents where a decision is made (a modal, a total, a
+ * confirmation: "$ 35.000,50"), and <Money> keeps them in a table cell's tooltip. Other currencies always show two.
  */
-export function formatMoney(amount: string | number, currency: string): string {
+export function formatMoney(
+  amount: string | number,
+  currency: string,
+  {exact = false}: {exact?: boolean} = {},
+): string {
   const whole = !/\.\d*[1-9]/.test(String(amount));
-  const digits = currency === 'COP' && whole ? 0 : 2;
+  const digits = currency === 'COP' && (whole || !exact) ? 0 : 2;
 
   return new Intl.NumberFormat(LOCALE, {
     style: 'currency',

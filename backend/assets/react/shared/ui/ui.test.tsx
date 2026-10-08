@@ -7,6 +7,7 @@ import {
   DataTable,
   FormModal,
   ListView,
+  Money,
   Row,
   SubmitButton,
   Tabs,
@@ -147,6 +148,29 @@ describe('DataTable', () => {
     );
   });
 
+  it("aligns a money column's header with its figures, to the right", () => {
+    render(
+      <DataTable
+        columns={['Gasto', 'Monto']}
+        actions={false}
+        rows={[{id: 1}]}
+        renderRow={(row) => (
+          <tr key={row.id}>
+            <td>Cinta</td>
+            <td className="num">$ 95.000</td>
+          </tr>
+        )}
+      />,
+    );
+
+    expect(screen.getByRole('columnheader', {name: 'Monto'})).toHaveClass(
+      'num',
+    );
+    expect(screen.getByRole('columnheader', {name: 'Gasto'})).not.toHaveClass(
+      'num',
+    );
+  });
+
   it('says it is empty inside the table, under its header', () => {
     render(
       <DataTable
@@ -270,5 +294,20 @@ describe('Tabs', () => {
     expect(scroll.mock.contexts.at(-1)).toBe(
       screen.getByRole('tab', {name: /Caja menor/}),
     );
+  });
+});
+
+describe('Money', () => {
+  it('shows whole pesos and keeps the cents in its tooltip', () => {
+    render(<Money amount="62493.75" currency="COP" />);
+    const amount = screen.getByText(/62\.494/);
+    expect(amount.getAttribute('title')?.replace(/\s/g, ' ')).toBe(
+      '$ 62.493,75',
+    );
+  });
+
+  it('needs no tooltip for a whole amount', () => {
+    render(<Money amount="437506.00" currency="COP" />);
+    expect(screen.getByText(/437\.506/)).not.toHaveAttribute('title');
   });
 });

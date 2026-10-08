@@ -202,6 +202,8 @@ export const es = {
     overviewIntro: 'Los datos del proyecto y quiénes trabajan en él.',
   },
   plan: {
+    weightsFull:
+      'Los pesos ya suman 100 %: baja el de un hito para agregar otro.',
     intro:
       'El plan de la obra: etapas con sus partidas y sus hitos, y el presupuesto que el administrador aprueba.',
     introTeamLead:
@@ -466,7 +468,7 @@ export const es = {
     noMatches: 'Ningún gasto coincide con los filtros.',
     pending: 'Por aprobar',
     toReimburse: 'Por reembolsar',
-    teamLeadLimit: 'Límite de líder de equipo',
+    teamLeadLimit: 'Límite por gasto de líder de equipo',
     teamLeadLimitHint: 'Por encima, el administrador también aprueba.',
     noReceipt: 'Sin factura o recibo',
     receipt: 'Recibo',
@@ -649,6 +651,9 @@ export const es = {
     showChart: 'Ver gráfica',
   },
   dashboard: {
+    since: 'desde {{date}}',
+    noIndicesYet:
+      'Los indicadores aparecen con el presupuesto aprobado y el primer avance o gasto.',
     noMoneyYet:
       'Aún no hay depósitos ni gastos. El gráfico aparece con el primer movimiento.',
     noStages: 'Las etapas aparecen aquí cuando el plan tiene al menos una.',

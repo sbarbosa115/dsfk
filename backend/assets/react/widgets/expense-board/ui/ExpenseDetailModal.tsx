@@ -33,7 +33,8 @@ export function ExpenseDetailModal({
     queryKey: expenseKey(expenseId),
     queryFn: () => fetchExpense(expenseId),
   });
-  const money = (amount: string) => formatMoney(amount, currency);
+  const money = (amount: string) =>
+    formatMoney(amount, currency, {exact: true});
   const e = expense.data;
 
   return (

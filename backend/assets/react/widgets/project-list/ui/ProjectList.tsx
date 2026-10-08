@@ -98,7 +98,12 @@ export function ProjectList() {
             <td>
               <div className="strong">{project.name}</div>
               {project.description && (
-                <div className="small muted">{project.description}</div>
+                <div
+                  className="small muted cell-clamp"
+                  title={project.description}
+                >
+                  {project.description}
+                </div>
               )}
             </td>
             <td className="nowrap">

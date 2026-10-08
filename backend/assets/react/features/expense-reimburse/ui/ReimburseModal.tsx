@@ -60,7 +60,7 @@ export function ReimburseModal({
     <FormModal
       title={t('expenses.reimburse')}
       submitLabel={t('expenses.reimburseSubmit', {
-        total: formatMoney(total, currency),
+        total: formatMoney(total, currency, {exact: true}),
       })}
       submit={action}
       size="wide"
@@ -102,7 +102,7 @@ export function ReimburseModal({
                   name: e.paidBy.name,
                   description: e.description,
                   date: formatDate(e.date),
-                  amount: formatMoney(e.amount, currency),
+                  amount: formatMoney(e.amount, currency, {exact: true}),
                 })}
               />
             ))}

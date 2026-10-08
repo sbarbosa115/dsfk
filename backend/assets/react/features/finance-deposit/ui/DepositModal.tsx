@@ -216,7 +216,7 @@ export function DepositModal({
           </Button>
           <strong>
             {t('finance.depositTotal', {
-              total: formatMoney(total, finance.currency),
+              total: formatMoney(total, finance.currency, {exact: true}),
             })}
           </strong>
         </div>

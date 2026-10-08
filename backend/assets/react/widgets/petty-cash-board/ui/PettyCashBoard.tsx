@@ -116,7 +116,8 @@ export function PettyCashBoard({projectId}: {projectId: number}) {
         <>
           {c.history.length > 0 && (
             <RowLegend
-              statuses={CYCLE_STATUSES.map((s) => ({
+              // The open cycle is the card above, never a row here.
+              statuses={CYCLE_STATUSES.filter((s) => s !== 'OPEN').map((s) => ({
                 value: cycleTone(s),
                 label: t(`pettyCash.status.${s}`),
               }))}

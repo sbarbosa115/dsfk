@@ -82,6 +82,7 @@ function ProjectView({project}: {project: Project}) {
       <PageHeader
         title={project.name}
         subtitle={project.description ?? undefined}
+        clampSubtitle
         actions={
           admin ? (
             <ActionButton
