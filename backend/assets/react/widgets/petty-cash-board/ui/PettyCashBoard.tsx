@@ -16,9 +16,8 @@ import {t} from '@/shared/i18n';
 import {formatDate, formatDateTime, formatMoney} from '@/shared/lib/format';
 import {
   ActionButton,
-  Actions,
   actionClass,
-  Button,
+  Actions,
   DataTable,
   DefinitionList,
   EmptyState,
@@ -62,12 +61,14 @@ export function PettyCashBoard({projectId}: {projectId: number}) {
       <TabIntro
         action={
           c.permissions.close ? (
-            <Button
-              variant="secondary"
+            <ActionButton
+              action="confirm"
+              main
+              size="md"
               onClick={() => setDialog({kind: 'close'})}
             >
               {t('pettyCash.close')}
-            </Button>
+            </ActionButton>
           ) : null
         }
       >

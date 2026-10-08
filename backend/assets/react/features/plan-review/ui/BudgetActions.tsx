@@ -25,25 +25,20 @@ export function BudgetActions({plan}: {plan: Plan}) {
 
   return (
     <>
-      {plan.permissions.submit && (
+      {/* A draft is sent, a sent budget is reviewed: never both, so the card has one main action. */}
+      {plan.permissions.submit ? (
         <ActionButton
           action="confirm"
+          main
           size="md"
+          icon="check"
           disabled={incomplete}
           onClick={() => setDialog('submit')}
         >
           {t('plan.submit')}
         </ActionButton>
-      )}
-      {plan.permissions.review && (
+      ) : plan.permissions.review ? (
         <>
-          <ActionButton
-            action="confirm"
-            size="md"
-            onClick={() => setDialog('approve')}
-          >
-            {t('plan.approve')}
-          </ActionButton>
           <ActionButton
             action="revert"
             size="md"
@@ -51,8 +46,17 @@ export function BudgetActions({plan}: {plan: Plan}) {
           >
             {t('plan.returnBudget')}
           </ActionButton>
+          <ActionButton
+            action="confirm"
+            main
+            size="md"
+            icon="check"
+            onClick={() => setDialog('approve')}
+          >
+            {t('plan.approve')}
+          </ActionButton>
         </>
-      )}
+      ) : null}
       {dialog === 'submit' && (
         <ConfirmModal
           title={t('plan.submit')}
@@ -81,6 +85,7 @@ export function BudgetActions({plan}: {plan: Plan}) {
       )}
       {dialog === 'return' && (
         <FormModal
+          action="revert"
           title={t('plan.returnBudget')}
           submitLabel={t('plan.returnBudget')}
           submit={action}

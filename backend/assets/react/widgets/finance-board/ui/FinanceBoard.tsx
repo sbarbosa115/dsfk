@@ -16,10 +16,9 @@ import {CompleteStageModal} from '@/features/stage-complete';
 import {t} from '@/shared/i18n';
 import {formatMoney, formatPercent} from '@/shared/lib/format';
 import {
-  Actions,
   ActionButton,
+  Actions,
   Alert,
-  Button,
   DataTable,
   ErrorState,
   Loading,
@@ -68,16 +67,23 @@ export function FinanceBoard({projectId}: {projectId: number}) {
           f.permissions.deposit ? (
             <>
               {canDraw && (
-                <Button
-                  variant="secondary"
+                <ActionButton
+                  action="revert"
+                  size="md"
                   onClick={() => setDialog({kind: 'draw'})}
                 >
                   {t('finance.draw')}
-                </Button>
+                </ActionButton>
               )}
-              <Button onClick={() => setDialog({kind: 'deposit'})}>
+              <ActionButton
+                action="setup"
+                main
+                size="md"
+                icon="plus"
+                onClick={() => setDialog({kind: 'deposit'})}
+              >
                 {t('finance.newDeposit')}
-              </Button>
+              </ActionButton>
             </>
           ) : null
         }

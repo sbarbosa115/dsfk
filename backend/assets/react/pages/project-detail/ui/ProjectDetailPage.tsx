@@ -14,8 +14,8 @@ import {t} from '@/shared/i18n';
 import {formatDate} from '@/shared/lib/format';
 import {useTabParam} from '@/shared/lib/forms';
 import {
+  ActionButton,
   Badge,
-  Button,
   DefinitionList,
   ErrorState,
   Loading,
@@ -84,9 +84,15 @@ function ProjectView({project}: {project: Project}) {
         subtitle={project.description ?? undefined}
         actions={
           admin ? (
-            <Button variant="secondary" onClick={() => setEditing(true)}>
+            <ActionButton
+              action="edit"
+              main
+              size="md"
+              icon="pencil"
+              onClick={() => setEditing(true)}
+            >
               {t('projects.edit')}
-            </Button>
+            </ActionButton>
           ) : undefined
         }
       />

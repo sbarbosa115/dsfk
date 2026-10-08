@@ -25,10 +25,9 @@ import {formatDate, formatMoney} from '@/shared/lib/format';
 import {useList} from '@/shared/lib/list';
 import {
   ActionButton,
-  Actions,
   actionClass,
+  Actions,
   Alert,
-  Button,
   ErrorState,
   FilterBar,
   IconButton,
@@ -109,16 +108,23 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
           approved ? (
             <>
               {manager && (summary?.toReimburseCount ?? 0) > 0 && (
-                <Button
-                  variant="secondary"
+                <ActionButton
+                  action="confirm"
+                  size="md"
                   onClick={() => setDialog({kind: 'reimburse'})}
                 >
                   {t('expenses.reimburse')}
-                </Button>
+                </ActionButton>
               )}
-              <Button onClick={() => setDialog({kind: 'record'})}>
+              <ActionButton
+                action="setup"
+                main
+                size="md"
+                icon="plus"
+                onClick={() => setDialog({kind: 'record'})}
+              >
                 {t('expenses.record')}
-              </Button>
+              </ActionButton>
             </>
           ) : null
         }

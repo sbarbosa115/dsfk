@@ -60,6 +60,7 @@ export function RejectExpenseModal({
 
   return (
     <FormModal
+      action="danger"
       title={t('expenses.rejectTitle', {description: expense.description})}
       submitLabel={t('expenses.reject')}
       submit={action}

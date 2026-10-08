@@ -57,6 +57,7 @@ export function CategoriesPanel({plan}: {plan: Plan}) {
           </Field>
           <ActionButton
             action="setup"
+            main
             size="md"
             type="submit"
             busy={add.busy}

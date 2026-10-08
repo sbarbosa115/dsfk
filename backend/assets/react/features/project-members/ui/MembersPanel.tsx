@@ -129,6 +129,7 @@ export function MembersPanel({
           />
           <ActionButton
             action="setup"
+            main
             size="md"
             busy={busy && !removing}
             disabled={!chosen}

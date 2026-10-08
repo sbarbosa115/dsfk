@@ -12,14 +12,17 @@ import type {Filters, ListPage} from '@/shared/lib/list';
 import Icon, {type IconName} from './Icon';
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  /** `link` only for text that is a link (a file name); never for an action (see ActionButton). */
-  variant?: 'primary' | 'secondary' | 'ghost' | 'link';
+  /**
+   * `ghost` is the plain grey way out of a group ("Cancelar", "Volver"), never an action on the data; `link` only for
+   * text that is a link (a file name). Every action is an ActionButton in the colour of what it does.
+   */
+  variant: 'ghost' | 'link';
   size?: 'sm';
   busy?: boolean;
 };
 
 export function Button({
-  variant = 'primary',
+  variant,
   size,
   busy = false,
   className = '',
@@ -104,19 +107,24 @@ export function actionClass(
 }
 
 /**
- * A worded button in an "Acciones" cell (or wherever an action sits next to others): outlined in the colour of
- * its `action`, so it reads as a button and not as a link.
+ * A worded button wherever an action sits next to others: outlined in the colour of its `action`, so it reads as a
+ * button and not as a link. `main` fills it: the one main action of its group (a bar above a table, a card's header,
+ * a modal's footer), never two in one group (ButtonGroups.test.ts).
  */
 type ActionButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   action: Action;
   size?: 'sm' | 'md';
   busy?: boolean;
+  main?: boolean;
+  icon?: IconName;
 };
 
 export function ActionButton({
   action,
   size = 'sm',
   busy = false,
+  main = false,
+  icon,
   className = '',
   children,
   ...props
@@ -124,12 +132,51 @@ export function ActionButton({
   return (
     <button
       type="button"
-      className={actionClass(action, className, size)}
+      className={actionClass(
+        action,
+        [main && 'is-main', className].filter(Boolean).join(' '),
+        size,
+      )}
       {...props}
       disabled={busy || props.disabled}
     >
+      {icon && !busy && <Icon name={icon} size={16} />}
       {busy ? t('common.working') : children}
     </button>
+  );
+}
+
+/**
+ * A form's submit: filled, in green with a tick when it says "Guardar", or in the colour of what the form does
+ * (`action`: rejecting is danger, registering is setup). "Cancelar" beside it stays a ghost Button.
+ */
+export function SubmitButton({
+  action = 'confirm',
+  busy,
+  disabled,
+  className,
+  children,
+}: {
+  action?: Action;
+  busy?: boolean;
+  disabled?: boolean;
+  className?: string;
+  children?: ReactNode;
+}) {
+  const saves = children === undefined || children === t('common.save');
+  return (
+    <ActionButton
+      type="submit"
+      action={action}
+      main
+      size="md"
+      icon={action === 'confirm' && saves ? 'check' : undefined}
+      busy={busy}
+      disabled={disabled}
+      className={className}
+    >
+      {children ?? t('common.save')}
+    </ActionButton>
   );
 }
 
@@ -687,7 +734,7 @@ export function FilterBar({
           onChange={filter.onChange}
         />
       ))}
-      {children}
+      {children && <div className="toolbar-actions">{children}</div>}
     </div>
   );
 }
@@ -938,6 +985,8 @@ interface FormModalProps extends ModalProps {
   /** A useSubmit() result: its busy state and form-level error. */
   submit: {busy: boolean; formError: string | null};
   submitLabel?: ReactNode;
+  /** What the form does, which colours its submit: confirm (save) by default, danger to reject or void. */
+  action?: Action;
 }
 
 export function FormModal({
@@ -946,6 +995,7 @@ export function FormModal({
   onSubmit,
   submit,
   submitLabel,
+  action = 'confirm',
   size,
   children,
 }: FormModalProps) {
@@ -964,9 +1014,9 @@ export function FormModal({
           <Button variant="ghost" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" busy={submit.busy}>
-            {submitLabel || t('common.save')}
-          </Button>
+          <SubmitButton action={action} busy={submit.busy}>
+            {submitLabel || undefined}
+          </SubmitButton>
         </div>
       </form>
     </Modal>

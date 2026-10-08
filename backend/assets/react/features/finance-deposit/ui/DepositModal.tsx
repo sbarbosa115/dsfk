@@ -93,6 +93,7 @@ export function DepositModal({
 
   return (
     <FormModal
+      action="setup"
       title={t('finance.newDeposit')}
       submitLabel={t('finance.recordDeposit')}
       submit={action}

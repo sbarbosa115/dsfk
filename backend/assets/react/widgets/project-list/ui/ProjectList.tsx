@@ -13,8 +13,8 @@ import {t} from '@/shared/i18n';
 import {formatDateRange} from '@/shared/lib/format';
 import {useList} from '@/shared/lib/list';
 import {
+  ActionButton,
   Actions,
-  Button,
   FilterBar,
   IconButton,
   ListView,
@@ -30,7 +30,15 @@ export function ProjectList() {
   const list = useList<Project>(PROJECTS_KEY, '/projects', {q: '', status: ''});
   const [creating, setCreating] = useState(false);
   const newProject = user?.admin ? (
-    <Button onClick={() => setCreating(true)}>{t('projects.new')}</Button>
+    <ActionButton
+      action="setup"
+      main
+      size="md"
+      icon="plus"
+      onClick={() => setCreating(true)}
+    >
+      {t('projects.new')}
+    </ActionButton>
   ) : null;
 
   return (

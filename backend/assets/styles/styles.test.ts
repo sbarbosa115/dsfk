@@ -96,10 +96,11 @@ const PAIRS: [string, string, number][] = [
     ['text', bg, 4.5],
     ['muted', bg, 4.5],
   ]),
-  // An outlined action button on a card, and the same button hovered (its -soft background).
+  // An outlined action button on a card, the same button hovered (its -soft background), and a main (filled) one.
   ...HUES.flatMap((hue): [string, string, number][] => [
     [hue, 'surface', 4.5],
     [hue, `${hue}-soft`, 4.5],
+    ['surface', hue, 4.5],
   ]),
   ['on-primary', 'primary', 4.5],
   ['on-tooltip', 'tooltip', 4.5],

@@ -36,6 +36,7 @@ export function StageFormModal({
 
   return (
     <FormModal
+      action={stage ? 'confirm' : 'setup'}
       title={stage ? t('plan.editStage') : t('plan.addStage')}
       submitLabel={stage ? t('common.save') : t('plan.addStage')}
       submit={action}

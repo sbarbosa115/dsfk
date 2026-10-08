@@ -44,6 +44,7 @@ export function DrawModal({
 
   return (
     <FormModal
+      action="revert"
       title={t('finance.draw')}
       submitLabel={t('finance.drawSubmit')}
       submit={action}

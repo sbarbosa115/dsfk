@@ -36,6 +36,7 @@ export function AttachReceiptModal({
 
   return (
     <FormModal
+      action="setup"
       title={t('expenses.attachTitle', {description: expense.description})}
       submitLabel={t('finance.attach')}
       submit={action}

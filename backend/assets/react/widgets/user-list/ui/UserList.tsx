@@ -6,9 +6,9 @@ import {ToggleActiveButton} from '@/features/user-toggle-active';
 import {t} from '@/shared/i18n';
 import {useList} from '@/shared/lib/list';
 import {
+  ActionButton,
   Actions,
   Alert,
-  Button,
   FilterBar,
   IconButton,
   ListView,
@@ -25,7 +25,15 @@ export function UserList() {
   const [editing, setEditing] = useState<User | null | undefined>(undefined);
   const [notice, setNotice] = useState<string | null>(null);
   const newUser = (
-    <Button onClick={() => setEditing(null)}>{t('users.new')}</Button>
+    <ActionButton
+      action="setup"
+      main
+      size="md"
+      icon="plus"
+      onClick={() => setEditing(null)}
+    >
+      {t('users.new')}
+    </ActionButton>
   );
 
   return (

@@ -64,6 +64,7 @@ export function ProjectFormModal({
 
   return (
     <FormModal
+      action={project ? 'confirm' : 'setup'}
       title={project ? t('projects.edit') : t('projects.new')}
       submitLabel={project ? t('common.save') : t('common.create')}
       onClose={onClose}

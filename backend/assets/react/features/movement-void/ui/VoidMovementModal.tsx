@@ -35,6 +35,7 @@ export function VoidMovementModal({
 
   return (
     <FormModal
+      action="danger"
       title={t('finance.voidTitle')}
       submitLabel={t('finance.void')}
       submit={action}

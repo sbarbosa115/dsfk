@@ -21,6 +21,7 @@ export function VoidExpenseModal({
 
   return (
     <FormModal
+      action="danger"
       title={t('expenses.voidTitle')}
       submitLabel={t('finance.void')}
       submit={action}

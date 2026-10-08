@@ -3,7 +3,7 @@ import {useLocation, useNavigate} from 'react-router';
 import {useSession} from '@/entities/session';
 import {t} from '@/shared/i18n';
 import {errorMessage} from '@/shared/lib/errors';
-import {Alert, Button, Field} from '@/shared/ui';
+import {Alert, Field, SubmitButton} from '@/shared/ui';
 
 /** Email and password; goes back to where the person was sent from (or home) once signed in. */
 export function LoginForm() {
@@ -54,14 +54,13 @@ export function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
         />
       </Field>
-      <Button
-        type="submit"
+      <SubmitButton
         busy={busy}
         disabled={!email || !password}
         className="btn-block"
       >
         {t('login.submit')}
-      </Button>
+      </SubmitButton>
       <p className="muted small">{t('login.noAccount')}</p>
     </form>
   );

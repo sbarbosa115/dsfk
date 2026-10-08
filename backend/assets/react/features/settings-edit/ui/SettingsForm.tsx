@@ -4,7 +4,7 @@ import {saveSettings, SETTINGS_KEY, type Settings} from '@/entities/settings';
 import {t} from '@/shared/i18n';
 import {formatAmountForInput, parseAmountInput} from '@/shared/lib/format';
 import {useForm, useSubmit} from '@/shared/lib/forms';
-import {Alert, Button, Field, MoneyField} from '@/shared/ui';
+import {Alert, Field, MoneyField, SubmitButton} from '@/shared/ui';
 import {parsePercents} from '../model/percents';
 
 function toForm(settings: Settings) {
@@ -95,9 +95,7 @@ export function SettingsForm({initial}: {initial: Settings}) {
           <input {...form.bind('budgetWarningPercents')} />
         </Field>
         <div className="form-actions">
-          <Button type="submit" busy={submit.busy}>
-            {t('common.save')}
-          </Button>
+          <SubmitButton busy={submit.busy} />
         </div>
       </form>
     </section>

@@ -594,11 +594,14 @@ code {
 }
 
 /*
- * A tab's primary action ("Nueva unidad") sits in its own toolbar rather than the page header, which names
- * the page and not the tab. It anchors to the far end so it reads as the action of the table below, and not
- * as one more filter that ran out of room.
+ * A list's main action ("Nuevo proyecto") ends its toolbar rather than sitting in the page header, which names the
+ * page and not the list. It anchors to the far end, with any outlined action just before it, so it reads as the
+ * action of the table below and not as one more filter that ran out of room.
  */
-.toolbar > .btn-primary {
+.toolbar > .toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-left: auto;
 }
 
@@ -749,27 +752,6 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-.btn-primary {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-}
-
-.btn-secondary {
-  background: var(--color-primary-soft);
-  /* A visible edge: without one a soft button on a white card reads as a link. */
-  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
-  color: var(--color-primary);
-  box-shadow: 0 1px 0 var(--color-edge);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  border-color: var(--color-primary);
-}
-
 .btn-ghost {
   background: var(--color-surface);
   border-color: var(--color-border);
@@ -851,6 +833,21 @@ textarea:focus-visible {
   --action-soft: var(--color-rose-soft);
 }
 
+/*
+ * The one main action of a group (a toolbar, a card's header, a modal's footer): filled in its action's colour, so
+ * the colour still says what it does. Its text is the surface colour, which every action hue reads on (styles.test.ts).
+ */
+.btn-action.is-main {
+  background: var(--action);
+  border-color: var(--action);
+  color: var(--color-surface);
+}
+
+.btn-action.is-main:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--action) 85%, var(--color-text));
+  border-color: color-mix(in srgb, var(--action) 85%, var(--color-text));
+}
+
 .btn-sm {
   min-height: 32px;
   padding: 4px 10px;
@@ -905,6 +902,11 @@ textarea:focus-visible {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 20px;
+}
+
+/* An outlined destructive action in a footer ("Eliminar") sits at the opposite edge from the main one. */
+.form-actions > .btn-action-danger:not(.is-main) {
+  margin-right: auto;
 }
 
 .field {

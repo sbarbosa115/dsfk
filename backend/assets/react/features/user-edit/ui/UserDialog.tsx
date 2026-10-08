@@ -42,6 +42,7 @@ export function UserDialog({
 
   return (
     <FormModal
+      action={user ? 'confirm' : 'setup'}
       title={user ? t('users.edit') : t('users.new')}
       submitLabel={user ? t('common.save') : t('common.create')}
       onClose={onClose}

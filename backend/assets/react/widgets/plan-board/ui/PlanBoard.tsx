@@ -4,7 +4,13 @@ import {fetchPlan, planKey} from '@/entities/plan';
 import {CategoriesPanel} from '@/features/plan-categories';
 import {StageFormModal} from '@/features/plan-stages';
 import {t} from '@/shared/i18n';
-import {Button, EmptyState, ErrorState, Loading, TabIntro} from '@/shared/ui';
+import {
+  ActionButton,
+  EmptyState,
+  ErrorState,
+  Loading,
+  TabIntro,
+} from '@/shared/ui';
 import {BudgetCard} from './BudgetCard';
 import {StageCard} from './StageCard';
 
@@ -26,7 +32,15 @@ export function PlanBoard({projectId}: {projectId: number}) {
   }
   const p = plan.data;
   const addStage = p.permissions.edit ? (
-    <Button onClick={() => setAdding(true)}>{t('plan.addStage')}</Button>
+    <ActionButton
+      action="setup"
+      main
+      size="md"
+      icon="plus"
+      onClick={() => setAdding(true)}
+    >
+      {t('plan.addStage')}
+    </ActionButton>
   ) : null;
 
   return (
