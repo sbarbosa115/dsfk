@@ -242,7 +242,9 @@ const MAIN_ICONS: Partial<Record<Action, IconName>> = {
 
 /** Links leave the app only to the app's own files and web pages; a link built from data never runs a script. */
 function safeHref(href: string): boolean {
-  return /^(https?:|\/)/i.test(href.trim()) && !href.trim().startsWith('//');
+  const value = href.trim();
+  // "//host" and "/\\host" are other sites to a browser, not paths of this one.
+  return /^(https?:|\/)/i.test(value) && !/^\/[\/\\]/.test(value);
 }
 
 const NEW_TAB = {target: '_blank', rel: 'noopener noreferrer'};

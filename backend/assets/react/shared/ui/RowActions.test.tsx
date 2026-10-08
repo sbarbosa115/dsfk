@@ -234,6 +234,26 @@ describe('RowActions', () => {
     expect(receipt).toHaveAttribute('target', '_blank');
   });
 
+  it('never links to another site through a path the browser reads as one (//host, /\\host)', () => {
+    draw(
+      <RowActions
+        name="Depósito"
+        more={[
+          {
+            items: [
+              {label: 'Uno', action: 'file', href: '//evil.test/x'},
+              {label: 'Dos', action: 'file', href: '/\\evil.test/x'},
+            ],
+          },
+        ]}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', {name: /Más/}));
+    for (const item of screen.getAllByRole('menuitem')) {
+      expect(item.tagName).toBe('BUTTON');
+    }
+  });
+
   it('closes once its row scrolls out of the window', () => {
     draw(
       <RowActions
