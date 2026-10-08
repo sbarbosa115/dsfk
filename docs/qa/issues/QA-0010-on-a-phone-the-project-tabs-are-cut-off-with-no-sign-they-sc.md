@@ -3,14 +3,14 @@ id: QA-0010
 title: On a phone, the project tabs are cut off with no sign they scroll, and the header takes the first screen
 category: ui
 severity: P2
-status: open
+status: fixed
 confidence: reproduced
 area: project
 view: Project detail on a phone
 route: /projects/:id
 found: 2026-10-07
 last_seen: 2026-10-07
-fixed_seen:
+fixed_seen: 2026-10-08
 commit: 4391ad0
 related: []
 ---
@@ -47,3 +47,4 @@ The bar is clipped mid-word; the stat cards are each full-width.
 ## History
 
 - 2026-10-07 · found in run 2026-10-07-admin-ui at 4391ad0
+- 2026-10-08 · fixed in `f9f9aee` on `feature/ui-audit-fixes`; re-checked on its stack at 1440 and 390 px: short labels, active tab in view, fade (smoke UI-06; tab names kept accessible in acec512)

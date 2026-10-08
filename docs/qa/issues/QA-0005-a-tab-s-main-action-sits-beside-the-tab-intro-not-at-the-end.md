@@ -3,14 +3,14 @@ id: QA-0005
 title: A tab's main action sits beside the tab intro, not at the end of the filter bar like Proyectos and Usuarios
 category: ui
 severity: P2
-status: open
+status: fixed
 confidence: reproduced
 area: project
 view: Project tabs: Plan, Gastos, Fondos, Caja menor
 route: /projects/:id
 found: 2026-10-07
 last_seen: 2026-10-07
-fixed_seen:
+fixed_seen: 2026-10-08
 commit: 4391ad0
 related: []
 ---
@@ -48,3 +48,4 @@ Two places for "add" depending on whether the list is a page or a tab; duplicate
 ## History
 
 - 2026-10-07 · found in run 2026-10-07-admin-ui at 4391ad0
+- 2026-10-08 · fixed in `f9f9aee` on `feature/ui-audit-fixes`; re-checked on its stack at 1440 and 390 px

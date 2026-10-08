@@ -32,19 +32,19 @@ Reference screens (the ones that follow it best):
 
 | View | Route | Role | Flow doc | Last checked | Open issues |
 |---|---|---|---|---|---|
-| Login | `/login` | — | [shell-and-auth](flows/shell-and-auth.md) | 2026-10-07 | — |
-| App shell, drawer, Ver como, Tema | `(all)` | Admin | [shell-and-auth](flows/shell-and-auth.md) | 2026-10-07 | QA-0002 |
-| Cambiar contraseña (modal) | `(sidebar)` | Admin | [shell-and-auth](flows/shell-and-auth.md) | 2026-10-07 | — |
-| Tablero (portfolio) | `/dashboard` | Admin | [portfolio](flows/portfolio.md) | 2026-10-07 | QA-0015, QA-0013 |
-| Proyectos + Nuevo/Editar proyecto | `/projects` | Admin | [portfolio](flows/portfolio.md) | 2026-10-07 | QA-0001, QA-0002, QA-0011 |
-| Presupuesto y plan | `/projects/:id?tab=plan` | Admin | [project](flows/project.md) | 2026-10-07 | QA-0002, QA-0003, QA-0005, QA-0009, QA-0014 |
-| Tablero (project) | `/projects/:id?tab=dashboard` | Admin | [project](flows/project.md) | 2026-10-07 | QA-0006, QA-0009, QA-0015 |
-| Gastos + modals | `/projects/:id?tab=expenses` | Admin | [project](flows/project.md) | 2026-10-07 | QA-0001, QA-0003, QA-0004, QA-0005, QA-0007, QA-0012 |
-| Fondos + modals | `/projects/:id?tab=finance` | Admin | [project](flows/project.md) | 2026-10-07 | QA-0001, QA-0003, QA-0004, QA-0006, QA-0007, QA-0009 |
-| Caja menor + modals | `/projects/:id?tab=petty-cash` | Admin | [project](flows/project.md) | 2026-10-07 | QA-0001, QA-0003, QA-0006, QA-0009 |
-| Resumen (datos, equipo) | `/projects/:id?tab=overview` | Admin | [project](flows/project.md) | 2026-10-07 | QA-0001, QA-0011, QA-0016 |
-| Usuarios + modals | `/users` | Admin | [admin](flows/admin.md) | 2026-10-07 | QA-0001, QA-0002, QA-0017 |
-| Configuración | `/settings` | Admin | [admin](flows/admin.md) | 2026-10-07 | QA-0002, QA-0017 |
-| Auditoría | `/audit` | Admin | [admin](flows/admin.md) | 2026-10-07 | QA-0001, QA-0008 |
-| Documentación | `/help` | Admin | [shell-and-auth](flows/shell-and-auth.md) | 2026-10-07 | QA-0017 |
-| Página no encontrada | `/*` | Admin | [shell-and-auth](flows/shell-and-auth.md) | 2026-10-07 | QA-0002, QA-0006 |
+| Login | `/login` | — | [shell-and-auth](flows/shell-and-auth.md) | 2026-10-08 | — (all fixed) |
+| App shell, drawer, Ver como, Tema | `(all)` | Admin | [shell-and-auth](flows/shell-and-auth.md) | 2026-10-08 | — (all fixed) |
+| Cambiar contraseña (modal) | `(sidebar)` | Admin | [shell-and-auth](flows/shell-and-auth.md) | 2026-10-08 | — (all fixed) |
+| Tablero (portfolio) | `/dashboard` | Admin | [portfolio](flows/portfolio.md) | 2026-10-08 | — (all fixed) |
+| Proyectos + Nuevo/Editar proyecto | `/projects` | Admin | [portfolio](flows/portfolio.md) | 2026-10-08 | — (all fixed) |
+| Presupuesto y plan | `/projects/:id?tab=plan` | Admin | [project](flows/project.md) | 2026-10-08 | — (all fixed) |
+| Tablero (project) | `/projects/:id?tab=dashboard` | Admin | [project](flows/project.md) | 2026-10-08 | — (all fixed) |
+| Gastos + modals | `/projects/:id?tab=expenses` | Admin | [project](flows/project.md) | 2026-10-08 | — (all fixed) |
+| Fondos + modals | `/projects/:id?tab=finance` | Admin | [project](flows/project.md) | 2026-10-08 | — (all fixed) |
+| Caja menor + modals | `/projects/:id?tab=petty-cash` | Admin | [project](flows/project.md) | 2026-10-08 | — (all fixed) |
+| Resumen (datos, equipo) | `/projects/:id?tab=overview` | Admin | [project](flows/project.md) | 2026-10-08 | — (all fixed) |
+| Usuarios + modals | `/users` | Admin | [admin](flows/admin.md) | 2026-10-08 | — (all fixed) |
+| Configuración | `/settings` | Admin | [admin](flows/admin.md) | 2026-10-08 | — (all fixed) |
+| Auditoría | `/audit` | Admin | [admin](flows/admin.md) | 2026-10-08 | — (all fixed) |
+| Documentación | `/help` | Admin | [shell-and-auth](flows/shell-and-auth.md) | 2026-10-08 | — (all fixed) |
+| Página no encontrada | `/*` | Admin | [shell-and-auth](flows/shell-and-auth.md) | 2026-10-08 | — (all fixed) |

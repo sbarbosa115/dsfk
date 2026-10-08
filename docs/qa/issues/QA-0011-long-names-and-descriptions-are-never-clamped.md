@@ -3,14 +3,14 @@ id: QA-0011
 title: Long names and descriptions are never clamped
 category: ui
 severity: P3
-status: open
+status: fixed
 confidence: reproduced
 area: portfolio
 view: Project header, Proyectos list, Resumen
 route: /projects, /projects/4
 found: 2026-10-07
 last_seen: 2026-10-07
-fixed_seen:
+fixed_seen: 2026-10-08
 commit: 4391ad0
 related: []
 ---
@@ -47,3 +47,4 @@ Five-line description in a table row; the header layout changes with the content
 ## History
 
 - 2026-10-07 · found in run 2026-10-07-admin-ui at 4391ad0
+- 2026-10-08 · fixed in `ed38737` on `feature/ui-audit-fixes`; re-checked on its stack at 1440 and 390 px

@@ -3,14 +3,14 @@ id: QA-0015
 title: Portfolio cards: badge moves under long names, draft cards full of "Sin datos"
 category: ui
 severity: P3
-status: open
+status: fixed
 confidence: reproduced
 area: portfolio
 view: Tablero (portfolio)
 route: /dashboard
 found: 2026-10-07
 last_seen: 2026-10-07
-fixed_seen:
+fixed_seen: 2026-10-08
 commit: 4391ad0
 related: []
 ---
@@ -45,3 +45,4 @@ As described.
 ## History
 
 - 2026-10-07 · found in run 2026-10-07-admin-ui at 4391ad0
+- 2026-10-08 · fixed in `ed38737` on `feature/ui-audit-fixes`; re-checked on its stack at 1440 and 390 px

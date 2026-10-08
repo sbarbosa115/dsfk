@@ -3,14 +3,14 @@ id: QA-0001
 title: On a phone, tables scroll sideways inside their card and the Acciones column is off-screen
 category: ui
 severity: P1
-status: open
+status: fixed
 confidence: reproduced
 area: all
 view: Every table on a phone
 route: /projects, /users, /audit, /projects/:id (all tabs)
 found: 2026-10-07
 last_seen: 2026-10-07
-fixed_seen:
+fixed_seen: 2026-10-08
 commit: 4391ad0
 related: []
 ---
@@ -54,3 +54,4 @@ Only the first two columns show (Fecha + Gasto on Gastos; Nombre + Fechas on Pro
 ## History
 
 - 2026-10-07 · found in run 2026-10-07-admin-ui at 4391ad0
+- 2026-10-08 · fixed in `e074e66` on `feature/ui-audit-fixes`; re-checked on its stack at 1440 and 390 px: phone tables are cards (smoke UI-05; card cells no longer clipped after 34629e0)

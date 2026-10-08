@@ -3,14 +3,14 @@ id: QA-0002
 title: Two button systems: page actions use a generic dark-green Button, everything else uses the action colours
 category: ui
 severity: P2
-status: open
+status: fixed
 confidence: reproduced
 area: all
 view: Page and tab headers, filter bars
 route: /projects, /users, /settings, /projects/:id
 found: 2026-10-07
 last_seen: 2026-10-07
-fixed_seen:
+fixed_seen: 2026-10-08
 commit: 4391ad0
 related: []
 ---
@@ -48,3 +48,4 @@ Generic usages: widgets/project-list/ui/ProjectList.tsx:33, widgets/user-list/ui
 ## History
 
 - 2026-10-07 · found in run 2026-10-07-admin-ui at 4391ad0
+- 2026-10-08 · fixed in `e0e1a6f` on `feature/ui-audit-fixes`; re-checked on its stack at 1440 and 390 px

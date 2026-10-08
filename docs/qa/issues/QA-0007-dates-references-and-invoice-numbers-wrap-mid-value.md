@@ -3,14 +3,14 @@ id: QA-0007
 title: Dates, references and invoice numbers wrap mid-value
 category: ui
 severity: P2
-status: open
+status: fixed
 confidence: reproduced
 area: project
 view: Fondos › Movimientos, Gastos
 route: /projects/1?tab=finance, ?tab=expenses
 found: 2026-10-07
 last_seen: 2026-10-07
-fixed_seen:
+fixed_seen: 2026-10-08
 commit: 4391ad0
 related: []
 ---
@@ -45,3 +45,4 @@ They wrap wherever the column is narrow, which is often because the Acciones col
 ## History
 
 - 2026-10-07 · found in run 2026-10-07-admin-ui at 4391ad0
+- 2026-10-08 · fixed in `e074e66` on `feature/ui-audit-fixes`; re-checked on its stack at 1440 and 390 px
