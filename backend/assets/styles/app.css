@@ -2687,8 +2687,14 @@ select.filter-select {
 }
 
 @media (max-width: 600px) {
+  /* Hidden from sight only: the full label stays the tab's accessible name (the short one is aria-hidden). */
   .tabs-page .tab:has(.tab-label-short) .tab-label {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .tabs-page .tab-label-short {

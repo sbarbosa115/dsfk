@@ -99,10 +99,10 @@ Edit Carlos Pérez › tick Administrador › Guardar. **Expected:** "Administra
 untick › Guardar: the badge goes.
 
 **USR-06 · Disable a user**
-Carlos Pérez's row › "Desactivar" (the ban icon) › confirm. **Expected:** "La cuenta de Carlos Pérez quedó
+Carlos Pérez's row › the chevron beside "Editar" › "Desactivar" (the menu's last item) › confirm. **Expected:** "La cuenta de Carlos Pérez quedó
 desactivada."; he leaves the "Solo activos" list and shows greyed under Estado › Inactivo; signing in as
-`lider@demo.test` says "Tu cuenta está desactivada. Contacta al administrador." Turn him back on with the tick
-icon.
+`lider@demo.test` says "Tu cuenta está desactivada. Contacta al administrador." Turn him back on from his row's
+menu › "Activar" (no confirmation).
 
 **USR-07 · Only a super admin edits a super admin**
 Make Laura an ordinary admin (USR-05 steps), sign in as her. Usuarios. **Expected:** the edit and on/off buttons on
@@ -253,7 +253,7 @@ a real PDF › Adjuntar adds a "Comprobante" link that opens the PDF in a new ta
 she has no Adjuntar or Anular.
 
 **FIN-06 · Voiding keeps the record**
-Anular the TRX-001 deposit › any motivo: "No se puede anular: parte de ese dinero ya se usó o se trasladó."
+The TRX-001 deposit's chevron › "Anular" (the menu's last item) › any motivo: "No se puede anular: parte de ese dinero ya se usó o se trasladó."
 (its contingency money was drawn in FIN-04). Registrar depósito › Cimentación `500.000`, Referencia `DUP-1`; then
 Anular it with motivo `Duplicado`. **Expected:** the dialog names the deposit (date, amount, destination); the
 row turns grey with "Anulado por Administrador el …: “Duplicado”" and loses its buttons; Cimentación's Disponible
@@ -281,13 +281,13 @@ After section 7: Estructura holds $ 1.651.000, the caja menor $ 300.000; Cimenta
 row "Pendiente" with "Pagado por Carlos Pérez" and "Sin factura o recibo"; Carlos has no Fondos or Caja menor tab.
 
 **EXP-02 · Approval needs a receipt**
-Laura › Gastos › Aprobar (check) on Cemento gris › Aprobar: "Adjunta la factura o el recibo antes de aprobar el
+Laura › Gastos › "Aprobar" (the row's main button) on Cemento gris › Aprobar: "Adjunta la factura o el recibo antes de aprobar el
 gasto." Carlos › Adjuntar recibo › a PDF › Adjuntar: the row gets a "Recibo" link that opens it.
 
 **EXP-03 · Rejected, corrected, sent again**
-Laura › Rechazar (ban) › `El valor no coincide con la factura` › Rechazar: a red row "Rechazado: “El valor no
-coincide con la factura”". Carlos › Corregir (pencil) › Monto `110.000` › Guardar y enviar de nuevo: blue
-"Pendiente" again. Ver gasto (eye): the history lists Registrado, Rechazado with the reason, Corregido with
+Laura › the row's chevron › "Rechazar" › `El valor no coincide con la factura` › Rechazar: a red row "Rechazado: “El valor no
+coincide con la factura”". Carlos › "Corregir gasto" (the row's main button) › Monto `110.000` › Guardar y enviar de nuevo: blue
+"Pendiente" again. The row's menu › "Ver gasto": the history lists Registrado, Rechazado with the reason, Corregido with
 "Antes: Cemento gris, $ 120.000, …".
 
 **EXP-04 · The PM approves up to the limit**
@@ -378,3 +378,68 @@ the reason.
 `docker compose exec -u www-data php bin/console app:alerts:daily`. **Expected:** "1 project digest(s) queued."
 (or one per active project with something pending) and "Resumen diario: Torre Norte" to the super admin and
 Laura, listing the late milestones and the expenses to approve or pay back.
+
+## 13. Interfaz
+
+The house style the 2026-10-08 audit set (`docs/qa/`, PRD `docs/pdr/prd-ui-audit-fixes.md`), as an Admin
+(`admin@demo.test`) on the seed. Desktop is 1440 px wide, a phone 390 px.
+
+**UI-01 · A tab's main action ends its filter bar, filled in its colour**
+Smoke (part): `e2e/ui.spec.ts` covers where the buttons are and that they are the filled main action; by hand: the
+colours (indigo for Registrar, green for Reembolsar outlined).
+Torre Norte › Gastos, then Fondos. **Expected:** "Registrar gasto" and "Registrar depósito" are the last control of
+the bar with Buscar, filled; "Reembolsar" / "Usar contingencia" just before them, outlined; nothing beside the
+tab's intro sentence. Caja menor: "Cerrar ciclo" on the "Ciclo N (actual)" card. Presupuesto y plan on Bodega Sur:
+one "Agregar etapa", at the end of the Etapas heading.
+
+**UI-02 · A modal's main button says what it does by its colour**
+Smoke: `e2e/ui.spec.ts`.
+Torre Norte › Gastos › "Cinta y señalización" › its chevron › Rechazar; Fondos › a deposit's chevron › Anular; Casa
+Campestre › "Aprobar presupuesto". **Expected:** "Rechazar" and "Anular" are filled red, "Aprobar" filled green, and
+"Cancelar" plain grey beside each; nothing is sent until the main button is pressed.
+
+**UI-03 · A row has one main action and a menu with the rest, destructive last**
+Smoke: `e2e/ui.spec.ts`.
+Torre Norte › Gastos › "Cinta y señalización". **Expected:** one filled "Aprobar" and a chevron "Más acciones:
+Cinta y señalización"; the menu lists Ver gasto, Adjuntar recibo, Recibo, then, apart, Rechazar. Esc closes it.
+
+**UI-04 · Turning a user off asks first, from the last item of their menu**
+Smoke: `e2e/ui.spec.ts`.
+Usuarios › Carlos Ruiz's chevron › Desactivar. **Expected:** the confirmation; Cancelar leaves him active. Your own
+row has "Editar" and no menu.
+
+**UI-05 · On a phone every table is a list of cards**
+Smoke (part): `e2e/ui.spec.ts` covers the Gastos cards and that each main button is on screen; by hand: Proyectos,
+Usuarios, Fondos, Caja menor and Auditoría at 390 px (tint and edge kept, "Columna: valor" lines, a thumb-sized
+main button, the menu as a sheet from the bottom).
+At 390 px, Torre Norte › Gastos. **Expected:** no table header; each expense a card titled by its date, its other
+fields as "Gasto: …", "Monto: …"; its main button as wide as the card.
+
+**UI-06 · On a phone the project tabs show that they scroll**
+Smoke (part): `e2e/ui.spec.ts` covers the short labels and the chosen tab being in view; by hand: the fade at the
+right edge while tabs are hidden.
+At 390 px, Torre Norte › Resumen (`?tab=overview`). **Expected:** tabs read Plan, Tablero, Gastos, Fondos, Caja,
+Resumen; "Resumen" is fully on screen; the figures sit two by two.
+
+**UI-07 · An empty list says so inside its table**
+Smoke: `e2e/ui.spec.ts`.
+Bodega Sur › Fondos, then Tablero. **Expected:** "Fondos por etapa" keeps its header and says "Las etapas aparecen
+aquí…" under it; "Dinero por mes" says "Aún no hay depósitos ni gastos…" instead of drawing an axis.
+
+**UI-08 · Auditoría speaks Spanish and Bogotá time**
+Smoke (part): `e2e/ui.spec.ts` covers the field names and the date format; by hand: the filter bar on one row with a
+long project name.
+Auditoría. **Expected:** the Cambio column lists fields like "Estado, Monto", never `status` or `voidedById`; dates
+read like "7 de oct de 2026, 9:23 p. m."; Ver el cambio shows the same names.
+
+**UI-09 · Row colours have their key, and two statuses never share a colour**
+Torre Norte › Tablero › Etapas and Fondos › Fondos por etapa have a "Color de la fila:" key (Pendiente, En curso,
+Finalizada). Gastos: Espera al administrador is amber, Reembolsado violet, Aprobado green. Equipo and the active
+users are plain rows; an inactive user is grey. Caja menor › Ciclos anteriores lists no "Abierto".
+
+**UI-10 · Pesos are whole on screen and exact where a decision is made**
+Smoke (part): `e2e/ui.spec.ts` covers the money headers aligning right; by hand: the tooltip.
+Record an expense of `100.000,50` (Torre Norte › Gastos › Registrar gasto). **Expected:** its row says $ 100.001,
+with "$ 100.000,50" as the tooltip; its Ver gasto and approval dialog say $ 100.000,50; Monto's header and figures
+align right.
+

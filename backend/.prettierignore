@@ -20,3 +20,5 @@ templates/
 *.neon
 *.xml
 *.dist
+# Smoke suite reports, traces and saved sessions.
+e2e/.results/

@@ -19,6 +19,11 @@
     "types": ["node"],
     "paths": {"@/*": ["./assets/react/*"]}
   },
-  "include": ["assets/**/*", "vitest.config.mts"],
+  "include": [
+    "assets/**/*",
+    "e2e/**/*",
+    "playwright.config.ts",
+    "vitest.config.mts"
+  ],
   "exclude": ["node_modules", "public", "vendor", "var"]
 }

@@ -959,6 +959,7 @@ export function DataTable<T>({
             {headers.map((column, index) => (
               <th
                 key={typeof column === 'string' && column ? column : index}
+                scope="col"
                 className={
                   actions && index === headers.length - 1
                     ? 'col-actions'
