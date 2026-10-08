@@ -47,3 +47,21 @@ The audit's sweep is re-run at the end and the QA issues are marked fixed with t
 Tablet width (768px) and the PM/Team Lead views were not audited; `Modal` has no focus trap; charts other than
 "Dinero por mes" keep their axes when empty; units ("3 mes") stay as typed; a COP amount's cents are only in the
 tooltip; `RowActions` has no in-menu confirmation or upload (the features open their own modals).
+
+## Timeline
+
+Recorded with `timeline.py`, from 2026-10-07 23:04 to 2026-10-08 04:13. Active time leaves out the pauses.
+
+| Step | Started | Active | Wall clock |
+|---|---|---|---|
+| Plan | 2026-10-07 23:04 | 7m | 7m |
+| Branch and stack | 2026-10-07 23:11 | 4m | 4m |
+| Build test-first | 2026-10-07 23:15 | 52m | 52m |
+| Security audit | 2026-10-08 00:06 | 3m | 3m |
+| Regression run (smoke, then manual) | 2026-10-08 00:09 | 15m | 15m |
+| Finish (docs, CI) | 2026-10-08 00:24 | 2m | 2m |
+| Definition of done | 2026-10-08 00:26 | 3m | 3h 47m |
+| Pull request | 2026-10-08 04:13 | 0m | 0m |
+| **Total** | | **1h 26m** | **5h 9m** |
+
+Paused for 3h 44m in all.
