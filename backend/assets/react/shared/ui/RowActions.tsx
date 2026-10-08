@@ -244,7 +244,7 @@ const MAIN_ICONS: Partial<Record<Action, IconName>> = {
 function safeHref(href: string): boolean {
   const value = href.trim();
   // "//host" and "/\\host" are other sites to a browser, not paths of this one.
-  return /^(https?:|\/)/i.test(value) && !/^\/[\/\\]/.test(value);
+  return /^(https?:|\/)/i.test(value) && !/^\/[/\\]/.test(value);
 }
 
 const NEW_TAB = {target: '_blank', rel: 'noopener noreferrer'};
