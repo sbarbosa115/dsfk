@@ -70,6 +70,19 @@ jobs:
       - name: Production build
         run: $NODE npm run build
 
+      # The smoke suite (backend/e2e, docs/tests/ui-regression.md): Playwright in the e2e container against the built
+      # app; prepare.sh resets the dev database to the demo seed first.
+      - name: Smoke suite
+        run: backend/e2e/smoke.sh
+
+      - name: Smoke suite report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-report
+          path: backend/e2e/.results
+          if-no-files-found: ignore
+
       - name: Logs on failure
         if: failure()
         run: docker compose logs --tail=200

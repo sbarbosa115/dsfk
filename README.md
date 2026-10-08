@@ -55,12 +55,14 @@ make test               # PHPUnit (unit + API against the MySQL test DB) + tsc +
 make gate               # PHP-CS-Fixer, PHPStan (level 8), Deptrac, Prettier, ESLint (FSD + Google), tsc
 make fix                # apply the formatters, then the gate
 make api                # regenerate the OpenAPI schema and the UI's TypeScript types
+make smoke              # the Playwright smoke suite (backend/e2e) against this stack; resets it to the demo seed
 ```
 
 Every change must pass `make test` and `make gate` in Docker before it is considered done. The process
 (plan, test-first, gate, security audit, browser regression run) is the `symfony-react-app` skill; security
 audits live in [docs/security/](docs/security/README.md), the browser suite in
-[docs/tests/ui-regression.md](docs/tests/ui-regression.md).
+[docs/tests/ui-regression.md](docs/tests/ui-regression.md) (its simple cases are the smoke suite, `make smoke`), and the
+UI audit's findings in [docs/qa/](docs/qa/README.md).
 
 ## API reference
 
@@ -173,6 +175,17 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   cerrado…"), since an expense does not know its cycle's state.
 - While viewing the app as someone ("Ver como"), switching to another person means going back to your account
   first; after a page reload the list only offers "Nadie" and the current person.
+- From the UI audit (`docs/qa/`, PRD `docs/pdr/prd-ui-audit-fixes.md`): tablet width (768 px) and the Project
+  Manager and Team Lead views were not audited; a modal does not trap the keyboard's focus; charts other than
+  "Dinero por mes" keep their axes when empty; units read as typed ("3 mes"); a COP amount's centavos show only in a
+  tooltip, a modal or a total; a row's menu has no confirmation of its own (its risky items open their modal).
+- A Vitest flake under CPU load (also on `main`): a Testing Library role query over the whole page can miss its
+  one-second wait (seen in MembersPanel and a FinanceBoard deposit test). Scoping the query to its container fixes
+  it where it showed; others may appear on a loaded machine.
+- The smoke suite (`backend/e2e/`) covers only the Interfaz cases so far; the rest of `docs/tests/ui-regression.md`
+  is run by hand.
+- The help guides' screenshots (`pages/help/assets/*.png`) predate the UI audit: they show the old row icons and
+  green buttons, while their text describes the row's main button and menu.
 - `app:create-admin` asks for the password interactively or prints a generated one; there is no
   non-interactive `--password` option.
 

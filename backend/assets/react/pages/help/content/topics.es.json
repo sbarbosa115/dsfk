@@ -418,7 +418,7 @@
       {
         "heading": "Corregir",
         "body": [
-          "Un depósito equivocado se Anula con un motivo: deja de contar en los saldos pero sigue en la lista, en gris. Si parte de ese dinero ya se usó o se trasladó, la aplicación no deja anularlo."
+          "Un depósito equivocado se Anula con un motivo, desde el menú de la fila (la flecha junto a su botón): deja de contar en los saldos pero sigue en la lista, en gris. Si parte de ese dinero ya se usó o se trasladó, la aplicación no deja anularlo."
         ]
       }
     ],
@@ -583,11 +583,11 @@
       {
         "heading": "Si te lo rechazan",
         "steps": [
-          "Presiona Corregir gasto (el lápiz) en la fila.",
+          "Presiona Corregir gasto, el botón principal de la fila.",
           "Ajusta lo que haga falta o adjunta el recibo que faltaba.",
           "Presiona Guardar y enviar de nuevo: vuelve a quedar Pendiente."
         ],
-        "note": "Ver gasto (el ojo) muestra su historial: quién lo registró, lo corrigió (con los valores de antes), lo aprobó o lo rechazó, y cuándo. Te llega un correo cuando te lo rechazan y cuando te lo reembolsan."
+        "note": "Ver gasto, en el menú de la fila (la flecha junto a su botón), muestra su historial: quién lo registró, lo corrigió (con los valores de antes), lo aprobó o lo rechazó, y cuándo. Te llega un correo cuando te lo rechazan y cuando te lo reembolsan."
       }
     ],
     "related": ["registrar-gasto"]
@@ -623,15 +623,15 @@
         "heading": "Aprobar",
         "steps": [
           "Abre el Recibo y revisa monto, etapa y categoría (Ver gasto muestra todo).",
-          "Presiona Aprobar (el visto bueno) y confirma."
+          "Presiona Aprobar, el botón principal de la fila, y confirma."
         ],
         "note": "Si el gasto supera el límite de líder de equipo, la ventana lo avisa y queda en “Espera al administrador” hasta que el administrador lo apruebe."
       },
       {
         "heading": "Rechazar o anular",
         "body": [
-          "Rechazar devuelve el gasto al líder para que lo corrija; el Motivo del rechazo es lo que leerá.",
-          "Anular (administrador) es para un gasto aprobado que no debió registrarse: deja de contar y el dinero vuelve a la etapa o a la caja menor. Un gasto ya reembolsado no se anula."
+          "Rechazar, el último paso de el menú de la fila (la flecha junto a su botón), devuelve el gasto al líder para que lo corrija; el Motivo del rechazo es lo que leerá.",
+          "Anular (administrador), también al final de el menú de la fila (la flecha junto a su botón), es para un gasto aprobado que no debió registrarse: deja de contar y el dinero vuelve a la etapa o a la caja menor. Un gasto ya reembolsado no se anula."
         ]
       }
     ],
@@ -723,7 +723,7 @@
         "heading": "Revisar y firmar",
         "steps": [
           "En la pestaña Caja menor, los ciclos por revisar aparecen en Ciclos anteriores como “Cerrado, por firmar”.",
-          "Presiona Ver (el ojo) y revisa sus entradas, gastos y reembolsos con sus soportes.",
+          "Abre el menú de la fila (la flecha junto a su botón) › Ver el ciclo y revisa sus entradas, gastos y reembolsos con sus soportes.",
           "Presiona Firmar y confirma."
         ],
         "note": "El Tablero avisa cuando hay ciclos esperando la firma."
@@ -764,8 +764,8 @@
       {
         "heading": "Cambiar o desactivar",
         "body": [
-          "Editar usuario (el lápiz) corrige el nombre o asigna una Nueva contraseña cuando alguien la olvida; vacía, no cambia.",
-          "Para quitarle el acceso a alguien, Desactivar (en lugar de borrar) conserva su historial. Al intentar entrar verá que su cuenta está desactivada."
+          "Editar, el botón de su fila, corrige el nombre o asigna una Nueva contraseña cuando alguien la olvida; vacía, no cambia.",
+          "Para quitarle el acceso a alguien, Desactivar (en lugar de borrar), el último paso de el menú de la fila (la flecha junto a su botón), conserva su historial. Al intentar entrar verá que su cuenta está desactivada."
         ]
       }
     ],
@@ -823,7 +823,7 @@
         "steps": [
           "Entra a Auditoría.",
           "Filtra por Proyecto y por Registro (gasto, movimiento de dinero, etapa, usuario…), o busca por el nombre de la persona.",
-          "Presiona Ver el cambio (el ojo) para ver cada campo antes y después."
+          "Presiona Ver el cambio en la fila para ver cada campo antes y después."
         ],
         "image": {
           "src": "audit",

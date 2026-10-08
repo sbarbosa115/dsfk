@@ -7,7 +7,7 @@ NODE = $(DC) run --rm --no-deps node
 # The worker runs as www-data, so the skill scripts (which exec as the default user) never leave root-owned files.
 GATE = PHP_SERVICE=worker ~/.claude/skills/symfony-react-app/scripts/gate.sh
 
-.PHONY: up down install migrate admin seed test test-backend test-frontend build api gate fix
+.PHONY: up down install migrate admin seed test test-backend test-frontend smoke build api gate fix
 
 up:            ## Start the stack (ports in .env; defaults app :18081, mailpit :18025)
 	$(DC) up -d --build
@@ -39,6 +39,9 @@ test-backend:
 
 test-frontend:
 	$(NODE) sh -c "npx tsc --noEmit && npx vitest run"
+
+smoke:         ## The Playwright smoke suite against this stack (resets the dev database to the demo seed first)
+	backend/e2e/smoke.sh
 
 api:           ## Regenerate the OpenAPI schema and the UI's TypeScript types from the controllers
 	$(DC) exec -T -u www-data php sh -c "bin/console nelmio:apidoc:dump --format=json > assets/react/shared/api/openapi.json"
