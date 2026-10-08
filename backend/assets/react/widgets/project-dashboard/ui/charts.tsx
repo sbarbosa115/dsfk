@@ -16,7 +16,7 @@ import {
   formatMonth,
   formatPercent,
 } from '@/shared/lib/format';
-import {ChartCard, DataTable} from '@/shared/ui';
+import {ChartCard, DataTable, EmptyState} from '@/shared/ui';
 
 /** Physical progress (real and planned) against budget spent, per stage, each in % of the stage. */
 export function StageChart({data}: {data: ProjectDashboard}) {
@@ -125,6 +125,18 @@ export function MonthlyChart({data}: {data: ProjectDashboard}) {
     deposited: Number(m.deposited),
     spent: Number(m.spent),
   }));
+
+  // No money in or out yet: a sentence instead of a $0–$4 axis over empty months (QA-0006).
+  if (rows.every((r) => r.deposited === 0 && r.spent === 0)) {
+    return (
+      <section className="card chart-card">
+        <div className="card-header">
+          <h2>{t('dashboard.monthlyChart')}</h2>
+        </div>
+        <EmptyState>{t('dashboard.noMoneyYet')}</EmptyState>
+      </section>
+    );
+  }
 
   return (
     <ChartCard

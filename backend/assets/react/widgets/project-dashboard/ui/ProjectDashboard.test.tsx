@@ -125,4 +125,20 @@ describe('ProjectDashboard', () => {
     expect(await screen.findByText('Nada por ahora.')).toBeInTheDocument();
     expect(screen.getAllByText('Sin datos').length).toBeGreaterThan(0);
   });
+
+  it('says there is no money yet instead of drawing an empty axis', async () => {
+    mockApi({
+      'GET /api/projects/9/dashboard': dashboard({
+        monthly: [
+          {month: '2026-09', deposited: '0.00', spent: '0.00'},
+          {month: '2026-10', deposited: '0.00', spent: '0.00'},
+        ],
+      }),
+    });
+    renderWithProviders(<ProjectDashboard projectId={9} />);
+
+    expect(
+      await screen.findByText(/Aún no hay depósitos ni gastos/),
+    ).toBeInTheDocument();
+  });
 });

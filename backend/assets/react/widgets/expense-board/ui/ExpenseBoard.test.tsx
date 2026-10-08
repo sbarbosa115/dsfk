@@ -54,9 +54,12 @@ describe('ExpenseBoard', () => {
     });
     renderWithProviders(<ExpenseBoard projectId={9} manager={false} />);
 
-    await userEvent.click(
-      await screen.findByRole('button', {name: 'Registrar gasto'}),
-    );
+    const record = await screen.findByRole('button', {name: 'Registrar gasto'});
+    expect(
+      record.closest('.toolbar'),
+      "the tab's main action ends its filter bar",
+    ).toContainElement(screen.getByLabelText('Buscar'));
+    await userEvent.click(record);
     const dialog = screen.getByRole('dialog');
     expect(
       within(dialog).queryByLabelText('Se paga desde'),

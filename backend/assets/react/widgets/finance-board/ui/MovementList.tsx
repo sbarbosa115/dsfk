@@ -1,3 +1,4 @@
+import type {ReactNode} from 'react';
 import {
   attachmentUrl,
   entryLabel,
@@ -75,11 +76,14 @@ export function MovementList({
   finance,
   onVoid,
   onAttach,
+  actions,
 }: {
   projectId: number;
   finance: Finance;
   onVoid: (movement: Movement) => void;
   onAttach: (movement: Movement) => void;
+  /** The tab's own actions (Registrar depósito), at the end of the filter bar (QA-0005). */
+  actions?: ReactNode;
 }) {
   const list = useList<Movement, {q: string}>(
     movementsKey(projectId),
@@ -95,7 +99,9 @@ export function MovementList({
         search={list.filters.q}
         onSearch={(q) => list.update({q})}
         searchPlaceholder={t('finance.searchMovements')}
-      />
+      >
+        {actions}
+      </FilterBar>
       <RowLegend
         statuses={[{value: 'movement_voided', label: t('finance.voided')}]}
       />

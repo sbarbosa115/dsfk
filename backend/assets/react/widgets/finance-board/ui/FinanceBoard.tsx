@@ -64,34 +64,7 @@ export function FinanceBoard({projectId}: {projectId: number}) {
 
   return (
     <div className="settings-sections">
-      <TabIntro
-        action={
-          f.permissions.deposit ? (
-            <>
-              {canDraw && (
-                <ActionButton
-                  action="revert"
-                  size="md"
-                  onClick={() => setDialog({kind: 'draw'})}
-                >
-                  {t('finance.draw')}
-                </ActionButton>
-              )}
-              <ActionButton
-                action="setup"
-                main
-                size="md"
-                icon="plus"
-                onClick={() => setDialog({kind: 'deposit'})}
-              >
-                {t('finance.newDeposit')}
-              </ActionButton>
-            </>
-          ) : null
-        }
-      >
-        {t('finance.intro')}
-      </TabIntro>
+      <TabIntro>{t('finance.intro')}</TabIntro>
       {!f.budgetApproved && (
         <Alert kind="info">{t('finance.notApproved')}</Alert>
       )}
@@ -155,6 +128,30 @@ export function FinanceBoard({projectId}: {projectId: number}) {
           finance={f}
           onVoid={(movement) => setDialog({kind: 'void', movement})}
           onAttach={(movement) => setDialog({kind: 'attach', movement})}
+          actions={
+            f.permissions.deposit ? (
+              <>
+                {canDraw && (
+                  <ActionButton
+                    action="revert"
+                    size="md"
+                    onClick={() => setDialog({kind: 'draw'})}
+                  >
+                    {t('finance.draw')}
+                  </ActionButton>
+                )}
+                <ActionButton
+                  action="setup"
+                  main
+                  size="md"
+                  icon="plus"
+                  onClick={() => setDialog({kind: 'deposit'})}
+                >
+                  {t('finance.newDeposit')}
+                </ActionButton>
+              </>
+            ) : null
+          }
         />
       </section>
 

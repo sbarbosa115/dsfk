@@ -168,32 +168,7 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
 
   return (
     <div className="settings-sections">
-      <TabIntro
-        action={
-          approved ? (
-            <>
-              {manager && (summary?.toReimburseCount ?? 0) > 0 && (
-                <ActionButton
-                  action="confirm"
-                  size="md"
-                  onClick={() => setDialog({kind: 'reimburse'})}
-                >
-                  {t('expenses.reimburse')}
-                </ActionButton>
-              )}
-              <ActionButton
-                action="setup"
-                main
-                size="md"
-                icon="plus"
-                onClick={() => setDialog({kind: 'record'})}
-              >
-                {t('expenses.record')}
-              </ActionButton>
-            </>
-          ) : null
-        }
-      >
+      <TabIntro>
         {manager ? t('expenses.intro') : t('expenses.introTeamLead')}
       </TabIntro>
       {!approved && <Alert kind="info">{t('expenses.notApproved')}</Alert>}
@@ -258,7 +233,29 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
               ],
             },
           ]}
-        />
+        >
+          {/* The tab's actions end its filter bar, as on Proyectos and Usuarios (QA-0005). */}
+          {approved && manager && (summary?.toReimburseCount ?? 0) > 0 && (
+            <ActionButton
+              action="confirm"
+              size="md"
+              onClick={() => setDialog({kind: 'reimburse'})}
+            >
+              {t('expenses.reimburse')}
+            </ActionButton>
+          )}
+          {approved && (
+            <ActionButton
+              action="setup"
+              main
+              size="md"
+              icon="plus"
+              onClick={() => setDialog({kind: 'record'})}
+            >
+              {t('expenses.record')}
+            </ActionButton>
+          )}
+        </FilterBar>
         <RowLegend
           statuses={EXPENSE_STATUSES.map((s) => ({
             value: expenseTone(s),

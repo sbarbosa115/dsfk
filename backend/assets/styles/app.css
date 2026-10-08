@@ -2619,3 +2619,54 @@ select.filter-select {
     padding: 0;
   }
 }
+
+/*
+ * A page's tab bar on a phone (QA-0010): short labels so more tabs fit, no icons, and a fade at the right edge while
+ * tabs are hidden past it (Tabs sets `has-more`), so the bar reads as one that scrolls. The chosen tab is scrolled
+ * into view by Tabs itself.
+ */
+.tab-label-short {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .tabs-page .tab:has(.tab-label-short) .tab-label {
+    display: none;
+  }
+
+  .tabs-page .tab-label-short {
+    display: inline;
+  }
+
+  .tabs-page .tab {
+    padding: 10px 12px 12px;
+  }
+
+  .tabs-page .tab .icon {
+    display: none;
+  }
+
+  .tabs-page.has-more {
+    mask-image: linear-gradient(to left, transparent 0, black 48px);
+  }
+
+  /* Figures two by two, so the first table is not two screens down. */
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* A half-width tile still fits a ten-digit amount: smaller, and it breaks at a separator before it overflows. */
+  .stat-grid .stat {
+    padding: 12px;
+  }
+
+  .stat-grid .stat-value-money {
+    font-size: 1.05rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* A filter's dropdown stays the width of its words, so a long project name does not push the bar onto two rows. */
+.toolbar .filter-select select {
+  max-width: 240px;
+}

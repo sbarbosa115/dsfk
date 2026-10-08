@@ -59,22 +59,7 @@ export function PettyCashBoard({projectId}: {projectId: number}) {
 
   return (
     <div className="settings-sections">
-      <TabIntro
-        action={
-          c.permissions.close ? (
-            <ActionButton
-              action="confirm"
-              main
-              size="md"
-              onClick={() => setDialog({kind: 'close'})}
-            >
-              {t('pettyCash.close')}
-            </ActionButton>
-          ) : null
-        }
-      >
-        {t('pettyCash.intro')}
-      </TabIntro>
+      <TabIntro>{t('pettyCash.intro')}</TabIntro>
 
       <section className="card">
         <div className="stat-grid">
@@ -101,11 +86,24 @@ export function PettyCashBoard({projectId}: {projectId: number}) {
 
       <section className="card">
         <div className="card-header">
-          <h2>{t('pettyCash.currentCycle', {number: current.number})}</h2>
-          {current.openedAt && (
-            <span className="small muted">
-              {t('pettyCash.openedOn', {date: formatDate(current.openedAt)})}
-            </span>
+          <div>
+            <h2>{t('pettyCash.currentCycle', {number: current.number})}</h2>
+            {current.openedAt && (
+              <span className="small muted">
+                {t('pettyCash.openedOn', {date: formatDate(current.openedAt)})}
+              </span>
+            )}
+          </div>
+          {/* Closing acts on this cycle, so it sits on its card (QA-0005). */}
+          {c.permissions.close && (
+            <ActionButton
+              action="confirm"
+              main
+              size="md"
+              onClick={() => setDialog({kind: 'close'})}
+            >
+              {t('pettyCash.close')}
+            </ActionButton>
           )}
         </div>
         <Movements movements={current.movements ?? []} money={money} />

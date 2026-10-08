@@ -45,7 +45,7 @@ export function PlanBoard({projectId}: {projectId: number}) {
 
   return (
     <div className="settings-sections">
-      <TabIntro action={addStage}>
+      <TabIntro>
         {p.permissions.viewFinancials
           ? t('plan.intro')
           : t('plan.introTeamLead')}
@@ -54,8 +54,13 @@ export function PlanBoard({projectId}: {projectId: number}) {
       {(p.permissions.viewFinancials || p.categories.length > 0) && (
         <CategoriesPanel plan={p} />
       )}
+      {/* "Agregar etapa" ends the stage list's own header, once, even when the list is empty (QA-0005). */}
+      <div className="section-title">
+        <h3>{t('plan.stages')}</h3>
+        {addStage}
+      </div>
       {p.stages.length === 0 ? (
-        <EmptyState action={addStage}>{t('plan.noStages')}</EmptyState>
+        <EmptyState>{t('plan.noStages')}</EmptyState>
       ) : (
         p.stages.map((stage, index) => (
           <StageCard key={stage.id} plan={p} stage={stage} index={index} />

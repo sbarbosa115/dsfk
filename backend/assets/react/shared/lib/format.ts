@@ -1,5 +1,8 @@
 import {LOCALE} from '@/shared/i18n';
 
+/** The zone of the company and its works: every time on screen is a time in Colombia. */
+export const TIME_ZONE = 'America/Bogota';
+
 /**
  * An amount in major units: formatMoney('1500000', 'COP') → "$ 1.500.000". Pesos show cents only when there
  * are some ("$ 35.000,50"), so no figure is ever rounded on screen; other currencies always show two.
@@ -71,9 +74,15 @@ export function formatDateTime(iso: string | null | undefined): string {
     return '—';
   }
 
+  // The same date as formatDate, and the time where the works are: a record made at 9 p. m. in Bogotá reads 9 p. m.
+  // whatever the browser's zone (QA-0008).
   return new Intl.DateTimeFormat(LOCALE, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: TIME_ZONE,
   }).format(new Date(iso));
 }
 

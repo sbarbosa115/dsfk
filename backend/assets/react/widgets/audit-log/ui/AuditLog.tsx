@@ -35,6 +35,11 @@ function kind(entityType: string): string {
   return t(`audit.entity.${entityType}`, {defaultValue: entityType});
 }
 
+/** A changed field by its Spanish name; one the list does not know yet shows as stored rather than as a key. */
+function fieldLabel(field: string): string {
+  return t(`audit.fields.${field}`, {defaultValue: field});
+}
+
 /** Who changed what and when, across every project. Admins only. */
 export function AuditLog() {
   const list = useList<AuditEntry, Filters>(AUDIT_KEY, AUDIT_PATH, {
@@ -115,7 +120,7 @@ export function AuditLog() {
                   <div className="small muted">
                     {fields
                       .slice(0, 3)
-                      .map((f) => f.field)
+                      .map((f) => fieldLabel(f.field))
                       .join(', ')}
                     {fields.length > 3 && ` +${fields.length - 3}`}
                   </div>
@@ -151,9 +156,7 @@ export function AuditLog() {
             actions={false}
             renderRow={(f) => (
               <tr key={f.field}>
-                <td>
-                  <code>{f.field}</code>
-                </td>
+                <td>{fieldLabel(f.field)}</td>
                 <td>{value(f.before)}</td>
                 <td>{value(f.after)}</td>
               </tr>

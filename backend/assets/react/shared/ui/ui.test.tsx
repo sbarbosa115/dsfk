@@ -9,6 +9,7 @@ import {
   ListView,
   Row,
   SubmitButton,
+  Tabs,
 } from './ui';
 
 const idle = {busy: false, formError: null};
@@ -216,5 +217,58 @@ describe('ListView', () => {
 
     screen.getByRole('button', {name: 'Ver todos'}).click();
     expect(result.update).toHaveBeenCalledWith({q: ''});
+  });
+});
+
+describe('Tabs', () => {
+  const options = [
+    {value: 'plan', label: 'Presupuesto y plan', shortLabel: 'Plan'},
+    {value: 'petty-cash', label: 'Caja menor', shortLabel: 'Caja'},
+  ];
+
+  it('carries a short label for a phone, and keeps the full one as the name', () => {
+    render(
+      <Tabs
+        id="project"
+        variant="page"
+        value="plan"
+        options={options}
+        onChange={vi.fn()}
+      />,
+    );
+
+    const tab = screen.getByRole('tab', {name: /Presupuesto y plan/});
+    expect(tab.querySelector('.tab-label-short')).toHaveTextContent('Plan');
+  });
+
+  it('brings the chosen tab into view, so on a phone it is never off the edge', () => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    const {rerender} = render(
+      <Tabs
+        id="project"
+        variant="page"
+        value="plan"
+        options={options}
+        onChange={vi.fn()}
+      />,
+    );
+    rerender(
+      <Tabs
+        id="project"
+        variant="page"
+        value="petty-cash"
+        options={options}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(scroll).toHaveBeenLastCalledWith({
+      block: 'nearest',
+      inline: 'nearest',
+    });
+    expect(scroll.mock.contexts.at(-1)).toBe(
+      screen.getByRole('tab', {name: /Caja menor/}),
+    );
   });
 });

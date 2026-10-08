@@ -511,7 +511,13 @@ export function SearchInput({
  */
 interface TabsProps<V extends string | number> {
   value: V;
-  options: ReadonlyArray<{value: V; label: ReactNode; icon?: IconName}>;
+  /** `shortLabel`: the words a phone shows when the full label does not fit ("Plan" for "Presupuesto y plan"). */
+  options: ReadonlyArray<{
+    value: V;
+    label: ReactNode;
+    shortLabel?: string;
+    icon?: IconName;
+  }>;
   onChange: (value: V) => void;
   variant?: 'pill' | 'page';
   id?: string;
@@ -532,9 +538,38 @@ export function Tabs<V extends string | number>({
     onChange(option.value);
     document.getElementById(id ? `${id}-tab-${option.value}` : '')?.focus();
   };
+  const bar = useRef<HTMLDivElement>(null);
+  // Whether tabs are hidden past the right edge, so the bar fades there and the reader knows it scrolls (QA-0010).
+  const [more, setMore] = useState(false);
+  const measure = () => {
+    const el = bar.current;
+    if (el) {
+      setMore(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
+    }
+  };
+
+  // The chosen tab is always in view, even when it sits past the edge of a phone.
+  useEffect(() => {
+    const active = bar.current?.querySelector<HTMLElement>('.tab-active');
+    if (typeof active?.scrollIntoView === 'function') {
+      active.scrollIntoView({block: 'nearest', inline: 'nearest'});
+    }
+    measure();
+  }, [value]);
+
+  useEffect(() => {
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
 
   return (
-    <div className={`tabs tabs-${variant}`} role="tablist" aria-label={label}>
+    <div
+      ref={bar}
+      className={`tabs tabs-${variant}${more ? ' has-more' : ''}`}
+      role="tablist"
+      aria-label={label}
+      onScroll={measure}
+    >
       {options.map((option, index) => {
         const active = option.value === value;
         return (
@@ -555,7 +590,12 @@ export function Tabs<V extends string | number>({
             }}
           >
             {option.icon && <Icon name={option.icon} size={18} />}
-            <span>{option.label}</span>
+            <span className="tab-label">{option.label}</span>
+            {option.shortLabel && (
+              <span className="tab-label-short" aria-hidden="true">
+                {option.shortLabel}
+              </span>
+            )}
           </button>
         );
       })}

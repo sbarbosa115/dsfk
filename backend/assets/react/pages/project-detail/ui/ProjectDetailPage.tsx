@@ -103,12 +103,18 @@ function ProjectView({project}: {project: Project}) {
         value={tab}
         onChange={setTab}
         options={[
-          {value: 'plan', label: t('projects.tabs.plan'), icon: 'clipboard'},
+          {
+            value: 'plan',
+            label: t('projects.tabs.plan'),
+            shortLabel: t('projects.tabsShort.plan'),
+            icon: 'clipboard',
+          },
           ...(manager
             ? [
                 {
                   value: 'dashboard' as const,
                   label: t('projects.tabs.dashboard'),
+                  shortLabel: t('projects.tabsShort.dashboard'),
                   icon: 'chart' as const,
                 },
               ]
@@ -116,6 +122,7 @@ function ProjectView({project}: {project: Project}) {
           {
             value: 'expenses',
             label: t('projects.tabs.expenses'),
+            shortLabel: t('projects.tabsShort.expenses'),
             icon: 'receipt',
           },
           ...(manager
@@ -123,11 +130,13 @@ function ProjectView({project}: {project: Project}) {
                 {
                   value: 'finance' as const,
                   label: t('projects.tabs.finance'),
+                  shortLabel: t('projects.tabsShort.finance'),
                   icon: 'wallet' as const,
                 },
                 {
                   value: 'petty-cash' as const,
                   label: t('projects.tabs.pettyCash'),
+                  shortLabel: t('projects.tabsShort.pettyCash'),
                   icon: 'card' as const,
                 },
               ]
@@ -135,6 +144,7 @@ function ProjectView({project}: {project: Project}) {
           {
             value: 'overview',
             label: t('projects.tabs.overview'),
+            shortLabel: t('projects.tabsShort.overview'),
             icon: 'dashboard',
           },
         ]}
