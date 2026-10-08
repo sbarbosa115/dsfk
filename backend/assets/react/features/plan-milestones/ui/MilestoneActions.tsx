@@ -8,12 +8,11 @@ import {
 import {t} from '@/shared/i18n';
 import {today} from '@/shared/lib/format';
 import {
-  ActionButton,
   ConfirmModal,
   DateInput,
   Field,
   FormModal,
-  IconButton,
+  RowActions,
 } from '@/shared/ui';
 import {MilestoneFormModal} from './MilestoneFormModal';
 
@@ -39,36 +38,39 @@ export function MilestoneActions({
 
   return (
     <>
-      {track && !milestone.completedAt && (
-        <ActionButton action="confirm" onClick={() => setDialog('complete')}>
-          {t('plan.complete')}
-        </ActionButton>
-      )}
-      {reopenMilestones &&
-        milestone.completedAt &&
-        stage.status !== 'COMPLETED' && (
-          <ActionButton
-            action="revert"
-            busy={reopen.busy}
-            onClick={() =>
-              void reopen.run(`/milestones/${milestone.id}/reopen`, 'POST')
-            }
-          >
-            {t('plan.reopen')}
-          </ActionButton>
-        )}
-      {edit && (
-        <>
-          <IconButton
-            icon="pencil"
-            label={t('plan.editMilestone')}
-            onClick={() => setDialog('edit')}
-          />
-          <ActionButton action="danger" onClick={() => setDialog('delete')}>
-            {t('plan.remove')}
-          </ActionButton>
-        </>
-      )}
+      <RowActions
+        name={milestone.name}
+        main={
+          track && !milestone.completedAt
+            ? {
+                label: t('plan.complete'),
+                action: 'confirm',
+                onClick: () => setDialog('complete'),
+              }
+            : reopenMilestones &&
+              !!milestone.completedAt &&
+              stage.status !== 'COMPLETED' && {
+                label: t('plan.reopen'),
+                action: 'revert',
+                busy: reopen.busy,
+                onClick: () =>
+                  void reopen.run(`/milestones/${milestone.id}/reopen`, 'POST'),
+              }
+        }
+        edit={edit && {onClick: () => setDialog('edit')}}
+        more={[
+          edit && {
+            items: [
+              {
+                label: t('plan.remove'),
+                action: 'danger',
+                icon: 'ban',
+                onClick: () => setDialog('delete'),
+              },
+            ],
+          },
+        ]}
+      />
       {dialog === 'complete' && (
         <CompleteModal milestone={milestone} onClose={close} />
       )}

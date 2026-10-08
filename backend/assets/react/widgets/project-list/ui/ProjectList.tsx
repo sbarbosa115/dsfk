@@ -16,10 +16,10 @@ import {
   ActionButton,
   Actions,
   FilterBar,
-  IconButton,
   ListView,
   PageHeader,
   Row,
+  RowActions,
   RowLegend,
 } from '@/shared/ui';
 
@@ -107,10 +107,12 @@ export function ProjectList() {
             <td className="nowrap">{project.currency}</td>
             <td>{t(`roles.${project.myRole}`)}</td>
             <Actions>
-              <IconButton
-                icon="eye"
-                label={t('projects.open')}
-                onClick={() => navigate(`/projects/${project.id}`)}
+              <RowActions
+                name={project.name}
+                view={{
+                  label: t('projects.open'),
+                  to: `/projects/${project.id}`,
+                }}
               />
             </Actions>
           </Row>

@@ -24,6 +24,7 @@ import {
   Loading,
   ProgressBar,
   Row,
+  RowActions,
   Stat,
   TabIntro,
 } from '@/shared/ui';
@@ -262,11 +263,16 @@ function StagesCard({
             </td>
             {f.permissions.completeStages && (
               <Actions>
-                {s.status === 'IN_PROGRESS' && (
-                  <ActionButton action="confirm" onClick={() => onComplete(s)}>
-                    {t('finance.completeStage')}
-                  </ActionButton>
-                )}
+                <RowActions
+                  name={s.name}
+                  main={
+                    s.status === 'IN_PROGRESS' && {
+                      label: t('finance.completeStage'),
+                      action: 'confirm',
+                      onClick: () => onComplete(s),
+                    }
+                  }
+                />
               </Actions>
             )}
           </Row>

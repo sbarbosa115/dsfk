@@ -1,6 +1,5 @@
 import {
   attachmentUrl,
-  isVoidable,
   entryLabel,
   movementsKey,
   movementsPath,
@@ -12,15 +11,63 @@ import {t} from '@/shared/i18n';
 import {formatDate, formatMoney} from '@/shared/lib/format';
 import {useList} from '@/shared/lib/list';
 import {
-  ActionButton,
   Actions,
-  actionClass,
   FilterBar,
-  IconButton,
   ListView,
   Row,
+  RowActions,
   RowLegend,
+  type RowAction,
 } from '@/shared/ui';
+import {movementRowActions, type MovementRowAction} from '../model/rowActions';
+
+/** A movement's row: its proof (or asking for it), and voiding last (model/rowActions decides which). */
+function MovementActions({
+  movement: m,
+  admin,
+  onAttach,
+  onVoid,
+}: {
+  movement: Movement;
+  admin: boolean;
+  onAttach: () => void;
+  onVoid: () => void;
+}) {
+  const plan = movementRowActions(m, admin);
+  const [first, ...others] = m.attachments ?? [];
+  const proof = (a: NonNullable<typeof first>): RowAction => ({
+    label: t('finance.proof'),
+    action: 'file',
+    icon: 'file',
+    description: a.name,
+    href: attachmentUrl(a.id),
+  });
+  const actions: Record<MovementRowAction, RowAction | null> = {
+    attach: {
+      label: t('finance.attach'),
+      action: 'setup',
+      icon: 'paperclip',
+      onClick: onAttach,
+    },
+    proof: first ? proof(first) : null,
+    void: {
+      label: t('finance.void'),
+      action: 'danger',
+      icon: 'ban',
+      onClick: onVoid,
+    },
+  };
+  return (
+    <RowActions
+      name={`${t(`finance.type.${m.type}`)} · ${formatDate(m.date)}`}
+      main={plan.main && actions[plan.main]}
+      more={[
+        {items: [...others.map(proof), ...plan.items.map((a) => actions[a])]},
+        {items: plan.last.map((a) => actions[a])},
+      ]}
+    />
+  );
+}
 
 /** Deposits, draws and carry-overs, newest first; voided ones stay, greyed out, with who voided them and why. */
 export function MovementList({
@@ -100,30 +147,12 @@ export function MovementList({
             </td>
             <td className="num">{money(m.amount)}</td>
             <Actions>
-              {m.attachments.map((a) => (
-                <a
-                  key={a.id}
-                  className={actionClass('file')}
-                  href={attachmentUrl(a.id)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={a.name}
-                >
-                  {t('finance.proof')}
-                </a>
-              ))}
-              {admin && m.type === 'DEPOSIT' && !m.voided && (
-                <ActionButton action="setup" onClick={() => onAttach(m)}>
-                  {t('finance.attach')}
-                </ActionButton>
-              )}
-              {admin && isVoidable(m) && (
-                <IconButton
-                  icon="ban"
-                  label={t('finance.void')}
-                  onClick={() => onVoid(m)}
-                />
-              )}
+              <MovementActions
+                movement={m}
+                admin={admin}
+                onAttach={() => onAttach(m)}
+                onVoid={() => onVoid(m)}
+              />
             </Actions>
           </Row>
         )}

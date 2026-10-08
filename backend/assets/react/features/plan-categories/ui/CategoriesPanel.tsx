@@ -10,7 +10,7 @@ import {
   DataTable,
   Field,
   FormModal,
-  IconButton,
+  RowActions,
 } from '@/shared/ui';
 
 type Category = Plan['categories'][number];
@@ -91,17 +91,25 @@ export function CategoriesPanel({plan}: {plan: Plan}) {
               )}
               {manage && (
                 <Actions>
-                  <IconButton
-                    icon="pencil"
-                    label={t('plan.renameCategory')}
-                    onClick={() => setRenaming(category)}
+                  <RowActions
+                    name={category.name}
+                    edit={{
+                      label: t('plan.rename'),
+                      onClick: () => setRenaming(category),
+                    }}
+                    more={[
+                      {
+                        items: [
+                          {
+                            label: t('plan.remove'),
+                            action: 'danger',
+                            icon: 'ban',
+                            onClick: () => setRemoving(category),
+                          },
+                        ],
+                      },
+                    ]}
                   />
-                  <ActionButton
-                    action="danger"
-                    onClick={() => setRemoving(category)}
-                  >
-                    {t('plan.remove')}
-                  </ActionButton>
                 </Actions>
               )}
             </tr>

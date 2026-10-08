@@ -16,16 +16,17 @@ import {t} from '@/shared/i18n';
 import {formatDate, formatDateTime, formatMoney} from '@/shared/lib/format';
 import {
   ActionButton,
-  actionClass,
   Actions,
   DataTable,
   DefinitionList,
   EmptyState,
   ErrorState,
-  IconButton,
   Loading,
   Modal,
   Row,
+  type RowAction,
+  type RowActionGroup,
+  RowActions,
   RowLegend,
   Stat,
   TabIntro,
@@ -160,19 +161,21 @@ export function PettyCashBoard({projectId}: {projectId: number}) {
                     <strong>{money(cycle.closingBalance)}</strong>
                   </td>
                   <Actions>
-                    <IconButton
-                      icon="eye"
-                      label={t('pettyCash.viewCycle', {number: cycle.number})}
-                      onClick={() => setDialog({kind: 'view', cycle})}
+                    <RowActions
+                      name={t('pettyCash.cycleNumber', {number: cycle.number})}
+                      main={
+                        c.permissions.signOff &&
+                        cycle.status === 'CLOSED' && {
+                          label: t('pettyCash.signOff'),
+                          action: 'confirm',
+                          onClick: () => setDialog({kind: 'signOff', cycle}),
+                        }
+                      }
+                      view={{
+                        label: t('pettyCash.viewCycle', {number: cycle.number}),
+                        onClick: () => setDialog({kind: 'view', cycle}),
+                      }}
                     />
-                    {c.permissions.signOff && cycle.status === 'CLOSED' && (
-                      <ActionButton
-                        action="confirm"
-                        onClick={() => setDialog({kind: 'signOff', cycle})}
-                      >
-                        {t('pettyCash.signOff')}
-                      </ActionButton>
-                    )}
                   </Actions>
                 </Row>
               )}
@@ -244,20 +247,15 @@ function Movements({
           <td>{m.user}</td>
           <td className="num">{money(m.amount)}</td>
           <Actions>
-            {m.attachments.map((a) => (
-              <a
-                key={a.id}
-                className={actionClass('file')}
-                href={attachmentUrl(a.id)}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={a.name}
-              >
-                {m.type === 'EXPENSE'
+            <RowActions
+              name={`${t(`finance.type.${m.type}`)} · ${formatDate(m.date)}`}
+              {...attachmentActions(
+                m.attachments,
+                m.type === 'EXPENSE'
                   ? t('expenses.receipt')
-                  : t('finance.proof')}
-              </a>
-            ))}
+                  : t('finance.proof'),
+              )}
+            />
           </Actions>
         </Row>
       )}
@@ -316,4 +314,22 @@ function CycleModal({
       )}
     </Modal>
   );
+}
+
+/** A row's files: the first one is its main action, any others wait in the menu. */
+function attachmentActions(
+  attachments: ReadonlyArray<{id: number; name: string}>,
+  label: string,
+): {main: RowAction | null; more: RowActionGroup[]} {
+  const file = (a: {id: number; name: string}): RowAction => ({
+    label,
+    action: 'file',
+    description: a.name,
+    href: attachmentUrl(a.id),
+  });
+  const [first, ...others] = attachments;
+  return {
+    main: first ? file(first) : null,
+    more: [{items: others.map(file)}],
+  };
 }

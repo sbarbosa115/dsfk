@@ -21,6 +21,14 @@ export const es = {
     audit: 'Auditoría',
     help: 'Documentación',
   },
+  // A row's actions (shared/ui/RowActions): its main button, and the chevron that opens the rest.
+  rowActions: {
+    more: 'Más acciones: {{name}}',
+    moreLabel: 'Más',
+    view: 'Ver',
+    disableHelp: 'Deja de aparecer en las listas; se puede volver a activar.',
+    enableHelp: 'Vuelve a aparecer en las listas.',
+  },
   common: {
     working: 'Procesando…',
     optional: 'opcional',
@@ -234,6 +242,7 @@ export const es = {
     newCategory: 'Nueva categoría',
     addCategory: 'Agregar',
     renameCategory: 'Renombrar categoría',
+    rename: 'Renombrar',
     noCategories: 'Crea al menos una categoría antes de agregar partidas.',
     stages: 'Etapas',
     addStage: 'Agregar etapa',
@@ -395,6 +404,7 @@ export const es = {
     actualEnd: 'Fecha de finalización',
   },
   expenses: {
+    rowGroup: 'Este gasto',
     intro:
       'Lo que se gasta en la obra. El gerente y el administrador pagan desde una etapa o desde la caja menor; los líderes de equipo registran lo que pagan con su dinero y se les reembolsa desde la caja menor.',
     introTeamLead:
@@ -493,6 +503,7 @@ export const es = {
     cycle: 'Ciclo',
     cycleTitle: 'Ciclo {{number}}',
     viewCycle: 'Ver el ciclo {{number}}',
+    cycleNumber: 'Ciclo {{number}}',
     closed: 'Cerrado',
     signedOff: 'Firmado',
     who: 'Registró',

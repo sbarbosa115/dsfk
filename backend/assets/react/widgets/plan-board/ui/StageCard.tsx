@@ -24,9 +24,9 @@ import {
   Badge,
   DataTable,
   EmptyState,
-  IconButton,
   ProgressBar,
   Row,
+  RowActions,
   RowLegend,
 } from '@/shared/ui';
 
@@ -139,17 +139,25 @@ export function StageCard({
                   <td className="num">{formatMoney(line.total, currency)}</td>
                   {edit && (
                     <Actions>
-                      <IconButton
-                        icon="pencil"
-                        label={t('plan.editLine')}
-                        onClick={() => setDialog({kind: 'editLine', line})}
+                      <RowActions
+                        name={line.description}
+                        edit={{
+                          onClick: () => setDialog({kind: 'editLine', line}),
+                        }}
+                        more={[
+                          {
+                            items: [
+                              {
+                                label: t('plan.remove'),
+                                action: 'danger',
+                                icon: 'ban',
+                                onClick: () =>
+                                  setDialog({kind: 'deleteLine', line}),
+                              },
+                            ],
+                          },
+                        ]}
                       />
-                      <ActionButton
-                        action="danger"
-                        onClick={() => setDialog({kind: 'deleteLine', line})}
-                      >
-                        {t('plan.remove')}
-                      </ActionButton>
                     </Actions>
                   )}
                 </tr>

@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {useSession} from '@/entities/session';
 import {USERS_KEY, UserAccess, type User} from '@/entities/user';
 import {UserDialog} from '@/features/user-edit';
-import {ToggleActiveButton} from '@/features/user-toggle-active';
+import {useToggleActive} from '@/features/user-toggle-active';
 import {t} from '@/shared/i18n';
 import {useList} from '@/shared/lib/list';
 import {
@@ -10,12 +10,46 @@ import {
   Actions,
   Alert,
   FilterBar,
-  IconButton,
   ListView,
   PageHeader,
   Row,
+  RowActions,
   RowLegend,
 } from '@/shared/ui';
+
+/**
+ * A user's row: editing is the main action, turning them off or on the last item of the menu. A super admin's row is
+ * locked to a plain admin, and nobody turns themselves off.
+ */
+function UserActions({
+  user,
+  locked,
+  self,
+  onEdit,
+  onDone,
+}: {
+  user: User;
+  locked: boolean;
+  self: boolean;
+  onEdit: () => void;
+  onDone: (message: string) => void;
+}) {
+  const {toggle, modal} = useToggleActive(user, onDone);
+  return (
+    <>
+      <RowActions
+        name={user.fullName}
+        edit={
+          locked
+            ? {disabled: true, title: t('users.lockedSuperAdmin')}
+            : {onClick: onEdit}
+        }
+        toggle={!locked && !self && toggle}
+      />
+      {modal}
+    </>
+  );
+}
 
 /** Every user: search, active/inactive filter, create, edit, disable. */
 export function UserList() {
@@ -104,17 +138,11 @@ export function UserList() {
                 )}
               </td>
               <Actions>
-                <IconButton
-                  icon="pencil"
-                  label={
-                    locked ? t('users.lockedSuperAdmin') : t('common.edit')
-                  }
-                  disabled={locked}
-                  onClick={() => setEditing(user)}
-                />
-                <ToggleActiveButton
+                <UserActions
                   user={user}
-                  disabled={locked || user.id === me?.id}
+                  locked={locked}
+                  self={user.id === me?.id}
+                  onEdit={() => setEditing(user)}
                   onDone={setNotice}
                 />
               </Actions>

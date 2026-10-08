@@ -19,6 +19,7 @@ import {
   DataTable,
   EmptyState,
   Row,
+  RowActions,
   RowLegend,
   Select,
 } from '@/shared/ui';
@@ -184,12 +185,21 @@ export function MembersPanel({
                 </td>
                 {canManage && (
                   <Actions>
-                    <ActionButton
-                      action="danger"
-                      onClick={() => setRemoving(member)}
-                    >
-                      {t('members.remove')}
-                    </ActionButton>
+                    <RowActions
+                      name={member.user.fullName}
+                      more={[
+                        {
+                          items: [
+                            {
+                              label: t('members.remove'),
+                              action: 'danger',
+                              icon: 'ban',
+                              onClick: () => setRemoving(member),
+                            },
+                          ],
+                        },
+                      ]}
+                    />
                   </Actions>
                 )}
               </Row>

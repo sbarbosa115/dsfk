@@ -15,10 +15,10 @@ import {
   Actions,
   DataTable,
   FilterBar,
-  IconButton,
   ListView,
   Modal,
   PageHeader,
+  RowActions,
 } from '@/shared/ui';
 
 type Filters = {q: string; projectId: string; entityType: string};
@@ -122,13 +122,15 @@ export function AuditLog() {
                 )}
               </td>
               <Actions>
-                {fields.length > 0 && (
-                  <IconButton
-                    icon="eye"
-                    label={t('audit.view')}
-                    onClick={() => setOpen(entry)}
-                  />
-                )}
+                <RowActions
+                  name={t('audit.view')}
+                  view={
+                    fields.length > 0 && {
+                      label: t('audit.view'),
+                      onClick: () => setOpen(entry),
+                    }
+                  }
+                />
               </Actions>
             </tr>
           );

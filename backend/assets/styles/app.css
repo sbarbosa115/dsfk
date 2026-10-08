@@ -2295,3 +2295,215 @@ select.filter-select {
 .help-steps li + li {
   margin-top: 4px;
 }
+
+/*
+ * Row actions (shared/ui/RowActions, QA-0004): the row's main action, worded and filled, joined to a chevron that
+ * opens the rest in a menu. Ported from the MDX kit.
+ */
+.split {
+  display: inline-flex;
+}
+
+.split.is-split > :first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.split.is-split > .split-toggle {
+  margin-left: -1px;
+  width: 30px;
+  padding: 0;
+  justify-content: center;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.split-toggle[aria-expanded='true'] {
+  background: var(--action-soft);
+  border-color: var(--action);
+}
+
+.split-toggle.is-main[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--action) 85%, var(--color-text));
+  border-color: color-mix(in srgb, var(--action) 85%, var(--color-text));
+}
+
+.split.is-split > .split-toggle.is-main {
+  border-left-color: color-mix(
+    in srgb,
+    var(--color-surface) 40%,
+    var(--action)
+  );
+}
+
+.split-more {
+  gap: 4px;
+}
+
+.row-menu {
+  position: fixed;
+  z-index: 90;
+  min-width: 260px;
+  max-width: min(340px, calc(100vw - 16px));
+  padding: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  animation: row-menu-in 0.12s ease-out;
+}
+
+@keyframes row-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.row-menu hr {
+  margin: 4px;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.row-menu-heading {
+  padding: 8px 12px 2px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.row-menu-group {
+  display: grid;
+  gap: 4px;
+}
+
+/* Each item sits on its own action's tint, its colour in the icon and the words, like the buttons outside it. */
+.row-menu-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  text-decoration: none;
+  color: var(--tone);
+  background: var(--tone-soft);
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.row-menu-item:hover:not(:disabled),
+.row-menu-item:focus-visible {
+  background: color-mix(in srgb, var(--tone) 18%, var(--color-surface));
+  color: color-mix(in srgb, var(--tone) 80%, var(--color-text));
+}
+
+.row-menu-item:focus-visible {
+  outline: 2px solid var(--tone);
+  outline-offset: -2px;
+}
+
+.row-menu-item:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.row-menu-item > .icon {
+  flex: none;
+  margin-top: 2px;
+}
+
+.row-menu-text {
+  display: grid;
+  gap: 2px;
+}
+
+.row-menu-label {
+  font-weight: 600;
+}
+
+.row-menu-desc {
+  font-size: 0.78rem;
+  color: color-mix(in srgb, currentColor 75%, var(--color-text));
+}
+
+.row-menu .tone-confirm {
+  --tone: var(--color-success);
+  --tone-soft: var(--color-success-soft);
+}
+.row-menu .tone-danger {
+  --tone: var(--color-danger);
+  --tone-soft: var(--color-danger-soft);
+}
+.row-menu .tone-edit {
+  --tone: var(--color-info);
+  --tone-soft: var(--color-info-soft);
+}
+.row-menu .tone-open {
+  --tone: var(--color-accent);
+  --tone-soft: var(--color-accent-soft);
+}
+.row-menu .tone-file {
+  --tone: var(--color-teal);
+  --tone-soft: var(--color-teal-soft);
+}
+.row-menu .tone-setup {
+  --tone: var(--color-indigo);
+  --tone-soft: var(--color-indigo-soft);
+}
+.row-menu .tone-revert {
+  --tone: var(--color-warning);
+  --tone-soft: var(--color-warning-soft);
+}
+.row-menu .tone-contact {
+  --tone: var(--color-rose);
+  --tone-soft: var(--color-rose-soft);
+}
+
+/* On a phone the menu is a sheet from the bottom of the screen, its items a thumb's height. */
+.row-menu-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--color-overlay);
+}
+
+.row-menu.is-sheet {
+  inset: auto 0 0;
+  max-width: none;
+  min-width: 0;
+  padding: 12px 12px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-radius: var(--radius) var(--radius) 0 0;
+  animation-name: row-sheet-in;
+}
+
+@keyframes row-sheet-in {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}
+
+.row-menu-title {
+  padding: 0 12px 8px;
+  font-weight: 700;
+}
+
+.row-menu.is-sheet .row-menu-item {
+  min-height: 48px;
+  align-items: center;
+  font-size: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row-menu,
+  .row-menu.is-sheet {
+    animation: none;
+  }
+}

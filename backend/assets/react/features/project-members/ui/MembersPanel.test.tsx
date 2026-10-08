@@ -115,12 +115,16 @@ describe('MembersPanel', () => {
     });
     renderWithProviders(<MembersPanel project={project} canManage />);
 
-    await userEvent.click(screen.getByRole('button', {name: 'Quitar'}));
+    // Removing is the only thing a member's row does, so it waits in the menu rather than a red button on every row.
+    await userEvent.click(screen.getByRole('button', {name: 'Más'}));
+    await userEvent.click(screen.getByRole('menuitem', {name: /Quitar/}));
     expect(
       screen.getByText(/Laura Gómez dejará de ver este proyecto/),
     ).toBeInTheDocument();
     await userEvent.click(
-      within(screen.getByRole('dialog')).getByRole('button', {name: 'Quitar'}),
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Quitar',
+      }),
     );
 
     expect(
