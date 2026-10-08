@@ -146,6 +146,18 @@ test.describe('on a phone', () => {
       'inside the screen, not past its edge',
     ).toBeLessThanOrEqual(390);
     expect(box?.height ?? 0, 'a thumb’s height').toBeGreaterThanOrEqual(44);
+
+    // Nothing in a card runs past its edge (a long date range wraps instead).
+    await page.goto('/projects');
+    await expect(page.getByRole('row', {name: /Torre Norte/})).toBeVisible();
+    const clipped = await page
+      .locator('.table tbody td')
+      .evaluateAll((cells) =>
+        cells
+          .filter((cell) => cell.scrollWidth > cell.clientWidth + 1)
+          .map((cell) => cell.textContent),
+      );
+    expect(clipped).toEqual([]);
   });
 
   test('UI-06 · the project tabs use short labels and keep the chosen one in view', async ({

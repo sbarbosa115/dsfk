@@ -43,6 +43,17 @@ describe('expenseRowActions', () => {
     expect(plan.items).toEqual(['view', 'receipt']);
   });
 
+  it('makes correcting the main action of a rejected expense, even while a receipt can still be added', () => {
+    const plan = expenseRowActions(
+      expenseFixture({
+        status: 'REJECTED',
+        permissions: {...none, edit: true, attach: true},
+      }),
+    );
+    expect(plan.main).toBe('edit');
+    expect(plan.items).toEqual(['view', 'attach', 'receipt']);
+  });
+
   it('opens a settled expense, with its receipt in the menu and voiding last', () => {
     const plan = expenseRowActions(
       expenseFixture({

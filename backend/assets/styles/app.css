@@ -2628,6 +2628,11 @@ select.filter-select {
     box-shadow: none;
   }
 
+  /* A whole cell kept on one line (a date range) wraps between words on a card rather than run past its edge. */
+  .table tbody td.nowrap {
+    white-space: normal;
+  }
+
   .table td[data-label]::before {
     content: attr(data-label);
     float: left;

@@ -13,7 +13,7 @@ export function needsReceipt(e: Expense): boolean {
 
 /**
  * What an expense's row offers, in the house order (QA-0004): the main action is what the row waits on from this
- * person (approve, else the missing receipt, else correcting a rejected one, else opening it); the menu holds the
+ * person (approve; on a rejected one, correcting it; else the missing receipt; else opening it); the menu holds the
  * rest of "Este gasto", and rejecting or voiding comes last.
  */
 export function expenseRowActions(e: Expense): {
@@ -30,8 +30,12 @@ export function expenseRowActions(e: Expense): {
     reject: e.permissions.reject,
     void: e.permissions.void,
   };
-  const main =
-    (['approve', 'attach', 'edit'] as const).find((a) => can[a]) ?? 'view';
+  // A rejected expense waits on its correction first; otherwise a missing receipt comes before editing.
+  const order =
+    e.status === 'REJECTED'
+      ? (['approve', 'edit', 'attach'] as const)
+      : (['approve', 'attach', 'edit'] as const);
+  const main = order.find((a) => can[a]) ?? 'view';
   const items = (['view', 'edit', 'attach', 'receipt'] as const).filter(
     (a) => a !== main && can[a],
   );
