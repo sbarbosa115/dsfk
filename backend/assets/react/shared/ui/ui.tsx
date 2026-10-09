@@ -8,18 +8,22 @@ import React, {
 } from 'react';
 import {t} from '@/shared/i18n';
 import {errorMessage} from '@/shared/lib/errors';
+import {formatMoney} from '@/shared/lib/format';
 import type {Filters, ListPage} from '@/shared/lib/list';
 import Icon, {type IconName} from './Icon';
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  /** `link` only for text that is a link (a file name); never for an action (see ActionButton). */
-  variant?: 'primary' | 'secondary' | 'ghost' | 'link';
+  /**
+   * `ghost` is the plain grey way out of a group ("Cancelar", "Volver"), never an action on the data; `link` only for
+   * text that is a link (a file name). Every action is an ActionButton in the colour of what it does.
+   */
+  variant: 'ghost' | 'link';
   size?: 'sm';
   busy?: boolean;
 };
 
 export function Button({
-  variant = 'primary',
+  variant,
   size,
   busy = false,
   className = '',
@@ -104,19 +108,24 @@ export function actionClass(
 }
 
 /**
- * A worded button in an "Acciones" cell (or wherever an action sits next to others): outlined in the colour of
- * its `action`, so it reads as a button and not as a link.
+ * A worded button wherever an action sits next to others: outlined in the colour of its `action`, so it reads as a
+ * button and not as a link. `main` fills it: the one main action of its group (a bar above a table, a card's header,
+ * a modal's footer), never two in one group (ButtonGroups.test.ts).
  */
 type ActionButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   action: Action;
   size?: 'sm' | 'md';
   busy?: boolean;
+  main?: boolean;
+  icon?: IconName;
 };
 
 export function ActionButton({
   action,
   size = 'sm',
   busy = false,
+  main = false,
+  icon,
   className = '',
   children,
   ...props
@@ -124,12 +133,51 @@ export function ActionButton({
   return (
     <button
       type="button"
-      className={actionClass(action, className, size)}
+      className={actionClass(
+        action,
+        [main && 'is-main', className].filter(Boolean).join(' '),
+        size,
+      )}
       {...props}
       disabled={busy || props.disabled}
     >
+      {icon && !busy && <Icon name={icon} size={16} />}
       {busy ? t('common.working') : children}
     </button>
+  );
+}
+
+/**
+ * A form's submit: filled, in green with a tick when it says "Guardar", or in the colour of what the form does
+ * (`action`: rejecting is danger, registering is setup). "Cancelar" beside it stays a ghost Button.
+ */
+export function SubmitButton({
+  action = 'confirm',
+  busy,
+  disabled,
+  className,
+  children,
+}: {
+  action?: Action;
+  busy?: boolean;
+  disabled?: boolean;
+  className?: string;
+  children?: ReactNode;
+}) {
+  const saves = children === undefined || children === t('common.save');
+  return (
+    <ActionButton
+      type="submit"
+      action={action}
+      main
+      size="md"
+      icon={action === 'confirm' && saves ? 'check' : undefined}
+      busy={busy}
+      disabled={disabled}
+      className={className}
+    >
+      {children ?? t('common.save')}
+    </ActionButton>
   );
 }
 
@@ -289,10 +337,12 @@ const TONES: Record<string, string> = {
   health_none: 'muted',
   // Expenses.
   expense_submitted: 'info',
-  expense_pm_approved: 'accent',
+  // Waiting on an Admin: amber, like everything that needs attention.
+  expense_pm_approved: 'warning',
   expense_approved: 'success',
   expense_rejected: 'danger',
-  expense_reimbursed: 'teal',
+  // Settled by a reimbursement: its own colour, never mistaken for Aprobado (QA-0012).
+  expense_reimbursed: 'accent',
   expense_voided: 'muted',
   // Petty cash cycles.
   cycle_open: 'info',
@@ -300,9 +350,6 @@ const TONES: Record<string, string> = {
   cycle_signed_off: 'success',
   // Money movements: a voided one stays listed, greyed out.
   movement_voided: 'muted',
-  // A member's role in a project.
-  PROJECT_MANAGER: 'accent',
-  TEAM_LEAD: 'teal',
 };
 
 export function Badge({
@@ -400,17 +447,31 @@ export function TabIntro({
 export function PageHeader({
   title,
   subtitle,
+  clampSubtitle = false,
   actions,
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
+  /** A subtitle someone wrote (a description): two lines, the whole text as its tooltip. */
+  clampSubtitle?: boolean;
   actions?: ReactNode;
 }) {
   return (
     <div className="page-header">
       <div>
         <h1>{title}</h1>
-        {subtitle && <p className="page-subtitle">{subtitle}</p>}
+        {subtitle && (
+          <p
+            className={`page-subtitle${clampSubtitle ? ' cell-clamp' : ''}`}
+            title={
+              clampSubtitle && typeof subtitle === 'string'
+                ? subtitle
+                : undefined
+            }
+          >
+            {subtitle}
+          </p>
+        )}
       </div>
       {actions && <div className="page-actions">{actions}</div>}
     </div>
@@ -464,7 +525,13 @@ export function SearchInput({
  */
 interface TabsProps<V extends string | number> {
   value: V;
-  options: ReadonlyArray<{value: V; label: ReactNode; icon?: IconName}>;
+  /** `shortLabel`: the words a phone shows when the full label does not fit ("Plan" for "Presupuesto y plan"). */
+  options: ReadonlyArray<{
+    value: V;
+    label: ReactNode;
+    shortLabel?: string;
+    icon?: IconName;
+  }>;
   onChange: (value: V) => void;
   variant?: 'pill' | 'page';
   id?: string;
@@ -485,9 +552,38 @@ export function Tabs<V extends string | number>({
     onChange(option.value);
     document.getElementById(id ? `${id}-tab-${option.value}` : '')?.focus();
   };
+  const bar = useRef<HTMLDivElement>(null);
+  // Whether tabs are hidden past the right edge, so the bar fades there and the reader knows it scrolls (QA-0010).
+  const [more, setMore] = useState(false);
+  const measure = () => {
+    const el = bar.current;
+    if (el) {
+      setMore(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
+    }
+  };
+
+  // The chosen tab is always in view, even when it sits past the edge of a phone.
+  useEffect(() => {
+    const active = bar.current?.querySelector<HTMLElement>('.tab-active');
+    if (typeof active?.scrollIntoView === 'function') {
+      active.scrollIntoView({block: 'nearest', inline: 'nearest'});
+    }
+    measure();
+  }, [value]);
+
+  useEffect(() => {
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
 
   return (
-    <div className={`tabs tabs-${variant}`} role="tablist" aria-label={label}>
+    <div
+      ref={bar}
+      className={`tabs tabs-${variant}${more ? ' has-more' : ''}`}
+      role="tablist"
+      aria-label={label}
+      onScroll={measure}
+    >
       {options.map((option, index) => {
         const active = option.value === value;
         return (
@@ -508,7 +604,12 @@ export function Tabs<V extends string | number>({
             }}
           >
             {option.icon && <Icon name={option.icon} size={18} />}
-            <span>{option.label}</span>
+            <span className="tab-label">{option.label}</span>
+            {option.shortLabel && (
+              <span className="tab-label-short" aria-hidden="true">
+                {option.shortLabel}
+              </span>
+            )}
           </button>
         );
       })}
@@ -687,7 +788,7 @@ export function FilterBar({
           onChange={filter.onChange}
         />
       ))}
-      {children}
+      {children && <div className="toolbar-actions">{children}</div>}
     </div>
   );
 }
@@ -764,6 +865,64 @@ interface DataTableProps<T> {
   renderRow: (row: T, index: number) => ReactNode;
   actions?: boolean;
   className?: string;
+  /** Shown inside the table, under its header, when there are no rows: what will appear, and its action. */
+  empty?: ReactNode;
+}
+
+/** The words of a header, whatever it is wrapped in. */
+function textOf(node: ReactNode): string {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(textOf).join('');
+  }
+  if (React.isValidElement<{children?: ReactNode}>(node)) {
+    return textOf(node.props.children);
+  }
+  return '';
+}
+
+/** A row's cells, with the ones a page groups in a fragment (`<>…</>`) counted one by one. */
+function cellsOf(nodes: ReactNode): ReactNode[] {
+  return React.Children.toArray(nodes).flatMap((node) =>
+    React.isValidElement<{children?: ReactNode}>(node) &&
+    node.type === React.Fragment
+      ? cellsOf(node.props.children)
+      : [node],
+  );
+}
+
+/**
+ * Each cell carries its column's name (`data-label`), which a phone shows as "Label: value" when the row becomes a
+ * card (app.css, up to 600px; QA-0001). Not the first cell (the card's title), not the actions, not a spanning cell.
+ */
+function labelCells(
+  row: ReactNode,
+  headers: ReadonlyArray<ReactNode>,
+): ReactNode {
+  if (!React.isValidElement<{children?: ReactNode}>(row)) {
+    return row;
+  }
+  const cells = cellsOf(row.props.children).map((cell, i) => {
+    if (!React.isValidElement<{className?: string; colSpan?: number}>(cell)) {
+      return cell;
+    }
+    // Keyed by position: cells lifted out of a fragment would otherwise share the fragment's keys.
+    const key = `cell-${i}`;
+    const label =
+      cell.type === 'td' &&
+      i > 0 &&
+      !cell.props.colSpan &&
+      cell.props.className !== 'actions'
+        ? textOf(headers[i])
+        : '';
+    return React.cloneElement(
+      cell as React.ReactElement<Record<string, unknown>>,
+      label ? {key, 'data-label': label} : {key},
+    );
+  });
+  return React.cloneElement(row, {}, cells);
 }
 
 export function DataTable<T>({
@@ -772,8 +931,25 @@ export function DataTable<T>({
   renderRow,
   actions = true,
   className = '',
+  empty,
 }: DataTableProps<T>) {
   const headers = actions ? [...columns, t('common.actions')] : columns;
+  const body = rows.map((row, index) =>
+    labelCells(renderRow(row, index), headers),
+  );
+  // A column of figures (cells with `num`) gets its header aligned with them, to the right (QA-0013).
+  const numeric = new Set<number>();
+  const first = body[0];
+  if (React.isValidElement<{children?: ReactNode}>(first)) {
+    cellsOf(first.props.children).forEach((cell, index) => {
+      if (
+        React.isValidElement<{className?: string}>(cell) &&
+        /\bnum\b/.test(cell.props.className ?? '')
+      ) {
+        numeric.add(index);
+      }
+    });
+  }
 
   return (
     <div className={`table-wrap ${className}`.trim()}>
@@ -783,10 +959,13 @@ export function DataTable<T>({
             {headers.map((column, index) => (
               <th
                 key={typeof column === 'string' && column ? column : index}
+                scope="col"
                 className={
                   actions && index === headers.length - 1
                     ? 'col-actions'
-                    : undefined
+                    : numeric.has(index)
+                      ? 'num'
+                      : undefined
                 }
               >
                 {column}
@@ -794,7 +973,15 @@ export function DataTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody>{rows.map(renderRow)}</tbody>
+        <tbody>
+          {rows.length === 0 && empty ? (
+            <tr className="table-state">
+              <td colSpan={headers.length}>{empty}</td>
+            </tr>
+          ) : (
+            body
+          )}
+        </tbody>
       </table>
     </div>
   );
@@ -844,6 +1031,7 @@ export function ListView<T, F extends Filters>({
   if (list.error)
     return <ErrorState error={list.error} onRetry={list.reload} />;
   if (!list.data) return <Loading />;
+  let state: ReactNode = null;
   if (list.data.items.length === 0) {
     const all = {
       ...(list.filters.q !== undefined ? {q: ''} : {}),
@@ -852,8 +1040,9 @@ export function ListView<T, F extends Filters>({
     const filtered = Object.entries(all).some(
       ([name, value]) => (list.filters[name] ?? '') !== value,
     );
-    if (filtered && showAll) {
-      return (
+    // Inside the table, under its header (QA-0006): the columns still say what the list holds.
+    state =
+      filtered && showAll ? (
         <EmptyState
           action={
             <Button variant="ghost" onClick={() => list.update(all)}>
@@ -863,13 +1052,11 @@ export function ListView<T, F extends Filters>({
         >
           {empty}
         </EmptyState>
+      ) : (
+        <EmptyState action={filtered ? null : emptyAction}>
+          {filtered ? empty : emptyAll || empty}
+        </EmptyState>
       );
-    }
-    return (
-      <EmptyState action={filtered ? null : emptyAction}>
-        {filtered ? empty : emptyAll || empty}
-      </EmptyState>
-    );
   }
 
   return (
@@ -880,6 +1067,7 @@ export function ListView<T, F extends Filters>({
         renderRow={renderRow}
         actions={actions}
         className={list.loading ? 'is-reloading' : ''}
+        empty={state}
       />
       <Pager data={list.data} onPage={list.setPage} />
     </>
@@ -938,6 +1126,8 @@ interface FormModalProps extends ModalProps {
   /** A useSubmit() result: its busy state and form-level error. */
   submit: {busy: boolean; formError: string | null};
   submitLabel?: ReactNode;
+  /** What the form does, which colours its submit: confirm (save) by default, danger to reject or void. */
+  action?: Action;
 }
 
 export function FormModal({
@@ -946,6 +1136,7 @@ export function FormModal({
   onSubmit,
   submit,
   submitLabel,
+  action = 'confirm',
   size,
   children,
 }: FormModalProps) {
@@ -964,9 +1155,9 @@ export function FormModal({
           <Button variant="ghost" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" busy={submit.busy}>
-            {submitLabel || t('common.save')}
-          </Button>
+          <SubmitButton action={action} busy={submit.busy}>
+            {submitLabel || undefined}
+          </SubmitButton>
         </div>
       </form>
     </Modal>
@@ -1061,4 +1252,17 @@ export function FieldGroup({
       {error && <span className="field-error">{error}</span>}
     </fieldset>
   );
+}
+
+/** An amount in a table: whole pesos, with the exact amount as its tooltip when it has cents (QA-0013). */
+export function Money({
+  amount,
+  currency,
+}: {
+  amount: string | number;
+  currency: string;
+}) {
+  const shown = formatMoney(amount, currency);
+  const exact = formatMoney(amount, currency, {exact: true});
+  return <span title={exact !== shown ? exact : undefined}>{shown}</span>;
 }

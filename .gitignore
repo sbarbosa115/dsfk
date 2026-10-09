@@ -4,3 +4,5 @@
 # Built by `make build` / the deploy step, never committed.
 /backend/public/app/
 /.env
+# Smoke suite reports, traces and saved sessions (backend/e2e/smoke.sh).
+/backend/e2e/.results/

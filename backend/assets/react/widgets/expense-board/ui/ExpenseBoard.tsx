@@ -26,19 +26,20 @@ import {useList} from '@/shared/lib/list';
 import {
   ActionButton,
   Actions,
-  actionClass,
   Alert,
-  Button,
   ErrorState,
   FilterBar,
-  IconButton,
   ListView,
   Loading,
+  Money,
   Row,
+  type RowAction,
+  RowActions,
   RowLegend,
   Stat,
   TabIntro,
 } from '@/shared/ui';
+import {expenseRowActions, type ExpenseRowAction} from '../model/rowActions';
 import {ExpenseDetailModal} from './ExpenseDetailModal';
 
 type Dialog =
@@ -52,10 +53,74 @@ type Dialog =
 type Filters = {q: string; status: string; stageId: string};
 
 /** Offer "Adjuntar recibo" while the expense has none or is still being decided; the detail shows the rest. */
-function needsReceipt(e: Expense): boolean {
+type RowDialog = 'view' | 'edit' | 'approve' | 'reject' | 'attach' | 'void';
+
+/** An expense's row: its main action and the menu with the rest (model/rowActions decides which). */
+function ExpenseActions({
+  expense: e,
+  open,
+}: {
+  expense: Expense;
+  open: (kind: RowDialog) => void;
+}) {
+  const plan = expenseRowActions(e);
+  const receipt = e.attachments[0];
+  const actions: Record<ExpenseRowAction, RowAction> = {
+    approve: {
+      label: t('expenses.approve'),
+      action: 'confirm',
+      onClick: () => open('approve'),
+    },
+    attach: {
+      label: t('expenses.addReceipt'),
+      action: 'setup',
+      icon: 'paperclip',
+      onClick: () => open('attach'),
+    },
+    edit: {
+      label: t('expenses.correct'),
+      action: 'edit',
+      icon: 'pencil',
+      onClick: () => open('edit'),
+    },
+    view: {
+      label: t('expenses.view'),
+      action: 'open',
+      icon: 'eye',
+      onClick: () => open('view'),
+    },
+    receipt: {
+      label: t('expenses.receipt'),
+      action: 'file',
+      icon: 'file',
+      description: receipt?.name,
+      href: receipt ? attachmentUrl(receipt.id) : undefined,
+    },
+    reject: {
+      label: t('expenses.reject'),
+      action: 'danger',
+      icon: 'ban',
+      onClick: () => open('reject'),
+    },
+    void: {
+      label: t('finance.void'),
+      action: 'danger',
+      icon: 'ban',
+      onClick: () => open('void'),
+    },
+  };
   return (
-    e.attachments.length === 0 ||
-    ['SUBMITTED', 'PM_APPROVED', 'REJECTED'].includes(e.status)
+    <RowActions
+      name={e.description}
+      main={actions[plan.main]}
+      more={[
+        {
+          title: t('expenses.rowGroup'),
+          items: plan.items.map((a) => actions[a]),
+        },
+        {items: plan.last.map((a) => actions[a])},
+      ]}
+    />
   );
 }
 
@@ -104,25 +169,7 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
 
   return (
     <div className="settings-sections">
-      <TabIntro
-        action={
-          approved ? (
-            <>
-              {manager && (summary?.toReimburseCount ?? 0) > 0 && (
-                <Button
-                  variant="secondary"
-                  onClick={() => setDialog({kind: 'reimburse'})}
-                >
-                  {t('expenses.reimburse')}
-                </Button>
-              )}
-              <Button onClick={() => setDialog({kind: 'record'})}>
-                {t('expenses.record')}
-              </Button>
-            </>
-          ) : null
-        }
-      >
+      <TabIntro>
         {manager ? t('expenses.intro') : t('expenses.introTeamLead')}
       </TabIntro>
       {!approved && <Alert kind="info">{t('expenses.notApproved')}</Alert>}
@@ -187,7 +234,29 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
               ],
             },
           ]}
-        />
+        >
+          {/* The tab's actions end its filter bar, as on Proyectos and Usuarios (QA-0005). */}
+          {approved && manager && (summary?.toReimburseCount ?? 0) > 0 && (
+            <ActionButton
+              action="confirm"
+              size="md"
+              onClick={() => setDialog({kind: 'reimburse'})}
+            >
+              {t('expenses.reimburse')}
+            </ActionButton>
+          )}
+          {approved && (
+            <ActionButton
+              action="setup"
+              main
+              size="md"
+              icon="plus"
+              onClick={() => setDialog({kind: 'record'})}
+            >
+              {t('expenses.record')}
+            </ActionButton>
+          )}
+        </FilterBar>
         <RowLegend
           statuses={EXPENSE_STATUSES.map((s) => ({
             value: expenseTone(s),
@@ -217,7 +286,11 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
                 <strong>{e.description}</strong>
                 {(e.supplier || e.invoiceNumber) && (
                   <div className="small muted">
-                    {[e.supplier, e.invoiceNumber].filter(Boolean).join(' · ')}
+                    {e.supplier}
+                    {e.supplier && e.invoiceNumber && ' · '}
+                    {e.invoiceNumber && (
+                      <span className="nowrap">{e.invoiceNumber}</span>
+                    )}
                   </div>
                 )}
                 {e.status === 'REJECTED' && e.rejectionReason && (
@@ -235,62 +308,14 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
                 <div className="small muted">{e.category.name}</div>
               </td>
               <td>{paidFromLabel(e)}</td>
-              <td className="num">{money(e.amount)}</td>
+              <td className="num">
+                <Money amount={e.amount} currency={currency} />
+              </td>
               <Actions>
-                <IconButton
-                  icon="eye"
-                  label={t('expenses.view')}
-                  onClick={() => setDialog({kind: 'view', expense: e})}
+                <ExpenseActions
+                  expense={e}
+                  open={(kind) => setDialog({kind, expense: e})}
                 />
-                {e.permissions.edit && (
-                  <IconButton
-                    icon="pencil"
-                    label={t('expenses.correct')}
-                    onClick={() => setDialog({kind: 'edit', expense: e})}
-                  />
-                )}
-                {e.permissions.approve && (
-                  <IconButton
-                    icon="check"
-                    label={t('expenses.approve')}
-                    onClick={() => setDialog({kind: 'approve', expense: e})}
-                  />
-                )}
-                {e.permissions.reject && (
-                  <IconButton
-                    icon="ban"
-                    label={t('expenses.reject')}
-                    onClick={() => setDialog({kind: 'reject', expense: e})}
-                  />
-                )}
-                {e.permissions.attach && needsReceipt(e) && (
-                  <ActionButton
-                    action="setup"
-                    onClick={() => setDialog({kind: 'attach', expense: e})}
-                  >
-                    {t('expenses.addReceipt')}
-                  </ActionButton>
-                )}
-                {e.attachments.slice(0, 1).map((a) => (
-                  <a
-                    key={a.id}
-                    className={actionClass('file')}
-                    href={attachmentUrl(a.id)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={a.name}
-                  >
-                    {t('expenses.receipt')}
-                  </a>
-                ))}
-                {e.permissions.void && (
-                  <ActionButton
-                    action="danger"
-                    onClick={() => setDialog({kind: 'void', expense: e})}
-                  >
-                    {t('finance.void')}
-                  </ActionButton>
-                )}
               </Actions>
             </Row>
           )}

@@ -21,6 +21,7 @@ export function VoidExpenseModal({
 
   return (
     <FormModal
+      action="danger"
       title={t('expenses.voidTitle')}
       submitLabel={t('finance.void')}
       submit={action}
@@ -37,7 +38,7 @@ export function VoidExpenseModal({
         <Alert kind="warning">
           {t('expenses.voidConfirm', {
             description: expense.description,
-            amount: formatMoney(expense.amount, currency),
+            amount: formatMoney(expense.amount, currency, {exact: true}),
           })}
         </Alert>
       </div>

@@ -37,8 +37,10 @@ export function Portfolio() {
               to={`/projects/${p.id}?tab=dashboard`}
               className="card portfolio-card"
             >
-              <div className="card-header">
-                <h2>{p.name}</h2>
+              <div className="card-header portfolio-card-header">
+                <h2 className="cell-clamp" title={p.name}>
+                  {p.name}
+                </h2>
                 <Badge value={projectTone(p.status)}>
                   {projectStatusLabel(p.status)}
                 </Badge>
@@ -62,17 +64,22 @@ export function Portfolio() {
                   percent: formatPercent(p.plannedProgress),
                 })}
               </p>
-              <div className="portfolio-health">
-                <span className="small muted">CPI</span>
-                <HealthBadge index={p.cpi} />
-                <span className="small muted">SPI</span>
-                <HealthBadge index={p.spi} />
-                {p.alerts > 0 && (
-                  <Badge value="health_warning">
-                    {t('dashboard.alertCount', {count: p.alerts})}
-                  </Badge>
-                )}
-              </div>
+              {p.cpi === null && p.spi === null && p.alerts === 0 ? (
+                // Nothing to read yet: one sentence rather than two "Sin datos" chips (QA-0015).
+                <p className="small muted">{t('dashboard.noIndicesYet')}</p>
+              ) : (
+                <div className="portfolio-health">
+                  <span className="small muted">CPI</span>
+                  <HealthBadge index={p.cpi} />
+                  <span className="small muted">SPI</span>
+                  <HealthBadge index={p.spi} />
+                  {p.alerts > 0 && (
+                    <Badge value="health_warning">
+                      {t('dashboard.alertCount', {count: p.alerts})}
+                    </Badge>
+                  )}
+                </div>
+              )}
             </Link>
           ))}
         </div>

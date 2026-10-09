@@ -12,6 +12,7 @@ export {
   budgetTone,
   milestoneLabel,
   milestoneTone,
+  stageLegend,
   stageTone,
 } from './ui/labels';
 /** For component tests only. */

@@ -32,6 +32,7 @@ export function AttachProofModal({
 
   return (
     <FormModal
+      action="setup"
       title={t('finance.attachTitle')}
       submitLabel={t('finance.attach')}
       submit={action}

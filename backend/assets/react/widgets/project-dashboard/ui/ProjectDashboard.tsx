@@ -5,16 +5,18 @@ import {
   fetchDashboard,
   HealthBadge,
 } from '@/entities/dashboard';
-import {stageTone} from '@/entities/plan';
+import {stageLegend, stageTone} from '@/entities/plan';
 import {t} from '@/shared/i18n';
 import {formatDate, formatMoney, formatPercent} from '@/shared/lib/format';
 import {
   Alert,
   DataTable,
+  EmptyState,
   ErrorState,
   Loading,
   ProgressBar,
   Row,
+  RowLegend,
   Stat,
   TabIntro,
 } from '@/shared/ui';
@@ -24,6 +26,11 @@ import {MonthlyChart, StageChart} from './charts';
 function span(from?: string | null, to?: string | null): string {
   if (!from && !to) {
     return '—';
+  }
+
+  // A stage under way has no end yet: "desde 30 ago 2026" rather than a dangling dash (QA-0015).
+  if (from && !to) {
+    return t('dashboard.since', {date: formatDate(from)});
   }
 
   return `${formatDate(from)} – ${to ? formatDate(to) : '…'}`;
@@ -147,7 +154,9 @@ export function ProjectDashboard({projectId}: {projectId: number}) {
         <div className="card-header">
           <h2>{t('dashboard.stagesTitle')}</h2>
         </div>
+        {d.stages.length > 0 && <RowLegend statuses={stageLegend()} />}
         <DataTable
+          empty={<EmptyState>{t('dashboard.noStages')}</EmptyState>}
           columns={[
             t('finance.stage'),
             t('dashboard.planned'),

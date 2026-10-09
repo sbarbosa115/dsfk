@@ -1,0 +1,313 @@
+import {render, screen} from '@testing-library/react';
+import {describe, expect, it, vi} from 'vitest';
+import {ConfirmModal} from './ConfirmModal';
+import {
+  ActionButton,
+  Actions,
+  DataTable,
+  FormModal,
+  ListView,
+  Money,
+  Row,
+  SubmitButton,
+  Tabs,
+} from './ui';
+
+const idle = {busy: false, formError: null};
+
+describe('ActionButton', () => {
+  it('is outlined in its colour, and filled when it is the main action', () => {
+    render(
+      <>
+        <ActionButton action="setup">Agregar partida</ActionButton>
+        <ActionButton action="setup" main>
+          Agregar etapa
+        </ActionButton>
+      </>,
+    );
+
+    const outlined = screen.getByRole('button', {name: 'Agregar partida'});
+    const filled = screen.getByRole('button', {name: 'Agregar etapa'});
+    expect(outlined).toHaveClass('btn-action', 'btn-action-setup');
+    expect(outlined).not.toHaveClass('is-main');
+    expect(filled).toHaveClass('btn-action-setup', 'is-main');
+  });
+});
+
+describe('SubmitButton', () => {
+  it('saves in green by default and takes the colour of what the form does', () => {
+    render(
+      <>
+        <SubmitButton />
+        <SubmitButton action="danger">Rechazar</SubmitButton>
+      </>,
+    );
+
+    const save = screen.getByRole('button', {name: 'Guardar'});
+    expect(save).toHaveAttribute('type', 'submit');
+    expect(save).toHaveClass('btn-action-confirm', 'is-main');
+    expect(screen.getByRole('button', {name: 'Rechazar'})).toHaveClass(
+      'btn-action-danger',
+      'is-main',
+    );
+  });
+});
+
+describe('FormModal', () => {
+  it("fills its submit in the colour of the form's action, with a plain Cancelar beside it", () => {
+    render(
+      <FormModal
+        title="Rechazar gasto"
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+        submit={idle}
+        submitLabel="Rechazar"
+        action="danger"
+      >
+        <span>Motivo</span>
+      </FormModal>,
+    );
+
+    expect(screen.getByRole('button', {name: 'Rechazar'})).toHaveClass(
+      'btn-action-danger',
+      'is-main',
+    );
+    expect(screen.getByRole('button', {name: 'Cancelar'})).toHaveClass(
+      'btn-ghost',
+    );
+  });
+
+  it('saves in green when it does not say otherwise', () => {
+    render(
+      <FormModal
+        title="Editar"
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+        submit={idle}
+      >
+        <span>Campos</span>
+      </FormModal>,
+    );
+
+    expect(screen.getByRole('button', {name: 'Guardar'})).toHaveClass(
+      'btn-action-confirm',
+      'is-main',
+    );
+  });
+});
+
+describe('ConfirmModal', () => {
+  it('fills its confirming button in the colour of the action', () => {
+    render(
+      <ConfirmModal
+        title="Firmar el ciclo 2"
+        confirmLabel="Firmar"
+        action="confirm"
+        onConfirm={vi.fn()}
+        onClose={vi.fn()}
+      >
+        Revisaste los movimientos del ciclo.
+      </ConfirmModal>,
+    );
+
+    expect(screen.getByRole('button', {name: 'Firmar'})).toHaveClass(
+      'btn-action-confirm',
+      'is-main',
+    );
+  });
+});
+
+describe('DataTable', () => {
+  it('names every cell\'s column, for a phone to show as "Label: value", except the title and the actions', () => {
+    render(
+      <DataTable
+        columns={['Fecha', 'Gasto', 'Monto']}
+        rows={[{id: 1}]}
+        renderRow={(row) => (
+          <Row key={row.id} status="expense_submitted" label="Pendiente">
+            <td>4 oct 2026</td>
+            <td>Cinta</td>
+            <td className="num">$ 95.000</td>
+            <Actions>
+              <span>acciones</span>
+            </Actions>
+          </Row>
+        )}
+      />,
+    );
+
+    const cells = screen.getAllByRole('cell');
+    expect(cells.map((cell) => cell.getAttribute('data-label'))).toEqual([
+      null,
+      'Gasto',
+      'Monto',
+      null,
+    ]);
+    expect(screen.getByRole('row', {name: /Cinta/})).toHaveClass(
+      'row-tone-info',
+    );
+  });
+
+  it("aligns a money column's header with its figures, to the right", () => {
+    render(
+      <DataTable
+        columns={['Gasto', 'Monto']}
+        actions={false}
+        rows={[{id: 1}]}
+        renderRow={(row) => (
+          <tr key={row.id}>
+            <td>Cinta</td>
+            <td className="num">$ 95.000</td>
+          </tr>
+        )}
+      />,
+    );
+
+    expect(screen.getByRole('columnheader', {name: 'Monto'})).toHaveClass(
+      'num',
+    );
+    expect(screen.getByRole('columnheader', {name: 'Gasto'})).not.toHaveClass(
+      'num',
+    );
+  });
+
+  it('says it is empty inside the table, under its header', () => {
+    render(
+      <DataTable
+        columns={['Etapa', 'Presupuesto']}
+        rows={[]}
+        renderRow={() => null}
+        empty="Las etapas aparecen aquí cuando el presupuesto está aprobado."
+      />,
+    );
+
+    expect(
+      screen.getByRole('columnheader', {name: 'Presupuesto'}),
+    ).toBeInTheDocument();
+    const state = screen.getByRole('cell', {
+      name: 'Las etapas aparecen aquí cuando el presupuesto está aprobado.',
+    });
+    expect(state).toHaveAttribute('colspan', '3');
+    expect(state.closest('tr')).toHaveClass('table-state');
+  });
+});
+
+describe('ListView', () => {
+  const list = (items: object[], filters = {q: ''}) => ({
+    data: {items, total: items.length, page: 1, perPage: 50},
+    error: null,
+    loading: false,
+    reload: vi.fn(),
+    filters,
+    update: vi.fn(),
+    setPage: vi.fn(),
+  });
+
+  it('keeps the column headers over an empty list, with what the section is for and its action', () => {
+    render(
+      <ListView
+        list={list([])}
+        columns={['Fecha', 'Movimiento']}
+        renderRow={() => null}
+        empty="Nada coincide."
+        emptyAll="Aún no hay movimientos de dinero."
+        emptyAction={<button type="button">Registrar depósito</button>}
+      />,
+    );
+
+    expect(
+      screen.getByRole('columnheader', {name: 'Movimiento'}),
+    ).toBeInTheDocument();
+    const state = screen
+      .getByText('Aún no hay movimientos de dinero.')
+      .closest('tr');
+    expect(state).toHaveClass('table-state');
+    expect(
+      screen.getByRole('button', {name: 'Registrar depósito'}),
+    ).toBeInTheDocument();
+  });
+
+  it('offers to show everything when the filters hide every row', async () => {
+    const result = list([], {q: 'cemento'});
+    render(
+      <ListView
+        list={result}
+        columns={['Fecha']}
+        renderRow={() => null}
+        showAll={{}}
+        empty="Nada coincide con la búsqueda."
+      />,
+    );
+
+    screen.getByRole('button', {name: 'Ver todos'}).click();
+    expect(result.update).toHaveBeenCalledWith({q: ''});
+  });
+});
+
+describe('Tabs', () => {
+  const options = [
+    {value: 'plan', label: 'Presupuesto y plan', shortLabel: 'Plan'},
+    {value: 'petty-cash', label: 'Caja menor', shortLabel: 'Caja'},
+  ];
+
+  it('carries a short label for a phone, and keeps the full one as the name', () => {
+    render(
+      <Tabs
+        id="project"
+        variant="page"
+        value="plan"
+        options={options}
+        onChange={vi.fn()}
+      />,
+    );
+
+    const tab = screen.getByRole('tab', {name: /Presupuesto y plan/});
+    expect(tab.querySelector('.tab-label-short')).toHaveTextContent('Plan');
+  });
+
+  it('brings the chosen tab into view, so on a phone it is never off the edge', () => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    const {rerender} = render(
+      <Tabs
+        id="project"
+        variant="page"
+        value="plan"
+        options={options}
+        onChange={vi.fn()}
+      />,
+    );
+    rerender(
+      <Tabs
+        id="project"
+        variant="page"
+        value="petty-cash"
+        options={options}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(scroll).toHaveBeenLastCalledWith({
+      block: 'nearest',
+      inline: 'nearest',
+    });
+    expect(scroll.mock.contexts.at(-1)).toBe(
+      screen.getByRole('tab', {name: /Caja menor/}),
+    );
+  });
+});
+
+describe('Money', () => {
+  it('shows whole pesos and keeps the cents in its tooltip', () => {
+    render(<Money amount="62493.75" currency="COP" />);
+    const amount = screen.getByText(/62\.494/);
+    expect(amount.getAttribute('title')?.replace(/\s/g, ' ')).toBe(
+      '$ 62.493,75',
+    );
+  });
+
+  it('needs no tooltip for a whole amount', () => {
+    render(<Money amount="437506.00" currency="COP" />);
+    expect(screen.getByText(/437\.506/)).not.toHaveAttribute('title');
+  });
+});

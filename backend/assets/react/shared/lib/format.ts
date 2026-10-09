@@ -1,12 +1,20 @@
 import {LOCALE} from '@/shared/i18n';
 
+/** The zone of the company and its works: every time on screen is a time in Colombia. */
+export const TIME_ZONE = 'America/Bogota';
+
 /**
- * An amount in major units: formatMoney('1500000', 'COP') → "$ 1.500.000". Pesos show cents only when there
- * are some ("$ 35.000,50"), so no figure is ever rounded on screen; other currencies always show two.
+ * An amount in major units: formatMoney('1500000', 'COP') → "$ 1.500.000". Pesos are whole on screen, so figures
+ * side by side read the same way (QA-0013); `exact` keeps the cents where a decision is made (a modal, a total, a
+ * confirmation: "$ 35.000,50"), and <Money> keeps them in a table cell's tooltip. Other currencies always show two.
  */
-export function formatMoney(amount: string | number, currency: string): string {
+export function formatMoney(
+  amount: string | number,
+  currency: string,
+  {exact = false}: {exact?: boolean} = {},
+): string {
   const whole = !/\.\d*[1-9]/.test(String(amount));
-  const digits = currency === 'COP' && whole ? 0 : 2;
+  const digits = currency === 'COP' && (whole || !exact) ? 0 : 2;
 
   return new Intl.NumberFormat(LOCALE, {
     style: 'currency',
@@ -71,9 +79,15 @@ export function formatDateTime(iso: string | null | undefined): string {
     return '—';
   }
 
+  // The same date as formatDate, and the time where the works are: a record made at 9 p. m. in Bogotá reads 9 p. m.
+  // whatever the browser's zone (QA-0008).
   return new Intl.DateTimeFormat(LOCALE, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: TIME_ZONE,
   }).format(new Date(iso));
 }
 

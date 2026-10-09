@@ -26,6 +26,15 @@ export function BudgetCard({plan}: {plan: Plan}) {
           <BudgetActions plan={plan} />
         </div>
       </div>
+      {/* What the Admin asked to change comes before the figures: it is what to read first (QA-0010). */}
+      {plan.budgetStatus === 'RETURNED' && lastReturn && (
+        <Alert kind="warning">
+          {t('plan.returnedNote', {
+            user: lastReturn.user.fullName,
+            comment: lastReturn.comment,
+          })}
+        </Alert>
+      )}
       {budget ? (
         <div className="stat-grid">
           <Stat
@@ -67,14 +76,6 @@ export function BudgetCard({plan}: {plan: Plan}) {
       )}
       {plan.budgetStatus === 'SUBMITTED' && (
         <Alert kind="info">{t('plan.submittedNote')}</Alert>
-      )}
-      {plan.budgetStatus === 'RETURNED' && lastReturn && (
-        <Alert kind="warning">
-          {t('plan.returnedNote', {
-            user: lastReturn.user.fullName,
-            comment: lastReturn.comment,
-          })}
-        </Alert>
       )}
       {plan.permissions.submit && (plan.issues?.length ?? 0) > 0 && (
         <Alert kind="info">

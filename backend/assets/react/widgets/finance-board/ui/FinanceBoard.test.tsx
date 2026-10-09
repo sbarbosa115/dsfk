@@ -47,7 +47,7 @@ describe('FinanceBoard', () => {
     );
     const foundation = screen.getByText('Cimentación').closest('tr')!;
     expect(text(foundation.textContent ?? '')).toContain(
-      '$ 62.493,75 por encima del presupuesto',
+      '$ 62.494 por encima del presupuesto',
     );
     expect(
       within(foundation).getByRole('button', {name: 'Finalizar etapa'}),
@@ -64,11 +64,23 @@ describe('FinanceBoard', () => {
     expect(
       within(voided).queryByRole('button', {name: 'Anular'}),
     ).not.toBeInTheDocument();
-    const live = screen.getByText('Transferencia · TRX-001').closest('tr')!;
+    const live = screen.getByText('TRX-001').closest('tr')!;
     expect(
       text(within(live).getByText(/Cimentación · Materiales/).textContent!),
     ).toBe('Cimentación · Materiales: $ 1.500.000');
-    expect(within(live).getByRole('button', {name: 'Anular'})).toBeEnabled();
+    expect(
+      within(live).getByRole('button', {name: 'Adjuntar'}),
+      'a deposit without its proof asks for it first',
+    ).toHaveClass('is-main');
+    await userEvent.click(
+      within(live).getByRole('button', {
+        name: 'Más acciones: Depósito · 15 de oct de 2026',
+      }),
+    );
+    expect(
+      screen.getAllByRole('menuitem').at(-1),
+      'voiding is worded, and last',
+    ).toHaveTextContent('Anular');
   });
 
   it('splits a deposit among a stage and the caja menor, sending amounts as the API reads them', async () => {
@@ -181,8 +193,13 @@ describe('FinanceBoard', () => {
     });
     renderWithProviders(<FinanceBoard projectId={9} />);
 
-    await userEvent.click(await screen.findByRole('button', {name: 'Anular'}));
-    const dialog = screen.getByRole('dialog');
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: 'Más acciones: Depósito · 15 de oct de 2026',
+      }),
+    );
+    await userEvent.click(screen.getByRole('menuitem', {name: /Anular/}));
+    const dialog = await screen.findByRole('dialog');
     expect(text(dialog.textContent ?? '')).toContain(
       'Depósito del 15 de oct de 2026 por $ 2.000.000 (Cimentación · Materiales, Caja menor, Contingencia)',
     );
@@ -251,7 +268,8 @@ describe('FinanceBoard', () => {
       screen.queryByRole('button', {name: 'Registrar depósito'}),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', {name: 'Anular'}),
+      screen.queryByRole('button', {name: /Más acciones/}),
+      'nothing to void or add for the PM, so no menu either',
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', {name: 'Finalizar etapa'}),

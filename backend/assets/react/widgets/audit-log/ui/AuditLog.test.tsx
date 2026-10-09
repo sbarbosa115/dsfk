@@ -36,15 +36,22 @@ describe('AuditLog', () => {
       await screen.findByText('Laura Gómez (vía Administrador)')
     ).closest('tr')!;
     expect(within(row).getByText('Gasto')).toBeInTheDocument();
+    expect(
+      row.textContent?.replace(/\s/g, ' '),
+      'the same date as everywhere else, at the time it happened in Bogotá',
+    ).toContain('15 de oct de 2026, 10:00 a. m.');
     expect(within(row).getByText('Modificó')).toBeInTheDocument();
-    expect(within(row).getByText('status, amount')).toBeInTheDocument();
+    expect(
+      within(row).getByText('Estado, Monto'),
+      "fields by their Spanish names, never the code's",
+    ).toBeInTheDocument();
     expect(screen.getByRole('option', {name: 'Proyecto'})).toBeInTheDocument();
 
     await userEvent.click(
       within(row).getByRole('button', {name: 'Ver el cambio'}),
     );
     const dialog = screen.getByRole('dialog');
-    const status = within(dialog).getByText('status').closest('tr')!;
+    const status = within(dialog).getByText('Estado').closest('tr')!;
     expect(status).toHaveTextContent('SUBMITTED');
     expect(status).toHaveTextContent('APPROVED');
   });

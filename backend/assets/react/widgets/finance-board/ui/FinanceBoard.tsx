@@ -7,7 +7,7 @@ import {
   type Movement,
   type StageFunding,
 } from '@/entities/finance';
-import {stageTone} from '@/entities/plan';
+import {stageLegend, stageTone} from '@/entities/plan';
 import {DepositModal} from '@/features/finance-deposit';
 import {DrawModal} from '@/features/finance-draw';
 import {AttachProofModal} from '@/features/movement-proof';
@@ -16,15 +16,17 @@ import {CompleteStageModal} from '@/features/stage-complete';
 import {t} from '@/shared/i18n';
 import {formatMoney, formatPercent} from '@/shared/lib/format';
 import {
-  Actions,
   ActionButton,
+  Actions,
   Alert,
-  Button,
   DataTable,
+  EmptyState,
   ErrorState,
   Loading,
   ProgressBar,
   Row,
+  RowActions,
+  RowLegend,
   Stat,
   TabIntro,
 } from '@/shared/ui';
@@ -63,27 +65,7 @@ export function FinanceBoard({projectId}: {projectId: number}) {
 
   return (
     <div className="settings-sections">
-      <TabIntro
-        action={
-          f.permissions.deposit ? (
-            <>
-              {canDraw && (
-                <Button
-                  variant="secondary"
-                  onClick={() => setDialog({kind: 'draw'})}
-                >
-                  {t('finance.draw')}
-                </Button>
-              )}
-              <Button onClick={() => setDialog({kind: 'deposit'})}>
-                {t('finance.newDeposit')}
-              </Button>
-            </>
-          ) : null
-        }
-      >
-        {t('finance.intro')}
-      </TabIntro>
+      <TabIntro>{t('finance.intro')}</TabIntro>
       {!f.budgetApproved && (
         <Alert kind="info">{t('finance.notApproved')}</Alert>
       )}
@@ -147,6 +129,30 @@ export function FinanceBoard({projectId}: {projectId: number}) {
           finance={f}
           onVoid={(movement) => setDialog({kind: 'void', movement})}
           onAttach={(movement) => setDialog({kind: 'attach', movement})}
+          actions={
+            f.permissions.deposit ? (
+              <>
+                {canDraw && (
+                  <ActionButton
+                    action="revert"
+                    size="md"
+                    onClick={() => setDialog({kind: 'draw'})}
+                  >
+                    {t('finance.draw')}
+                  </ActionButton>
+                )}
+                <ActionButton
+                  action="setup"
+                  main
+                  size="md"
+                  icon="plus"
+                  onClick={() => setDialog({kind: 'deposit'})}
+                >
+                  {t('finance.newDeposit')}
+                </ActionButton>
+              </>
+            ) : null
+          }
         />
       </section>
 
@@ -197,7 +203,9 @@ function StagesCard({
       <div className="card-header">
         <h2>{t('finance.byStage')}</h2>
       </div>
+      {f.stages.length > 0 && <RowLegend statuses={stageLegend()} />}
       <DataTable
+        empty={<EmptyState>{t('finance.noStages')}</EmptyState>}
         columns={[
           t('finance.stage'),
           t('finance.budget'),
@@ -256,11 +264,16 @@ function StagesCard({
             </td>
             {f.permissions.completeStages && (
               <Actions>
-                {s.status === 'IN_PROGRESS' && (
-                  <ActionButton action="confirm" onClick={() => onComplete(s)}>
-                    {t('finance.completeStage')}
-                  </ActionButton>
-                )}
+                <RowActions
+                  name={s.name}
+                  main={
+                    s.status === 'IN_PROGRESS' && {
+                      label: t('finance.completeStage'),
+                      action: 'confirm',
+                      onClick: () => onComplete(s),
+                    }
+                  }
+                />
               </Actions>
             )}
           </Row>

@@ -44,6 +44,7 @@ export function DrawModal({
 
   return (
     <FormModal
+      action="revert"
       title={t('finance.draw')}
       submitLabel={t('finance.drawSubmit')}
       submit={action}
@@ -63,7 +64,9 @@ export function DrawModal({
         label={t('finance.amount')}
         currency={finance.currency}
         hint={t('finance.contingencyAvailable', {
-          amount: formatMoney(finance.contingency.balance, finance.currency),
+          amount: formatMoney(finance.contingency.balance, finance.currency, {
+            exact: true,
+          }),
         })}
         error={action.errors['amount']}
         value={form.values.amount}

@@ -2,20 +2,54 @@ import {useState} from 'react';
 import {useSession} from '@/entities/session';
 import {USERS_KEY, UserAccess, type User} from '@/entities/user';
 import {UserDialog} from '@/features/user-edit';
-import {ToggleActiveButton} from '@/features/user-toggle-active';
+import {useToggleActive} from '@/features/user-toggle-active';
 import {t} from '@/shared/i18n';
 import {useList} from '@/shared/lib/list';
 import {
+  ActionButton,
   Actions,
   Alert,
-  Button,
   FilterBar,
-  IconButton,
   ListView,
   PageHeader,
   Row,
+  RowActions,
   RowLegend,
 } from '@/shared/ui';
+
+/**
+ * A user's row: editing is the main action, turning them off or on the last item of the menu. A super admin's row is
+ * locked to a plain admin, and nobody turns themselves off.
+ */
+function UserActions({
+  user,
+  locked,
+  self,
+  onEdit,
+  onDone,
+}: {
+  user: User;
+  locked: boolean;
+  self: boolean;
+  onEdit: () => void;
+  onDone: (message: string) => void;
+}) {
+  const {toggle, modal} = useToggleActive(user, onDone);
+  return (
+    <>
+      <RowActions
+        name={user.fullName}
+        edit={
+          locked
+            ? {disabled: true, title: t('users.lockedSuperAdmin')}
+            : {onClick: onEdit}
+        }
+        toggle={!locked && !self && toggle}
+      />
+      {modal}
+    </>
+  );
+}
 
 /** Every user: search, active/inactive filter, create, edit, disable. */
 export function UserList() {
@@ -25,7 +59,15 @@ export function UserList() {
   const [editing, setEditing] = useState<User | null | undefined>(undefined);
   const [notice, setNotice] = useState<string | null>(null);
   const newUser = (
-    <Button onClick={() => setEditing(null)}>{t('users.new')}</Button>
+    <ActionButton
+      action="setup"
+      main
+      size="md"
+      icon="plus"
+      onClick={() => setEditing(null)}
+    >
+      {t('users.new')}
+    </ActionButton>
   );
 
   return (
@@ -54,11 +96,9 @@ export function UserList() {
       <Alert kind="success" onDismiss={() => setNotice(null)}>
         {notice}
       </Alert>
+      {/* Active is how users start: only the inactive ones are tinted (QA-0017). */}
       <RowLegend
-        statuses={[
-          {value: 'active', label: t('common.active')},
-          {value: 'inactive', label: t('common.inactive')},
-        ]}
+        statuses={[{value: 'inactive', label: t('common.inactive')}]}
       />
       <ListView
         list={list}
@@ -75,12 +115,14 @@ export function UserList() {
           return (
             <Row
               key={user.id}
-              status={user.active ? 'active' : 'inactive'}
-              label={user.active ? t('common.active') : t('common.inactive')}
+              status={user.active ? null : 'inactive'}
+              label={user.active ? null : t('common.inactive')}
               muted={!user.active}
             >
-              <td className="strong">
-                {user.fullName} <UserAccess user={user} />
+              {/* The access level always under the name, so both badges sit in the same place (QA-0017). */}
+              <td>
+                <div className="strong">{user.fullName}</div>
+                <UserAccess user={user} />
               </td>
               <td>{user.email}</td>
               <td className="small">
@@ -96,17 +138,11 @@ export function UserList() {
                 )}
               </td>
               <Actions>
-                <IconButton
-                  icon="pencil"
-                  label={
-                    locked ? t('users.lockedSuperAdmin') : t('common.edit')
-                  }
-                  disabled={locked}
-                  onClick={() => setEditing(user)}
-                />
-                <ToggleActiveButton
+                <UserActions
                   user={user}
-                  disabled={locked || user.id === me?.id}
+                  locked={locked}
+                  self={user.id === me?.id}
+                  onEdit={() => setEditing(user)}
                   onDone={setNotice}
                 />
               </Actions>

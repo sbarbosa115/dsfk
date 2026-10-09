@@ -36,4 +36,32 @@ describe('Portfolio', () => {
     expect(card).toHaveTextContent('2 alertas');
     expect(card).toHaveTextContent('Según el plan debería ir en 15%');
   });
+
+  it('says when a project has nothing to measure yet, instead of two "Sin datos"', async () => {
+    mockApi({
+      'GET /api/dashboard': [
+        {
+          id: 3,
+          name: 'Bodega Sur',
+          status: 'DRAFT',
+          currency: 'COP',
+          budgetApproved: false,
+          budget: '0.00',
+          deposited: '0.00',
+          spent: '0.00',
+          progress: 0,
+          plannedProgress: 0,
+          executed: 0,
+          cpi: null,
+          spi: null,
+          alerts: 0,
+        },
+      ],
+    });
+    renderWithProviders(<Portfolio />);
+
+    const card = (await screen.findByText('Bodega Sur')).closest('a')!;
+    expect(card).toHaveTextContent('Los indicadores aparecen');
+    expect(card).not.toHaveTextContent('Sin datos');
+  });
 });

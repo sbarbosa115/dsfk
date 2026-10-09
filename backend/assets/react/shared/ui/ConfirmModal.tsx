@@ -33,7 +33,13 @@ export function ConfirmModal({
         <Button variant="ghost" onClick={onClose}>
           {t('common.cancel')}
         </Button>
-        <ActionButton action={action} size="md" busy={busy} onClick={onConfirm}>
+        <ActionButton
+          action={action}
+          main
+          size="md"
+          busy={busy}
+          onClick={onConfirm}
+        >
           {confirmLabel}
         </ActionButton>
       </div>

@@ -79,6 +79,7 @@ export function ExpenseFormModal({
 
   return (
     <FormModal
+      action={expense ? 'confirm' : 'setup'}
       title={expense ? t('expenses.correct') : t('expenses.record')}
       submitLabel={
         expense ? t('expenses.sendAgain') : t('expenses.recordSubmit')

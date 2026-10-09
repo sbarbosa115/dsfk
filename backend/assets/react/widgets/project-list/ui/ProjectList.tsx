@@ -13,13 +13,13 @@ import {t} from '@/shared/i18n';
 import {formatDateRange} from '@/shared/lib/format';
 import {useList} from '@/shared/lib/list';
 import {
+  ActionButton,
   Actions,
-  Button,
   FilterBar,
-  IconButton,
   ListView,
   PageHeader,
   Row,
+  RowActions,
   RowLegend,
 } from '@/shared/ui';
 
@@ -30,7 +30,15 @@ export function ProjectList() {
   const list = useList<Project>(PROJECTS_KEY, '/projects', {q: '', status: ''});
   const [creating, setCreating] = useState(false);
   const newProject = user?.admin ? (
-    <Button onClick={() => setCreating(true)}>{t('projects.new')}</Button>
+    <ActionButton
+      action="setup"
+      main
+      size="md"
+      icon="plus"
+      onClick={() => setCreating(true)}
+    >
+      {t('projects.new')}
+    </ActionButton>
   ) : null;
 
   return (
@@ -90,7 +98,12 @@ export function ProjectList() {
             <td>
               <div className="strong">{project.name}</div>
               {project.description && (
-                <div className="small muted">{project.description}</div>
+                <div
+                  className="small muted cell-clamp"
+                  title={project.description}
+                >
+                  {project.description}
+                </div>
               )}
             </td>
             <td className="nowrap">
@@ -99,10 +112,12 @@ export function ProjectList() {
             <td className="nowrap">{project.currency}</td>
             <td>{t(`roles.${project.myRole}`)}</td>
             <Actions>
-              <IconButton
-                icon="eye"
-                label={t('projects.open')}
-                onClick={() => navigate(`/projects/${project.id}`)}
+              <RowActions
+                name={project.name}
+                view={{
+                  label: t('projects.open'),
+                  to: `/projects/${project.id}`,
+                }}
               />
             </Actions>
           </Row>

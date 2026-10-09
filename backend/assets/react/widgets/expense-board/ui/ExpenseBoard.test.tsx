@@ -54,9 +54,12 @@ describe('ExpenseBoard', () => {
     });
     renderWithProviders(<ExpenseBoard projectId={9} manager={false} />);
 
-    await userEvent.click(
-      await screen.findByRole('button', {name: 'Registrar gasto'}),
-    );
+    const record = await screen.findByRole('button', {name: 'Registrar gasto'});
+    expect(
+      record.closest('.toolbar'),
+      "the tab's main action ends its filter bar",
+    ).toContainElement(screen.getByLabelText('Buscar'));
+    await userEvent.click(record);
     const dialog = screen.getByRole('dialog');
     expect(
       within(dialog).queryByLabelText('Se paga desde'),
@@ -130,8 +133,24 @@ describe('ExpenseBoard', () => {
     renderWithProviders(<ExpenseBoard projectId={9} manager />);
 
     const row = (await screen.findByText('Cemento')).closest('tr')!;
-    await userEvent.click(within(row).getByRole('button', {name: 'Rechazar'}));
-    const dialog = screen.getByRole('dialog');
+    expect(
+      within(row).getByRole('button', {name: 'Aprobar'}),
+      'approving is the main action of an expense waiting on the PM',
+    ).toHaveClass('is-main');
+    await userEvent.click(
+      within(row).getByRole('button', {name: 'Más acciones: Cemento'}),
+    );
+    const menu = screen.getByRole('menu', {name: 'Cemento'});
+    expect(
+      within(menu)
+        .getAllByRole('menuitem')
+        .map((item) => item.querySelector('.row-menu-label')?.textContent),
+      'the rest of "Este gasto", then rejecting last',
+    ).toEqual(['Ver gasto', 'Adjuntar recibo', 'Recibo', 'Rechazar']);
+    await userEvent.click(
+      within(menu).getByRole('menuitem', {name: /Rechazar/}),
+    );
+    const dialog = await screen.findByRole('dialog');
     await userEvent.type(
       within(dialog).getByLabelText(/^Motivo del rechazo/),
       'Falta la factura',

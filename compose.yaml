@@ -79,6 +79,20 @@ services:
     # npm ci: the lock file is written by npm 11 (npm 10 crashes resolving this tree); ci only reads it.
     command: sh -c "npm ci --no-audit --no-fund && npm run watch"
 
+  # The smoke suite (backend/e2e/smoke.sh): Playwright against this stack's app, only with `--profile e2e`.
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.55.0-noble
+    profiles: [e2e]
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    environment:
+      HOME: /tmp
+      E2E_BASE_URL: "http://php"
+    depends_on:
+      - php
+
   mailpit:
     image: axllent/mailpit
     ports:

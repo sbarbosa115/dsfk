@@ -4,7 +4,13 @@ import {fetchPlan, planKey} from '@/entities/plan';
 import {CategoriesPanel} from '@/features/plan-categories';
 import {StageFormModal} from '@/features/plan-stages';
 import {t} from '@/shared/i18n';
-import {Button, EmptyState, ErrorState, Loading, TabIntro} from '@/shared/ui';
+import {
+  ActionButton,
+  EmptyState,
+  ErrorState,
+  Loading,
+  TabIntro,
+} from '@/shared/ui';
 import {BudgetCard} from './BudgetCard';
 import {StageCard} from './StageCard';
 
@@ -26,12 +32,20 @@ export function PlanBoard({projectId}: {projectId: number}) {
   }
   const p = plan.data;
   const addStage = p.permissions.edit ? (
-    <Button onClick={() => setAdding(true)}>{t('plan.addStage')}</Button>
+    <ActionButton
+      action="setup"
+      main
+      size="md"
+      icon="plus"
+      onClick={() => setAdding(true)}
+    >
+      {t('plan.addStage')}
+    </ActionButton>
   ) : null;
 
   return (
     <div className="settings-sections">
-      <TabIntro action={addStage}>
+      <TabIntro>
         {p.permissions.viewFinancials
           ? t('plan.intro')
           : t('plan.introTeamLead')}
@@ -40,8 +54,13 @@ export function PlanBoard({projectId}: {projectId: number}) {
       {(p.permissions.viewFinancials || p.categories.length > 0) && (
         <CategoriesPanel plan={p} />
       )}
+      {/* "Agregar etapa" ends the stage list's own header, once, even when the list is empty (QA-0005). */}
+      <div className="section-title">
+        <h3>{t('plan.stages')}</h3>
+        {addStage}
+      </div>
       {p.stages.length === 0 ? (
-        <EmptyState action={addStage}>{t('plan.noStages')}</EmptyState>
+        <EmptyState>{t('plan.noStages')}</EmptyState>
       ) : (
         p.stages.map((stage, index) => (
           <StageCard key={stage.id} plan={p} stage={stage} index={index} />

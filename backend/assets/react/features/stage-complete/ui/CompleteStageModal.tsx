@@ -24,7 +24,7 @@ export function CompleteStageModal({
   const action = useFinanceAction(projectId);
   const form = useForm({actualEnd: today()});
   const left = Number(stage.available);
-  const amount = formatMoney(stage.available, finance.currency);
+  const amount = formatMoney(stage.available, finance.currency, {exact: true});
 
   const onSubmit = async () => {
     const done = await action.run(() =>

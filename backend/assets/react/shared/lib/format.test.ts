@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {
   formatDate,
   formatDateRange,
+  formatDateTime,
   formatMoney,
   formatPercent,
   formatAmountForInput,
@@ -17,9 +18,18 @@ describe('formatMoney', () => {
     expect(plain(formatMoney('1500000', 'COP'))).toBe('$ 1.500.000');
   });
 
-  it('shows cents only when the amount has them, so a price is never rounded away', () => {
-    expect(plain(formatMoney('35000.50', 'COP'))).toBe('$ 35.000,50');
+  it('shows pesos whole on screen, so figures side by side read the same way (QA-0013)', () => {
+    expect(plain(formatMoney('62493.75', 'COP'))).toBe('$ 62.494');
     expect(plain(formatMoney('437506.00', 'COP'))).toBe('$ 437.506');
+  });
+
+  it('keeps the cents where a decision is made: a modal, a total, a confirmation', () => {
+    expect(plain(formatMoney('35000.50', 'COP', {exact: true}))).toBe(
+      '$ 35.000,50',
+    );
+    expect(plain(formatMoney('437506.00', 'COP', {exact: true}))).toBe(
+      '$ 437.506',
+    );
   });
 
   it('keeps two decimals for other currencies', () => {
@@ -66,5 +76,21 @@ describe('amount inputs', () => {
   it('writes an API amount back in Colombian notation', () => {
     expect(formatAmountForInput('2500000.50')).toBe('2.500.000,50');
     expect(formatAmountForInput('2500000.00')).toBe('2.500.000');
+  });
+});
+
+describe('formatDateTime', () => {
+  // Intl separates the time and "p. m." with non-breaking spaces.
+  const plain = (value: string) => value.replace(/\s/g, ' ');
+
+  it('writes the date the way every other date reads, and the time in Bogotá wherever the browser is', () => {
+    // 02:23 UTC on the 8th is 9:23 p. m. on the 7th in Bogotá (UTC-5).
+    expect(plain(formatDateTime('2026-10-08T02:23:00+00:00'))).toBe(
+      '7 de oct de 2026, 9:23 p. m.',
+    );
+    expect(plain(formatDateTime('2026-10-15T10:00:00-05:00'))).toBe(
+      '15 de oct de 2026, 10:00 a. m.',
+    );
+    expect(formatDateTime(null)).toBe('—');
   });
 });

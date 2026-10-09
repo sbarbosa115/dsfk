@@ -47,6 +47,7 @@ export function MilestoneFormModal({
 
   return (
     <FormModal
+      action={milestone ? 'confirm' : 'setup'}
       title={
         milestone
           ? t('plan.editMilestone')

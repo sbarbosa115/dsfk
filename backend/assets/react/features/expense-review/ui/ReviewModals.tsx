@@ -42,10 +42,12 @@ export function ApproveExpenseModal({
       {t('expenses.approveConfirm', {
         description: expense.description,
         name: expense.paidBy.name,
-        amount: formatMoney(expense.amount, currency),
+        amount: formatMoney(expense.amount, currency, {exact: true}),
       })}{' '}
       {aboveLimit &&
-        t('expenses.aboveLimit', {limit: formatMoney(limit, currency)})}
+        t('expenses.aboveLimit', {
+          limit: formatMoney(limit, currency, {exact: true}),
+        })}
     </ConfirmModal>
   );
 }
@@ -60,6 +62,7 @@ export function RejectExpenseModal({
 
   return (
     <FormModal
+      action="danger"
       title={t('expenses.rejectTitle', {description: expense.description})}
       submitLabel={t('expenses.reject')}
       submit={action}

@@ -12,6 +12,7 @@ import google from './eslint-google-rules.mjs';
 export default tseslint.config(
   {
     ignores: [
+      'e2e/.results/**',
       'public/**',
       'node_modules/**',
       'vendor/**',

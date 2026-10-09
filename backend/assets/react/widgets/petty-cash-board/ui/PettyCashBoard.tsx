@@ -17,16 +17,16 @@ import {formatDate, formatDateTime, formatMoney} from '@/shared/lib/format';
 import {
   ActionButton,
   Actions,
-  actionClass,
-  Button,
   DataTable,
   DefinitionList,
   EmptyState,
   ErrorState,
-  IconButton,
   Loading,
   Modal,
   Row,
+  type RowAction,
+  type RowActionGroup,
+  RowActions,
   RowLegend,
   Stat,
   TabIntro,
@@ -59,20 +59,7 @@ export function PettyCashBoard({projectId}: {projectId: number}) {
 
   return (
     <div className="settings-sections">
-      <TabIntro
-        action={
-          c.permissions.close ? (
-            <Button
-              variant="secondary"
-              onClick={() => setDialog({kind: 'close'})}
-            >
-              {t('pettyCash.close')}
-            </Button>
-          ) : null
-        }
-      >
-        {t('pettyCash.intro')}
-      </TabIntro>
+      <TabIntro>{t('pettyCash.intro')}</TabIntro>
 
       <section className="card">
         <div className="stat-grid">
@@ -99,11 +86,24 @@ export function PettyCashBoard({projectId}: {projectId: number}) {
 
       <section className="card">
         <div className="card-header">
-          <h2>{t('pettyCash.currentCycle', {number: current.number})}</h2>
-          {current.openedAt && (
-            <span className="small muted">
-              {t('pettyCash.openedOn', {date: formatDate(current.openedAt)})}
-            </span>
+          <div>
+            <h2>{t('pettyCash.currentCycle', {number: current.number})}</h2>
+            {current.openedAt && (
+              <span className="small muted">
+                {t('pettyCash.openedOn', {date: formatDate(current.openedAt)})}
+              </span>
+            )}
+          </div>
+          {/* Closing acts on this cycle, so it sits on its card (QA-0005). */}
+          {c.permissions.close && (
+            <ActionButton
+              action="confirm"
+              main
+              size="md"
+              onClick={() => setDialog({kind: 'close'})}
+            >
+              {t('pettyCash.close')}
+            </ActionButton>
           )}
         </div>
         <Movements movements={current.movements ?? []} money={money} />
@@ -113,71 +113,73 @@ export function PettyCashBoard({projectId}: {projectId: number}) {
         <div className="card-header">
           <h2>{t('pettyCash.history')}</h2>
         </div>
-        {c.history.length === 0 ? (
-          <EmptyState>{t('pettyCash.noHistory')}</EmptyState>
-        ) : (
-          <>
+        <>
+          {c.history.length > 0 && (
             <RowLegend
-              statuses={CYCLE_STATUSES.map((s) => ({
+              // The open cycle is the card above, never a row here.
+              statuses={CYCLE_STATUSES.filter((s) => s !== 'OPEN').map((s) => ({
                 value: cycleTone(s),
                 label: t(`pettyCash.status.${s}`),
               }))}
             />
-            <DataTable
-              columns={[
-                t('pettyCash.cycle'),
-                t('pettyCash.closed'),
-                t('pettyCash.opening'),
-                t('pettyCash.topUps'),
-                t('pettyCash.outflows'),
-                t('pettyCash.closing'),
-              ]}
-              rows={c.history}
-              renderRow={(cycle) => (
-                <Row
-                  key={cycle.id}
-                  status={cycleTone(cycle.status)}
-                  label={t(`pettyCash.status.${cycle.status}`)}
-                >
-                  <td>
-                    <strong>#{cycle.number}</strong>
-                  </td>
-                  <td>
-                    {formatDate(cycle.closedAt)}
-                    {cycle.closedBy && (
-                      <div className="small muted">{cycle.closedBy}</div>
-                    )}
-                  </td>
-                  <td className="num">{money(cycle.openingBalance)}</td>
-                  <td className="num">{money(cycle.topUps)}</td>
-                  <td className="num">
-                    {money(
-                      String(Number(cycle.spent) + Number(cycle.reimbursed)),
-                    )}
-                  </td>
-                  <td className="num">
-                    <strong>{money(cycle.closingBalance)}</strong>
-                  </td>
-                  <Actions>
-                    <IconButton
-                      icon="eye"
-                      label={t('pettyCash.viewCycle', {number: cycle.number})}
-                      onClick={() => setDialog({kind: 'view', cycle})}
-                    />
-                    {c.permissions.signOff && cycle.status === 'CLOSED' && (
-                      <ActionButton
-                        action="confirm"
-                        onClick={() => setDialog({kind: 'signOff', cycle})}
-                      >
-                        {t('pettyCash.signOff')}
-                      </ActionButton>
-                    )}
-                  </Actions>
-                </Row>
-              )}
-            />
-          </>
-        )}
+          )}
+          <DataTable
+            empty={<EmptyState>{t('pettyCash.noHistory')}</EmptyState>}
+            columns={[
+              t('pettyCash.cycle'),
+              t('pettyCash.closed'),
+              t('pettyCash.opening'),
+              t('pettyCash.topUps'),
+              t('pettyCash.outflows'),
+              t('pettyCash.closing'),
+            ]}
+            rows={c.history}
+            renderRow={(cycle) => (
+              <Row
+                key={cycle.id}
+                status={cycleTone(cycle.status)}
+                label={t(`pettyCash.status.${cycle.status}`)}
+              >
+                <td>
+                  <strong>#{cycle.number}</strong>
+                </td>
+                <td>
+                  {formatDate(cycle.closedAt)}
+                  {cycle.closedBy && (
+                    <div className="small muted">{cycle.closedBy}</div>
+                  )}
+                </td>
+                <td className="num">{money(cycle.openingBalance)}</td>
+                <td className="num">{money(cycle.topUps)}</td>
+                <td className="num">
+                  {money(
+                    String(Number(cycle.spent) + Number(cycle.reimbursed)),
+                  )}
+                </td>
+                <td className="num">
+                  <strong>{money(cycle.closingBalance)}</strong>
+                </td>
+                <Actions>
+                  <RowActions
+                    name={t('pettyCash.cycleNumber', {number: cycle.number})}
+                    main={
+                      c.permissions.signOff &&
+                      cycle.status === 'CLOSED' && {
+                        label: t('pettyCash.signOff'),
+                        action: 'confirm',
+                        onClick: () => setDialog({kind: 'signOff', cycle}),
+                      }
+                    }
+                    view={{
+                      label: t('pettyCash.viewCycle', {number: cycle.number}),
+                      onClick: () => setDialog({kind: 'view', cycle}),
+                    }}
+                  />
+                </Actions>
+              </Row>
+            )}
+          />
+        </>
       </section>
 
       {dialog?.kind === 'close' && (
@@ -205,12 +207,9 @@ function Movements({
   movements: CycleMovement[];
   money: (amount: string) => string;
 }) {
-  if (movements.length === 0) {
-    return <EmptyState>{t('pettyCash.noMovements')}</EmptyState>;
-  }
-
   return (
     <DataTable
+      empty={<EmptyState>{t('pettyCash.noMovements')}</EmptyState>}
       columns={[
         t('finance.date'),
         t('finance.movement'),
@@ -225,7 +224,7 @@ function Movements({
           status={m.voided ? 'movement_voided' : null}
           label={m.voided ? t('finance.voided') : null}
         >
-          <td>{formatDate(m.date)}</td>
+          <td className="nowrap">{formatDate(m.date)}</td>
           <td>
             <strong>{t(`finance.type.${m.type}`)}</strong>
             {(m.description || m.method) && (
@@ -243,20 +242,15 @@ function Movements({
           <td>{m.user}</td>
           <td className="num">{money(m.amount)}</td>
           <Actions>
-            {m.attachments.map((a) => (
-              <a
-                key={a.id}
-                className={actionClass('file')}
-                href={attachmentUrl(a.id)}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={a.name}
-              >
-                {m.type === 'EXPENSE'
+            <RowActions
+              name={`${t(`finance.type.${m.type}`)} · ${formatDate(m.date)}`}
+              {...attachmentActions(
+                m.attachments,
+                m.type === 'EXPENSE'
                   ? t('expenses.receipt')
-                  : t('finance.proof')}
-              </a>
-            ))}
+                  : t('finance.proof'),
+              )}
+            />
           </Actions>
         </Row>
       )}
@@ -315,4 +309,22 @@ function CycleModal({
       )}
     </Modal>
   );
+}
+
+/** A row's files: the first one is its main action, any others wait in the menu. */
+function attachmentActions(
+  attachments: ReadonlyArray<{id: number; name: string}>,
+  label: string,
+): {main: RowAction | null; more: RowActionGroup[]} {
+  const file = (a: {id: number; name: string}): RowAction => ({
+    label,
+    action: 'file',
+    description: a.name,
+    href: attachmentUrl(a.id),
+  });
+  const [first, ...others] = attachments;
+  return {
+    main: first ? file(first) : null,
+    more: [{items: others.map(file)}],
+  };
 }

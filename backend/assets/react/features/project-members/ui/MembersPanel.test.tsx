@@ -65,7 +65,10 @@ describe('MembersPanel', () => {
     renderWithProviders(<MembersPanel project={project} canManage />);
 
     const person = screen.getByLabelText('Persona');
-    await screen.findByRole('option', {name: 'Carlos Pérez (lider@x.co)'});
+    // Within the select: a role query over the whole page is slow enough in jsdom to miss its one-second wait.
+    await within(person).findByRole('option', {
+      name: 'Carlos Pérez (lider@x.co)',
+    });
     expect(
       within(person).queryByRole('option', {name: /Laura/}),
     ).not.toBeInTheDocument();
@@ -93,7 +96,10 @@ describe('MembersPanel', () => {
     });
     renderWithProviders(<MembersPanel project={project} canManage />);
 
-    await screen.findByRole('option', {name: 'Carlos Pérez (lider@x.co)'});
+    // Within the select: a role query over the whole page is slow enough in jsdom to miss its one-second wait.
+    await within(screen.getByLabelText('Persona')).findByRole('option', {
+      name: 'Carlos Pérez (lider@x.co)',
+    });
     await userEvent.selectOptions(screen.getByLabelText('Persona'), '3');
     await userEvent.selectOptions(
       screen.getByLabelText('Rol'),
@@ -115,12 +121,16 @@ describe('MembersPanel', () => {
     });
     renderWithProviders(<MembersPanel project={project} canManage />);
 
-    await userEvent.click(screen.getByRole('button', {name: 'Quitar'}));
+    // Removing is the only thing a member's row does, so it waits in the menu rather than a red button on every row.
+    await userEvent.click(screen.getByRole('button', {name: 'Más'}));
+    await userEvent.click(screen.getByRole('menuitem', {name: /Quitar/}));
     expect(
       screen.getByText(/Laura Gómez dejará de ver este proyecto/),
     ).toBeInTheDocument();
     await userEvent.click(
-      within(screen.getByRole('dialog')).getByRole('button', {name: 'Quitar'}),
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Quitar',
+      }),
     );
 
     expect(

@@ -36,6 +36,16 @@ describe('PlanBoard', () => {
     ).toBeEnabled();
   });
 
+  it('offers "Agregar etapa" once, at the end of the stage list\'s header, even with no stages', async () => {
+    mockApi({'GET /api/projects/9/plan': planFixture({stages: []})});
+    renderWithProviders(<PlanBoard projectId={9} />);
+
+    expect(await screen.findByText(/Aún no hay etapas/)).toBeInTheDocument();
+    expect(screen.getAllByRole('button', {name: 'Agregar etapa'})).toHaveLength(
+      1,
+    );
+  });
+
   it('lists what blocks submitting and keeps the button off', async () => {
     mockApi({
       'GET /api/projects/9/plan': planFixture({

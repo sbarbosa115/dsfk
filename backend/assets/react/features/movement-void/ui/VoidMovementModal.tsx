@@ -35,6 +35,7 @@ export function VoidMovementModal({
 
   return (
     <FormModal
+      action="danger"
       title={t('finance.voidTitle')}
       submitLabel={t('finance.void')}
       submit={action}
@@ -46,7 +47,7 @@ export function VoidMovementModal({
           {t('finance.voidConfirm', {
             type: t(`finance.type.${movement.type}`),
             date: formatDate(movement.date),
-            amount: formatMoney(movement.amount, currency),
+            amount: formatMoney(movement.amount, currency, {exact: true}),
             destinations: destinations(movement),
           })}
         </Alert>

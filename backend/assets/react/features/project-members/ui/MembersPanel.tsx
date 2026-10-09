@@ -19,7 +19,7 @@ import {
   DataTable,
   EmptyState,
   Row,
-  RowLegend,
+  RowActions,
   Select,
 } from '@/shared/ui';
 
@@ -129,6 +129,7 @@ export function MembersPanel({
           />
           <ActionButton
             action="setup"
+            main
             size="md"
             busy={busy && !removing}
             disabled={!chosen}
@@ -138,64 +139,64 @@ export function MembersPanel({
           </ActionButton>
         </div>
       )}
-      {project.members.length === 0 ? (
-        <EmptyState>{t('members.empty')}</EmptyState>
-      ) : (
-        <>
-          <RowLegend
-            statuses={ROLES.map((r) => ({value: r, label: t(`roles.${r}`)}))}
-          />
-          <DataTable
-            columns={[t('members.person'), t('users.email'), t('members.role')]}
-            actions={canManage}
-            rows={project.members}
-            renderRow={(member) => (
-              <Row
-                key={member.id}
-                status={member.role}
-                label={t(`roles.${member.role}`)}
-              >
-                <td className="strong">{member.user.fullName}</td>
-                <td>{member.user.email}</td>
-                <td>
-                  {canManage ? (
-                    <select
-                      className="row-action-select"
-                      aria-label={`${t('members.role')}: ${member.user.fullName}`}
-                      value={member.role}
-                      onChange={(event) =>
-                        void add(
-                          member.user.id,
-                          event.target.value as ProjectRole,
-                          member.user.fullName,
-                        )
-                      }
-                    >
-                      {ROLES.map((r) => (
-                        <option key={r} value={r}>
-                          {t(`roles.${r}`)}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    t(`roles.${member.role}`)
-                  )}
-                </td>
-                {canManage && (
-                  <Actions>
-                    <ActionButton
-                      action="danger"
-                      onClick={() => setRemoving(member)}
-                    >
-                      {t('members.remove')}
-                    </ActionButton>
-                  </Actions>
+      <>
+        <DataTable
+          empty={<EmptyState>{t('members.empty')}</EmptyState>}
+          columns={[t('members.person'), t('users.email'), t('members.role')]}
+          actions={canManage}
+          rows={project.members}
+          renderRow={(member) => (
+            // A role is not a status: the row stays plain, and the role is the select beside it (QA-0016).
+            <Row key={member.id}>
+              <td className="strong">{member.user.fullName}</td>
+              <td>{member.user.email}</td>
+              <td>
+                {canManage ? (
+                  <select
+                    className="row-action-select"
+                    aria-label={`${t('members.role')}: ${member.user.fullName}`}
+                    value={member.role}
+                    onChange={(event) =>
+                      void add(
+                        member.user.id,
+                        event.target.value as ProjectRole,
+                        member.user.fullName,
+                      )
+                    }
+                  >
+                    {ROLES.map((r) => (
+                      <option key={r} value={r}>
+                        {t(`roles.${r}`)}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  t(`roles.${member.role}`)
                 )}
-              </Row>
-            )}
-          />
-        </>
-      )}
+              </td>
+              {canManage && (
+                <Actions>
+                  <RowActions
+                    name={member.user.fullName}
+                    more={[
+                      {
+                        items: [
+                          {
+                            label: t('members.remove'),
+                            action: 'danger',
+                            icon: 'ban',
+                            onClick: () => setRemoving(member),
+                          },
+                        ],
+                      },
+                    ]}
+                  />
+                </Actions>
+              )}
+            </Row>
+          )}
+        />
+      </>
       {removing && (
         <ConfirmModal
           title={t('members.remove')}

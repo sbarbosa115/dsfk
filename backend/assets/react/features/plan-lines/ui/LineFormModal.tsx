@@ -42,7 +42,7 @@ export function LineFormModal({
   const qty = Number(quantity(form.values.quantity));
   const preview =
     price && Number.isFinite(qty) && qty > 0
-      ? formatMoney(Number(price) * qty, plan.project.currency)
+      ? formatMoney(Number(price) * qty, plan.project.currency, {exact: true})
       : null;
 
   const onSubmit = async () => {

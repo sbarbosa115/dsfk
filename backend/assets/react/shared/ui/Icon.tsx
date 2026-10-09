@@ -135,6 +135,8 @@ const PATHS = {
   ),
   chevronLeft: <path d="M15 5l-7 7 7 7" />,
   chevronRight: <path d="M9 5l7 7-7 7" />,
+  // Opens a row's menu (RowActions).
+  chevronDown: <path d="M5 9l7 7 7-7" />,
   eye: (
     <>
       <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
