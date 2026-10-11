@@ -236,7 +236,35 @@ export const es = {
     submitConfirm:
       'Después de enviarlo no podrás modificarlo, a menos que el administrador lo devuelva con observaciones.',
     lockedNote:
-      'Presupuesto aprobado el {{date}}. Ya no se puede modificar: solo nombres de etapas y nuevas categorías.',
+      'Presupuesto aprobado el {{date}}. Lo aprobado ya no se modifica: solo nombres de etapas y nuevas categorías. Las etapas nuevas entran como adición.',
+    amendment: {
+      badge: 'Adición {{number}}',
+      pending: 'Pendiente de aprobación',
+      status: {
+        DRAFT: 'Borrador',
+        SUBMITTED: 'Enviada a aprobación',
+        RETURNED: 'Devuelta con observaciones',
+        APPROVED: 'Aprobada',
+      },
+      list: 'Adiciones al presupuesto',
+      number: 'Adición',
+      stages: 'Etapas',
+      total: 'Total',
+      approvedAt: 'Aprobada el',
+      submit: 'Enviar adición',
+      approve: 'Aprobar adición',
+      returnIt: 'Devolver adición',
+      submitConfirm:
+        'Después de enviarla no podrás modificarla, a menos que el administrador la devuelva con observaciones.',
+      approveConfirm:
+        'Sus etapas se suman al presupuesto aprobado y ya se pueden iniciar, recibir dinero y registrar gastos. Lo aprobado antes no cambia.',
+      submittedNote:
+        'La adición {{number}} espera la aprobación del administrador. Mientras tanto nadie la modifica.',
+      issuesTitle: 'Para enviar la adición falta:',
+      returnedNote: 'Devuelta por {{user}}: “{{comment}}”',
+      addHint:
+        'El presupuesto ya está aprobado: la etapa se agrega como adición y el administrador debe aprobarla antes de iniciarla.',
+    },
     submittedNote:
       'El presupuesto espera la aprobación del administrador. Mientras tanto nadie lo modifica.',
     returnedNote: 'Devuelto por {{user}}: “{{comment}}”',
@@ -563,8 +591,11 @@ export const es = {
       actualEnd: 'Fin real',
       actualStart: 'Inicio real',
       admin: 'Administrador',
+      amendment: 'Adición',
+      amendments: 'Adiciones',
       amount: 'Monto',
       approvedAt: 'Aprobado el',
+      budget: 'Presupuesto',
       category: 'Categoría',
       categoryId: 'Categoría',
       closedAt: 'Cerrado el',
@@ -643,6 +674,7 @@ export const es = {
       Stage: 'Etapa',
       Category: 'Categoría',
       Budget: 'Presupuesto',
+      BudgetAmendment: 'Adición al presupuesto',
       BudgetLine: 'Partida',
       Milestone: 'Hito',
       FundMovement: 'Movimiento de dinero',

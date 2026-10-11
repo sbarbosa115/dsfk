@@ -14,6 +14,8 @@ final readonly class BudgetEventOutput
         public PersonOutput $user,
         public ?string $comment,
         public \DateTimeImmutable $createdAt,
+        /** The amendment's number; null for the budget itself. */
+        public ?int $amendment,
     ) {
     }
 }

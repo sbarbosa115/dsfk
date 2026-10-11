@@ -133,6 +133,7 @@ class Milestone implements Audited
 
     public function complete(\DateTimeImmutable $date, int $byUserId, ?string $notes, \DateTimeImmutable $today): void
     {
+        $this->stage->assertApproved();
         if ($this->isCompleted()) {
             throw new Conflict('milestone_already_completed');
         }

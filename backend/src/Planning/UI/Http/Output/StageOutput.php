@@ -33,10 +33,16 @@ final readonly class StageOutput
         public array $milestones,
         /** Major units; null for Team Leads */
         public ?string $budgetTotal,
-        /** Share of the budget in basis points; null for Team Leads */
+        /** Share of the budget in basis points; null for Team Leads and while not approved */
         public ?int $weight,
         /** null for Team Leads */
         public ?array $lines,
+        /** The amendment (Adición) that added it after approval; null for the stages of the original budget. */
+        public ?int $amendment,
+        /** False while its amendment waits for the Admin: it cannot be started, funded or charged yet. */
+        public bool $approved,
+        /** Its dates, lines and milestones can be changed now, by this user. */
+        public bool $editable,
     ) {
     }
 }

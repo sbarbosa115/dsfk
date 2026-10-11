@@ -27,6 +27,8 @@ Roles are assigned per project (`ProjectMember`), except `ADMIN`, which is globa
 | Create/edit stages, categories, budget lines (draft) | ✅ | ✅ | — |
 | Submit budget for approval | ✅ | ✅ | — |
 | Approve / return budget | ✅ | — | — |
+| Add stages to an approved budget (an addition) and submit it | ✅ | ✅ | — |
+| Approve / return an addition | ✅ | — | — |
 | Create/complete milestones | ✅ | ✅ | — |
 | Register deposits and splits | ✅ | — | — |
 | Draw from contingency | ✅ | — | — |
@@ -52,6 +54,7 @@ Roles are assigned per project (`ProjectMember`), except `ADMIN`, which is globa
 ### 3.2 Stage
 Dynamic per project, ordered. `name, position, planned_start, planned_end, actual_start, actual_end, status (PENDING | IN_PROGRESS | COMPLETED)`
 - Several stages can be in progress at the same time. `position` is the order they are listed in, not a sequence the work must follow.
+- New stages can be added to a running project through an addition to the budget (3.4a); they start once the Admin approves it.
 
 ### 3.3 Category
 Defined per project (e.g. Payroll, Materials, Equipment, Subcontracts). No templates in v1.
@@ -59,8 +62,15 @@ Defined per project (e.g. Payroll, Materials, Equipment, Subcontracts). No templ
 ### 3.4 Budget
 - One budget per project, made of **BudgetLines**: `stage, category, description, unit, quantity, unit_price, total`.
 - Lifecycle: `DRAFT → SUBMITTED → APPROVED` (or `SUBMITTED → RETURNED → DRAFT` with admin comment).
-- The PM drafts it, the Admin approves it. **Once approved it is locked and never changes.** Spending may exceed it; overruns are flagged, never hidden.
+- The PM drafts it, the Admin approves it. **Once approved, what was approved never changes; the budget grows only through approved additions (3.4a).** Spending may exceed it; overruns are flagged, never hidden.
 - Contingency amount is part of the budget but tracked separately (see 3.7).
+
+### 3.4a Additions to the budget (Adiciones)
+- An approved budget takes new stages through an **addition**: `number, status (DRAFT | SUBMITTED | RETURNED | APPROVED), approved_at`, with the stages it brings, each with its lines and milestones.
+- The PM (or Admin) adds stages with "Agregar etapa"; they join the open addition, opened on the spot. One open addition at a time, as many stages in it as needed.
+- It is sent, returned with a comment and approved like the budget, with the same checks on its own stages, the same history and the same emails (naming the addition).
+- Until approved its stages exist only in the plan: no deposits, fund assignments, contingency draws or expenses; not in Fondos, the dashboards, the totals or the progress; they cannot be started.
+- Once approved they are stages like the others: the budget total and every stage's share grow or shift, and they run in parallel with the rest. The contingency never changes through an addition.
 
 ### 3.5 Milestones and progress (weighted)
 - Each stage has milestones: `name, weight, planned_date, completed_at, completed_by, notes, evidence files`.
@@ -133,7 +143,7 @@ Every create/update/state change on money-related entities stores: user, timesta
 
 | Event | To |
 |---|---|
-| Budget submitted / approved / returned | Admin / PM |
+| Budget, or an addition to it, submitted / approved / returned | Admin / PM |
 | Team Lead expense submitted | PM (Admin if over limit) |
 | Expense rejected | Team Lead |
 | Stage or category reaches the warning threshold / exceeds budget | Admin, PM |
@@ -206,10 +216,11 @@ Still open: hosting details (PHP version, MySQL or MariaDB, SSH access).
 
 ## 10. Planning rules (implemented in phase 1)
 - The budget can be submitted or approved only when every stage has at least one budget line and its milestone weights add up to exactly 100%.
-- While the budget is `DRAFT` or `RETURNED`, the PM (or Admin) can edit stages, lines, milestones and contingency. While it is `SUBMITTED` or `APPROVED`, nobody can, the Admin included.
+- While the budget is `DRAFT` or `RETURNED`, the PM (or Admin) can edit stages, lines, milestones and contingency. While it is `SUBMITTED` or `APPROVED`, nobody can, the Admin included, except the stages of the open addition while it is `DRAFT` or `RETURNED` (3.4a).
 - After approval:
   - Stage names can still be corrected. Planned dates, lines, milestone weights and contingency cannot.
   - Categories can still be added, so unplanned costs have somewhere to go.
+  - New stages can be added as an addition (3.4a); the stage order is fixed, new stages go last.
   - A category can be deleted only if nothing uses it.
 - Milestones can be marked as met only after approval, with a completion date that is not in the future. Only the Admin can reopen a completed milestone.
 - Approving the budget moves the project from `DRAFT` to `ACTIVE`.
@@ -276,8 +287,8 @@ Still open: hosting details (PHP version, MySQL or MariaDB, SSH access).
 
   | Trigger | Recipients |
   |---|---|
-  | Budget submitted | Admins |
-  | Budget returned or approved | PM |
+  | Budget (or an addition to it) submitted | Admins |
+  | Budget (or an addition to it) returned or approved | PM |
   | Team Lead expense submitted or resubmitted | PM |
   | Expense above the limit, approved by the PM | Admins |
   | Expense rejected, or expenses reimbursed | The Team Lead |

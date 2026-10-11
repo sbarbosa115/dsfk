@@ -14,7 +14,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/** An ordered stage of a project, with its budget lines, its weighted milestones and its dates. */
+/**
+ * An ordered stage of a project, with its budget lines, its weighted milestones and its dates. A stage added after
+ * the budget was approved belongs to an amendment, and waits for the Admin's approval before it can be used.
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'stage')]
 class Stage implements Audited
@@ -43,6 +46,10 @@ class Stage implements Audited
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $actualEnd = null;
+
+    /** Null for the stages of the original budget. */
+    #[ORM\ManyToOne]
+    private ?BudgetAmendment $amendment = null;
 
     /** @var Collection<int, BudgetLine> */
     #[ORM\OneToMany(targetEntity: BudgetLine::class, mappedBy: 'stage', cascade: ['persist'], orphanRemoval: true)]
@@ -90,6 +97,32 @@ class Stage implements Audited
     public function getStatus(): StageStatus
     {
         return $this->status;
+    }
+
+    public function getAmendment(): ?BudgetAmendment
+    {
+        return $this->amendment;
+    }
+
+    public function joinAmendment(BudgetAmendment $amendment): void
+    {
+        $this->amendment = $amendment;
+    }
+
+    /** Added after approval and not approved yet: it exists only in the plan, as a proposal. */
+    public function isPendingApproval(): bool
+    {
+        return null !== $this->amendment && !$this->amendment->isApproved();
+    }
+
+    /**
+     * @throws Conflict stage_not_approved
+     */
+    public function assertApproved(): void
+    {
+        if ($this->isPendingApproval()) {
+            throw new Conflict('stage_not_approved');
+        }
     }
 
     public function isCompleted(): bool
@@ -157,6 +190,7 @@ class Stage implements Audited
 
     public function start(\DateTimeImmutable $date, \DateTimeImmutable $today): void
     {
+        $this->assertApproved();
         if (StageStatus::Pending !== $this->status) {
             throw new Conflict('stage_already_started');
         }

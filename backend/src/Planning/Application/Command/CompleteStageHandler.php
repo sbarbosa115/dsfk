@@ -31,7 +31,7 @@ final readonly class CompleteStageHandler implements CommandHandler
                 }
             }
             // Stages may run at the same time, so the leftover goes where the Admin says, never to a guessed "next" stage.
-            if (null === $target || $target === $stage || $target->isCompleted()) {
+            if (null === $target || $target === $stage || $target->isCompleted() || $target->isPendingApproval()) {
                 throw InvalidValue::field('toStageId', 'Choose another stage that is not completed.');
             }
         }

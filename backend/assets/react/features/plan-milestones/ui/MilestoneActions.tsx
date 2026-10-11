@@ -18,7 +18,7 @@ import {MilestoneFormModal} from './MilestoneFormModal';
 
 /**
  * A milestone's row actions in the house order: mark it met (after approval) or reopen it (Admin), then edit,
- * and remove last (while the budget is a draft).
+ * and remove last (while what its stage belongs to, the budget or its addition, is being written).
  */
 export function MilestoneActions({
   plan,
@@ -34,14 +34,15 @@ export function MilestoneActions({
   );
   const reopen = usePlanAction();
   const close = () => setDialog(null);
-  const {edit, track, reopenMilestones} = plan.permissions;
+  const {track, reopenMilestones} = plan.permissions;
+  const edit = stage.editable;
 
   return (
     <>
       <RowActions
         name={milestone.name}
         main={
-          track && !milestone.completedAt
+          track && stage.approved && !milestone.completedAt
             ? {
                 label: t('plan.complete'),
                 action: 'confirm',

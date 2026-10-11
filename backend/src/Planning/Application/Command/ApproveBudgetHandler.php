@@ -24,12 +24,15 @@ final readonly class ApproveBudgetHandler implements CommandHandler
 
     public function __invoke(ApproveBudget $command): void
     {
-        $this->plans->budgetFor($command->projectId)->approve(
+        $budget = $this->plans->budgetFor($command->projectId);
+        $amendment = $budget->approve(
             $command->actorId,
-            PlanCompleteness::issues($this->plans->stagesOf($command->projectId)),
+            PlanCompleteness::issues($budget->underReview($this->plans->stagesOf($command->projectId))),
             $this->clock->now(),
         );
-        $this->projects->activate($command->projectId);
-        $this->events->publish(new BudgetApproved($command->projectId, $command->actorId));
+        if (null === $amendment) {
+            $this->projects->activate($command->projectId);
+        }
+        $this->events->publish(new BudgetApproved($command->projectId, $command->actorId, $amendment?->getNumber()));
     }
 }

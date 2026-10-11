@@ -11,7 +11,7 @@ use App\Planning\Domain\Event\BudgetApproved;
 use App\Planning\Domain\Event\BudgetReturned;
 use App\Shared\Application\Bus\EventHandler;
 
-/** The PM learns the Admin approved the budget, or returned it with what to change. */
+/** The PM learns the Admin approved the budget (or an addition to it), or returned it with what to change. */
 final readonly class NotifyBudgetReviewed implements EventHandler
 {
     public function __construct(private Recipients $recipients, private NotificationFacts $facts, private Outbox $outbox)
@@ -25,9 +25,10 @@ final readonly class NotifyBudgetReviewed implements EventHandler
         $this->outbox->send(
             [$this->recipients->projectManager($event->projectId)],
             'budget_reviewed',
-            ['outcome' => $approved ? 'approved' : 'returned', 'project' => $project['name']],
+            ['outcome' => $approved ? 'approved' : 'returned', 'project' => $project['name'], 'amendment' => $event->amendment ?? 'none'],
             [
                 'project' => $project,
+                'amendment' => $event->amendment ?? 'none',
                 'by' => $this->facts->personName($event->byUserId),
                 'approved' => $approved,
                 'comment' => $event instanceof BudgetReturned ? $event->comment : null,

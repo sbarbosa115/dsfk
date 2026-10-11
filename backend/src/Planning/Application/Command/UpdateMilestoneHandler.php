@@ -17,7 +17,7 @@ final readonly class UpdateMilestoneHandler implements CommandHandler
     {
         $milestone = $this->plans->milestone($c->milestoneId);
         $stage = $milestone->getStage();
-        $this->plans->budgetFor($stage->getProjectId())->assertEditable();
+        $this->plans->budgetFor($stage->getProjectId())->assertStageEditable($stage);
         if ($c->has('name') && null !== $c->name) {
             $milestone->rename($c->name);
         }

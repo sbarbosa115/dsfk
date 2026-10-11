@@ -4,7 +4,7 @@ import {
   type Expense,
   type ExpenseBody,
 } from '@/entities/expense';
-import type {Plan} from '@/entities/plan';
+import {approvedStages, type Plan} from '@/entities/plan';
 import {t} from '@/shared/i18n';
 import {
   formatAmountForInput,
@@ -31,7 +31,7 @@ export function ExpenseFormModal({
 }) {
   const projectId = plan.project.id;
   const action = useExpenseAction(projectId);
-  const openStages = plan.stages.filter(
+  const openStages = approvedStages(plan).filter(
     (s) => s.status !== 'COMPLETED' || s.id === expense?.stage.id,
   );
   const form = useForm({

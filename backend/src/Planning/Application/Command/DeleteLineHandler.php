@@ -16,7 +16,7 @@ final readonly class DeleteLineHandler implements CommandHandler
     public function __invoke(DeleteLine $command): void
     {
         $line = $this->plans->line($command->lineId);
-        $this->plans->budgetFor($line->getStage()->getProjectId())->assertEditable();
+        $this->plans->budgetFor($line->getStage()->getProjectId())->assertStageEditable($line->getStage());
         $line->getStage()->removeLine($line);
     }
 }

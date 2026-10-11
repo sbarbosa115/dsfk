@@ -79,11 +79,13 @@ describe('PlanBoard', () => {
           edit: false,
           manageCategories: false,
           submit: false,
+          addStage: false,
         },
         budget: null,
         issues: null,
         stages: plan.stages.map((s) => ({
           ...s,
+          editable: false,
           budgetTotal: null,
           weight: null,
           lines: null,
@@ -166,6 +168,85 @@ describe('PlanBoard', () => {
         sentBody(fetchMock, 'POST', '/api/milestones/21/complete'),
       ).toMatchObject({notes: 'Terminada'}),
     );
+  });
+
+  it('shows a stage added to the approved budget as an addition waiting for the Admin', async () => {
+    const approved = planFixture();
+    const original = approved.stages[0]!;
+    const plan = planFixture({
+      budgetStatus: 'APPROVED',
+      permissions: {
+        ...approved.permissions,
+        edit: false,
+        submit: true,
+        track: true,
+        addStage: true,
+      },
+      stages: [
+        {...original, editable: false},
+        {
+          ...original,
+          id: 12,
+          name: 'Acabados exteriores',
+          position: 1,
+          weight: null,
+          amendment: 1,
+          approved: false,
+          editable: true,
+          milestones: [],
+        },
+      ],
+      budget: {
+        ...approved.budget!,
+        approvedAt: '2026-10-01T10:00:00-05:00',
+        amendments: [
+          {
+            number: 1,
+            status: 'DRAFT',
+            stages: ['Acabados exteriores'],
+            total: '2000000.00',
+            approvedAt: null,
+          },
+        ],
+      },
+    });
+    mockApi({'GET /api/projects/9/plan': plan});
+    renderWithProviders(<PlanBoard projectId={9} />);
+
+    const added = await screen.findByRole('region', {
+      name: 'Acabados exteriores',
+    });
+    expect(text(added.textContent ?? '')).toContain('Adición 1 · Borrador');
+    expect(text(added.textContent ?? '')).toContain('Pendiente de aprobación');
+    expect(
+      within(added).queryByRole('button', {name: 'Iniciar etapa'}),
+      'it starts once the Admin approves it',
+    ).not.toBeInTheDocument();
+    expect(
+      within(added).getByRole('button', {name: 'Agregar partida'}),
+    ).toBeInTheDocument();
+
+    const first = screen.getByRole('region', {name: 'Cimentación'});
+    expect(
+      within(first).getByRole('button', {name: 'Iniciar etapa'}),
+    ).toBeInTheDocument();
+    expect(
+      within(first).queryByRole('button', {name: 'Agregar partida'}),
+      'what was approved stays locked',
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', {name: 'Enviar adición'}),
+    ).toBeInTheDocument();
+    const list = screen.getByRole('table', {name: 'Adiciones al presupuesto'});
+    expect(text(list.textContent ?? '')).toContain('Acabados exteriores');
+    expect(text(list.textContent ?? '')).toContain('$ 2.000.000');
+
+    await userEvent.click(screen.getByRole('button', {name: 'Agregar etapa'}));
+    expect(
+      screen.getByRole('dialog'),
+      'the form says what happens to a stage added now',
+    ).toHaveTextContent('se agrega como adición');
   });
 
   it('shows the weight error under the field when a milestone would pass 100 %', async () => {

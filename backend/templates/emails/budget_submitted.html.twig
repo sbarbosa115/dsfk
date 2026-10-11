@@ -1,6 +1,6 @@
 {% extends 'emails/layout.html.twig' %}
 {% set link = '/projects/' ~ project.id %}
 {% block content %}
-<p>{{ 'budget_submitted.body'|trans({by: by, project: project.name}, 'emails') }}</p>
+<p>{{ 'budget_submitted.body'|trans({by: by, project: project.name, amendment: amendment}, 'emails') }}</p>
 <p>{{ 'budget_submitted.next'|trans({}, 'emails') }}</p>
 {% endblock %}

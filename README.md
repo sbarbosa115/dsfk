@@ -89,13 +89,13 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
 | `DELETE /projects/{id}/members/{memberId}` | admin | 204 | 404 `member_not_found` (also a member of another project) |
 | `GET /projects/{id}/plan` | member | the plan: stages with lines and milestones, categories, budget, progress, what blocks submitting, `permissions`; amounts `null` for Team Leads | 404 |
 | `POST /projects/{id}/categories` `{name}` · `PATCH\|DELETE /categories/{id}` | PM, admin | the plan (every plan write answers with it) | 409 `category_in_use`, 422 name taken |
-| `POST /projects/{id}/stages` · `PATCH\|DELETE /stages/{id}` · `PUT /projects/{id}/stages/order {ids}` | PM, admin | the plan | 409 `budget_locked` (dates after approval, anything while submitted) |
-| `POST /stages/{id}/lines` · `PUT\|DELETE /budget-lines/{id}` `{categoryId, description, unit, quantity, unitPrice}` | PM, admin, while editable | the plan (line total = quantity × unit price, half up) | 409 `budget_locked`, 422 |
-| `POST /stages/{id}/milestones` · `PATCH\|DELETE /milestones/{id}` `{name, weight %, plannedDate}` | PM, admin, while editable | the plan | 422 weights over 100 % |
+| `POST /projects/{id}/stages` · `PATCH\|DELETE /stages/{id}` · `PUT /projects/{id}/stages/order {ids}` | PM, admin | the plan; after approval a new stage joins the open addition (`amendment`, `approved: false`) | 409 `budget_locked` (an approved stage's dates, the order after approval, anything while submitted) |
+| `POST /stages/{id}/lines` · `PUT\|DELETE /budget-lines/{id}` `{categoryId, description, unit, quantity, unitPrice}` | PM, admin, while its stage is editable (draft budget, or its open addition) | the plan (line total = quantity × unit price, half up) | 409 `budget_locked`, 422 |
+| `POST /stages/{id}/milestones` · `PATCH\|DELETE /milestones/{id}` `{name, weight %, plannedDate}` | PM, admin, while its stage is editable | the plan | 422 weights over 100 % |
 | `PUT /projects/{id}/budget/contingency` `{contingency}` | PM, admin, while editable | the plan | 409 `budget_locked` |
-| `POST /projects/{id}/budget/submit` | PM, admin | the plan | 422 `budget_incomplete` with `issues` |
-| `POST /projects/{id}/budget/{return {comment}\|approve}` | admin | the plan; approving activates the project | 409 `budget_not_submitted` |
-| `POST /stages/{id}/start {actualStart}` · `POST /milestones/{id}/complete {completedAt, notes}` | PM, admin, after approval | the plan | 409 `budget_not_approved`, `stage_already_started`, `milestone_already_completed`; 422 future date |
+| `POST /projects/{id}/budget/submit` | PM, admin | the plan; once approved, sends the open addition | 422 `budget_incomplete` with `issues` (the addition's stages only) |
+| `POST /projects/{id}/budget/{return {comment}\|approve}` | admin | the plan; approving the budget activates the project; once approved, decides on the submitted addition | 409 `budget_not_submitted` |
+| `POST /stages/{id}/start {actualStart}` · `POST /milestones/{id}/complete {completedAt, notes}` | PM, admin, after approval | the plan | 409 `budget_not_approved`, `stage_not_approved` (its addition waits for the Admin), `stage_already_started`, `milestone_already_completed`; 422 future date |
 | `POST /milestones/{id}/reopen` | admin | the plan | 409 `stage_completed` |
 | `GET /projects/{id}/finance` | PM, admin | funding per stage, category, caja menor, contingency and project fund next to the budget, with `permissions` | 403 Team Lead, 404 |
 | `GET /projects/{id}/movements?q=` | PM, admin | page of deposits, draws, fund assignments and carry-overs (voided included), newest first; `q` in reference and note | 403, 404 |
@@ -144,6 +144,10 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   menor, the contingency, the project fund); balances are sums of the entries of movements that are not voided, and movements are
   never deleted. Every money write locks the project's row for its transaction, so two writes cannot spend the
   same balance.
+- **An approved budget grows only through additions (Adiciones).** A stage added to a running project joins the
+  open `BudgetAmendment` (one at a time) and goes through the budget's own submit, return and approve; approved
+  stages never change. Until approved it exists only in the plan: `DoctrinePlanDirectory`, the one port Finance,
+  Expense, Reporting and Notification read, leaves it out, so no money, expense, figure or reminder reaches it.
 - **The project fund is where unassigned money waits; the contingency is only a reserve.** Stages can run at the
   same time, so no stage is "the next one": a closed stage's leftover goes to the fund unless the Admin picks an
   open stage, and the Admin assigns from the fund later. Leftovers carried into the contingency before this stay

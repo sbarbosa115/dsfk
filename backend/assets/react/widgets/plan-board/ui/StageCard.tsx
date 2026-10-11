@@ -1,5 +1,6 @@
 import {useState} from 'react';
 import {
+  budgetTone,
   milestoneLabel,
   milestoneTone,
   stageTone,
@@ -36,7 +37,10 @@ type Dialog =
   | {kind: 'addMilestone'}
   | null;
 
-/** One stage: header with its status, dates, money and progress; then its lines and its milestones. */
+/**
+ * One stage: header with its status, dates, money and progress; then its lines and its milestones. A stage added
+ * to the approved budget shows its addition (Adición) until the Admin approves it.
+ */
 export function StageCard({
   plan,
   stage,
@@ -48,7 +52,11 @@ export function StageCard({
 }) {
   const [dialog, setDialog] = useState<Dialog>(null);
   const close = () => setDialog(null);
-  const {edit} = plan.permissions;
+  const edit = stage.editable;
+  const addition =
+    stage.amendment != null && !stage.approved
+      ? plan.budget?.amendments.find((a) => a.number === stage.amendment)
+      : undefined;
   const currency = plan.project.currency;
   const categoryName = (id: number) =>
     plan.categories.find((c) => c.id === id)?.name ?? '';
@@ -62,9 +70,19 @@ export function StageCard({
             <span>
               {index + 1}. {stage.name}
             </span>
-            <Badge value={stageTone(stage.status)}>
-              {t(`plan.stageStatus.${stage.status}`)}
-            </Badge>
+            {stage.approved ? (
+              <Badge value={stageTone(stage.status)}>
+                {t(`plan.stageStatus.${stage.status}`)}
+              </Badge>
+            ) : (
+              <Badge value={budgetTone(addition?.status ?? 'SUBMITTED')}>
+                {t('plan.amendment.badge', {number: stage.amendment})}
+                {' · '}
+                {addition
+                  ? t(`plan.amendment.status.${addition.status}`)
+                  : t('plan.amendment.pending')}
+              </Badge>
+            )}
           </div>
           {/* Wraps: with its start and end, a finished stage's line is longer than its column. */}
           <div className="small muted">
@@ -84,9 +102,11 @@ export function StageCard({
                 {formatMoney(stage.budgetTotal, currency)}
               </div>
               <div className="small muted">
-                {t('plan.shareOfBudget', {
-                  percent: formatPercent(stage.weight ?? 0),
-                })}
+                {stage.approved
+                  ? t('plan.shareOfBudget', {
+                      percent: formatPercent(stage.weight ?? 0),
+                    })
+                  : t('plan.amendment.pending')}
               </div>
             </>
           )}
@@ -213,7 +233,9 @@ export function StageCard({
             t('plan.completed'),
           ]}
           actions={
-            edit || plan.permissions.track || plan.permissions.reopenMilestones
+            edit ||
+            (plan.permissions.track && stage.approved) ||
+            plan.permissions.reopenMilestones
           }
           rows={stage.milestones}
           renderRow={(milestone) => (
@@ -245,7 +267,7 @@ export function StageCard({
                 )}
               </td>
               {(edit ||
-                plan.permissions.track ||
+                (plan.permissions.track && stage.approved) ||
                 plan.permissions.reopenMilestones) && (
                 <Actions>
                   <MilestoneActions

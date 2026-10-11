@@ -8,7 +8,10 @@ use App\Shared\Domain\Model\References;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/** One transition of the budget: who moved it to which status, when, and the Admin's comment on a return. */
+/**
+ * One transition of the budget, or of one of its amendments: who moved it to which status, when, and the Admin's
+ * comment on a return.
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'budget_event')]
 class BudgetEvent
@@ -31,6 +34,10 @@ class BudgetEvent
         private \DateTimeImmutable $createdAt,
         #[ORM\Column(type: Types::TEXT, nullable: true)]
         private ?string $comment = null,
+        /** Null for the budget's own transitions. */
+        #[ORM\ManyToOne]
+        #[ORM\JoinColumn(onDelete: 'CASCADE')]
+        private ?BudgetAmendment $amendment = null,
     ) {
     }
 
@@ -57,6 +64,11 @@ class BudgetEvent
     public function getComment(): ?string
     {
         return $this->comment;
+    }
+
+    public function getAmendment(): ?BudgetAmendment
+    {
+        return $this->amendment;
     }
 
     public function getCreatedAt(): \DateTimeImmutable

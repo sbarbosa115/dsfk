@@ -203,6 +203,24 @@ final class FinanceApiTest extends ApiTestCase
         $this->assertStatus(422);
     }
 
+    public function testAStageWaitingForApprovalGetsNoMoneyAndIsNotListed(): void
+    {
+        $this->approve();
+        $this->loginAs($this->pm);
+        $added = $this->json('POST', $this->base.'/stages', ['name' => 'Acabados exteriores'])['stages'][2]['id'];
+        $this->loginAs($this->admin);
+        $this->deposit([['destination' => 'PROJECT_FUND', 'amount' => '1000'], ['destination' => 'CONTINGENCY', 'amount' => '1000']]);
+
+        $data = $this->deposit([$this->toStage($added, '10')]);
+        self::assertArrayHasKey('allocations[0].stageId', $data['violations']);
+        $data = $this->assign(['destination' => 'STAGE', 'stageId' => $added, 'amount' => '10']);
+        self::assertArrayHasKey('stageId', $data['violations']);
+        $data = $this->draw($added, '10');
+        self::assertArrayHasKey('stageId', $data['violations']);
+        self::assertSame(['Cimentación', 'Estructura'], array_column($this->json('GET', $this->base.'/finance')['stages'], 'name'));
+        self::assertSame('4937506.25', $this->json('GET', $this->base.'/finance')['totals']['budget'], 'the budget the money is compared against is the approved one');
+    }
+
     public function testAContingencyDrawMovesMoneyToAStage(): void
     {
         $this->approve();

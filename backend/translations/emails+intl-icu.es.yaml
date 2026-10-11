@@ -6,15 +6,16 @@ layout:
     cta: 'Ver en la aplicación'
     footer: 'Mensaje automático. No respondas a este correo.'
 
+# {amendment} is the number of an addition to the approved budget (Adición), or "none" for the budget itself.
 budget_submitted:
-    subject: 'Presupuesto enviado a aprobación: {project}'
-    body: '{by} envió el presupuesto del proyecto {project} para tu aprobación.'
+    subject: '{amendment, select, none {Presupuesto enviado a aprobación: {project}} other {Adición {amendment} al presupuesto enviada a aprobación: {project}}}'
+    body: '{by} envió {amendment, select, none {el presupuesto} other {la adición {amendment} al presupuesto}} del proyecto {project} para tu aprobación.'
     next: 'Revísalo y apruébalo o devuélvelo con observaciones.'
 
 budget_reviewed:
-    subject: '{outcome, select, approved {Presupuesto aprobado: {project}} other {Presupuesto devuelto: {project}}}'
-    approved: '{by} aprobó el presupuesto del proyecto {project}. Ya se pueden registrar depósitos y gastos.'
-    returned: '{by} devolvió el presupuesto del proyecto {project} con estas observaciones:'
+    subject: '{amendment, select, none {{outcome, select, approved {Presupuesto aprobado: {project}} other {Presupuesto devuelto: {project}}}} other {{outcome, select, approved {Adición {amendment} al presupuesto aprobada: {project}} other {Adición {amendment} al presupuesto devuelta: {project}}}}}'
+    approved: '{amendment, select, none {{by} aprobó el presupuesto del proyecto {project}. Ya se pueden registrar depósitos y gastos.} other {{by} aprobó la adición {amendment} al presupuesto del proyecto {project}. Sus etapas ya se pueden iniciar y recibir dinero.}}'
+    returned: '{by} devolvió {amendment, select, none {el presupuesto} other {la adición {amendment} al presupuesto}} del proyecto {project} con estas observaciones:'
     next: 'Haz los ajustes y vuelve a enviarlo.'
 
 budget_threshold:

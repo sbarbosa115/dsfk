@@ -223,7 +223,7 @@
           "Escribe el Nombre y las fechas planeadas, y guarda.",
           "Usa Subir y Bajar para dejarlas en el orden en que se ejecutará la obra."
         ],
-        "note": "El orden importa: al finalizar una etapa, el saldo que le sobre pasa a la siguiente.",
+        "note": "Varias etapas pueden ir en paralelo; el saldo de una etapa finalizada pasa al fondo del proyecto o a la etapa que elija el administrador. Con el presupuesto aprobado, una etapa nueva entra como adición (ver Enviar el presupuesto a aprobación).",
         "image": {
           "src": "budget-and-plan",
           "caption": "Pestaña Presupuesto y plan: el presupuesto, las categorías y las etapas."
@@ -315,7 +315,10 @@
       "bloqueado",
       "devuelto",
       "observaciones",
-      "borrador"
+      "borrador",
+      "adicion",
+      "agregar etapa",
+      "etapa nueva"
     ],
     "sections": [
       {
@@ -338,6 +341,15 @@
           "El administrador puede devolverlo: verás “Devuelto por …” con su comentario, el presupuesto vuelve a ser editable y lo puedes enviar de nuevo. Te llega un correo en ambos casos.",
           "Una vez aprobado, el proyecto pasa a Activo y se habilitan los depósitos y los gastos."
         ]
+      },
+      {
+        "heading": "Agregar etapas con el presupuesto aprobado (adiciones)",
+        "steps": [
+          "En Presupuesto y plan presiona Agregar etapa: con el presupuesto aprobado, la etapa entra en una adición (“Adición 1 · Borrador”).",
+          "Agrega sus partidas y sus hitos (que sumen 100 %), como en cualquier etapa. Puedes agregar varias etapas en la misma adición.",
+          "Presiona Enviar adición y confirma."
+        ],
+        "note": "Lo aprobado antes no cambia. Mientras el administrador no apruebe la adición, sus etapas no se pueden iniciar ni reciben dinero o gastos. Si la devuelve, la corriges y la envías de nuevo."
       }
     ],
     "related": ["aprobar-presupuesto"]
@@ -353,7 +365,8 @@
       "observaciones",
       "presupuesto",
       "linea base",
-      "bloquear"
+      "bloquear",
+      "adicion"
     ],
     "sections": [
       {
@@ -374,6 +387,12 @@
           "Presiona Devolver.",
           "Escribe Qué debe cambiar el gerente: es lo que leerá para corregir.",
           "Presiona Devolver."
+        ]
+      },
+      {
+        "heading": "Adiciones",
+        "body": [
+          "Con el presupuesto aprobado, el gerente puede agregar etapas en una adición. Se revisa en el mismo lugar: Aprobar adición o Devolver adición con lo que debe cambiar. Al aprobarla, sus etapas se suman al presupuesto y ya se pueden iniciar en paralelo con las demás; lo aprobado antes no cambia."
         ]
       }
     ],
@@ -491,7 +510,8 @@
         "steps": [
           "En Presupuesto y plan, en la etapa que empieza, presiona Iniciar etapa.",
           "Indica la fecha real de inicio. La etapa pasa de Pendiente a En curso."
-        ]
+        ],
+        "note": "Se puede iniciar cualquier etapa pendiente, aunque otras sigan en curso. Una etapa de una adición se inicia cuando el administrador aprueba la adición."
       },
       {
         "heading": "Marcar hitos cumplidos",

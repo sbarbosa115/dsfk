@@ -18,7 +18,7 @@ final readonly class ReturnBudgetHandler implements CommandHandler
 
     public function __invoke(ReturnBudget $command): void
     {
-        $this->plans->budgetFor($command->projectId)->returnToDraft($command->actorId, $command->comment, $this->clock->now());
-        $this->events->publish(new BudgetReturned($command->projectId, $command->actorId, trim($command->comment)));
+        $amendment = $this->plans->budgetFor($command->projectId)->returnToDraft($command->actorId, $command->comment, $this->clock->now());
+        $this->events->publish(new BudgetReturned($command->projectId, $command->actorId, trim($command->comment), $amendment?->getNumber()));
     }
 }

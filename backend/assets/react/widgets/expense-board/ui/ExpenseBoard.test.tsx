@@ -217,6 +217,43 @@ describe('ExpenseBoard', () => {
     );
   });
 
+  it('leaves a stage waiting for the Admin out of the form and the filter', async () => {
+    const plan = approvedPlan();
+    mockApi({
+      'GET /api/projects/9/plan': {
+        ...plan,
+        stages: [
+          ...plan.stages,
+          {
+            ...plan.stages[0]!,
+            id: 12,
+            name: 'Paisajismo',
+            amendment: 1,
+            approved: false,
+          },
+        ],
+      },
+      'GET /api/projects/9/expenses': expensePageFixture([]),
+    });
+    renderWithProviders(<ExpenseBoard projectId={9} manager />);
+
+    const filter = await screen.findByLabelText('Etapa');
+    expect(
+      within(filter).queryByRole('option', {name: 'Paisajismo'}),
+    ).not.toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', {name: 'Registrar gasto'}),
+    );
+    const form = within(screen.getByRole('dialog')).getByLabelText('Etapa');
+    expect(
+      within(form).queryByRole('option', {name: 'Paisajismo'}),
+      'it takes expenses once the Admin approves its addition',
+    ).not.toBeInTheDocument();
+    expect(
+      within(form).getByRole('option', {name: 'Cimentación'}),
+    ).toBeInTheDocument();
+  });
+
   it('says spending waits for the approved budget', async () => {
     mockApi({
       'GET /api/projects/9/plan': planFixture(),

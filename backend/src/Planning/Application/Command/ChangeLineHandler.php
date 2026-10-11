@@ -18,7 +18,7 @@ final readonly class ChangeLineHandler implements CommandHandler
     {
         $line = $this->plans->line($c->lineId);
         $stage = $line->getStage();
-        $this->plans->budgetFor($stage->getProjectId())->assertEditable();
+        $this->plans->budgetFor($stage->getProjectId())->assertStageEditable($stage);
         $stage->changeLine(
             $line,
             LineCategory::of($this->plans, $c->categoryId),

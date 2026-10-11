@@ -867,6 +867,8 @@ interface DataTableProps<T> {
   className?: string;
   /** Shown inside the table, under its header, when there are no rows: what will appear, and its action. */
   empty?: ReactNode;
+  /** The table's accessible name, when no heading right above it says what it lists. */
+  label?: string;
 }
 
 /** The words of a header, whatever it is wrapped in. */
@@ -932,6 +934,7 @@ export function DataTable<T>({
   actions = true,
   className = '',
   empty,
+  label,
 }: DataTableProps<T>) {
   const headers = actions ? [...columns, t('common.actions')] : columns;
   const body = rows.map((row, index) =>
@@ -953,7 +956,7 @@ export function DataTable<T>({
 
   return (
     <div className={`table-wrap ${className}`.trim()}>
-      <table className="table">
+      <table className="table" aria-label={label}>
         <thead>
           <tr>
             {headers.map((column, index) => (
