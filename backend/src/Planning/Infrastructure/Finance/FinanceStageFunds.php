@@ -13,8 +13,8 @@ final readonly class FinanceStageFunds implements StageFunds
     {
     }
 
-    public function settle(int $projectId, int $stageId, ?int $nextStageId, \DateTimeImmutable $date, int $actorId): void
+    public function settle(int $projectId, int $stageId, ?int $toStageId, \DateTimeImmutable $date, int $actorId): void
     {
-        $this->settlement->settle($projectId, $stageId, $nextStageId, $date, $actorId);
+        $this->settlement->settle($projectId, $stageId, $toStageId, $date, $actorId);
     }
 }

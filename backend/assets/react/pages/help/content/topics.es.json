@@ -382,7 +382,7 @@
   {
     "id": "depositos",
     "title": "Registrar un depósito y repartirlo",
-    "summary": "Cómo entra el dinero al proyecto y cómo se reparte entre etapas, caja menor y contingencia.",
+    "summary": "Cómo entra el dinero al proyecto y cómo se reparte entre etapas, caja menor, contingencia y fondo del proyecto.",
     "audiences": ["ADMIN"],
     "keywords": [
       "deposito",
@@ -393,6 +393,8 @@
       "destino",
       "comprobante",
       "fondos",
+      "fondo del proyecto",
+      "asignar",
       "anular"
     ],
     "sections": [
@@ -406,7 +408,7 @@
         "steps": [
           "En Fondos presiona Registrar depósito.",
           "Indica la Fecha, el Medio de pago y la Referencia.",
-          "En Distribución indica el destino de cada parte: una etapa (y, si quieres, su categoría), la Caja menor o la Contingencia, con su monto. Agregar destino suma otra parte.",
+          "En Distribución indica el destino de cada parte: una etapa (y, si quieres, su categoría), la Caja menor, la Contingencia o el Fondo del proyecto, con su monto. Agregar destino suma otra parte.",
           "Revisa el Total del depósito y presiona Registrar."
         ],
         "note": "Después puedes Adjuntar el comprobante (PDF o imagen, hasta 10 MB) desde la lista de Movimientos.",
@@ -414,6 +416,18 @@
           "src": "funds",
           "caption": "Pestaña Fondos: saldos, fondos por etapa y movimientos."
         }
+      },
+      {
+        "heading": "Asignar del fondo del proyecto",
+        "body": [
+          "El Fondo del proyecto guarda el dinero que aún no tiene etapa: lo que depositas allí y el saldo de las etapas que finalizas."
+        ],
+        "steps": [
+          "En Fondos presiona Asignar del fondo (aparece cuando el fondo tiene dinero).",
+          "Elige el Destino (una etapa abierta o la Caja menor), el Monto, sin superar lo disponible en el fondo, y la Fecha.",
+          "Presiona Asignar."
+        ],
+        "note": "Queda como “Asignación del fondo” en los movimientos y se puede anular mientras su dinero no se haya usado."
       },
       {
         "heading": "Corregir",
@@ -439,7 +453,7 @@
     "sections": [
       {
         "body": [
-          "La contingencia recibe lo que le asignas en los depósitos y el saldo que sobra al finalizar la última etapa."
+          "La contingencia recibe lo que le asignas en los depósitos. Es una reserva presupuestada: el saldo de las etapas finalizadas va al fondo del proyecto, no aquí."
         ]
       },
       {
@@ -491,9 +505,10 @@
         "heading": "Finalizar la etapa (administrador)",
         "steps": [
           "En Fondos, en la etapa en curso, presiona Finalizar etapa.",
+          "En Destino del saldo deja Fondo del proyecto o elige otra etapa abierta.",
           "Indica la Fecha de finalización y confirma."
         ],
-        "note": "Todos sus hitos deben estar cumplidos. El saldo que le quede pasa a la siguiente etapa abierta; después de la última, a la contingencia. Una etapa finalizada no recibe más dinero."
+        "note": "Varias etapas pueden estar en curso a la vez. Todos sus hitos deben estar cumplidos. Una etapa finalizada no recibe más dinero."
       }
     ],
     "related": ["hitos", "contingencia", "tablero"]

@@ -14,7 +14,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * A movement of project money: a deposit split into allocations, a contingency draw or a carry-over (expenses
+ * A movement of project money: a deposit split into allocations, a contingency draw, a fund assignment or a
+ * carry-over (expenses
  * and reimbursements come with the Expense context). Its entries are the signed amounts per account; balances
  * are the sum of the entries of movements that are not voided. Movements are never deleted, only voided.
  */
@@ -105,13 +106,32 @@ class FundMovement implements Audited
         return $movement;
     }
 
-    /** The leftover of a completed stage, moved to the next open stage, or to the contingency after the last one. */
+    /** Project fund money given to an open stage or to petty cash: never more than the fund holds. */
+    public static function fundAssignment(int $projectId, LedgerAccount $to, ?int $stageId, int $amount, Balances $balances, \DateTimeImmutable $date, ?string $note, int $by, \DateTimeImmutable $now): self
+    {
+        if (!\in_array($to, [LedgerAccount::Stage, LedgerAccount::PettyCash], true)) {
+            throw InvalidValue::field('destination', 'The fund is assigned to a stage or the caja menor.');
+        }
+        if ($amount <= 0) {
+            throw InvalidValue::field('amount', 'It must be a positive amount.');
+        }
+        if ($amount > $balances->of(LedgerAccount::ProjectFund)) {
+            throw InvalidValue::field('amount', 'The amount is more than the project fund has available.');
+        }
+        $movement = new self($projectId, MovementType::FundAssignment, $date, $note, $by, $now);
+        $movement->addEntry(LedgerAccount::ProjectFund, -$amount);
+        $movement->addEntry($to, $amount, $stageId);
+
+        return $movement;
+    }
+
+    /** The leftover of a completed stage, moved to the open stage the Admin chose, or to the project fund. */
     public static function carryOver(int $projectId, int $fromStageId, ?int $toStageId, int $amount, \DateTimeImmutable $date, int $by, \DateTimeImmutable $now): self
     {
         $movement = new self($projectId, MovementType::Carryover, $date, null, $by, $now);
         $movement->addEntry(LedgerAccount::Stage, -$amount, $fromStageId);
         if (null === $toStageId) {
-            $movement->addEntry(LedgerAccount::Contingency, $amount);
+            $movement->addEntry(LedgerAccount::ProjectFund, $amount);
         } else {
             $movement->addEntry(LedgerAccount::Stage, $amount, $toStageId);
         }
@@ -127,7 +147,7 @@ class FundMovement implements Audited
      */
     public static function spend(int $projectId, LedgerAccount $from, ?int $stageId, ?int $categoryId, int $amount, Balances $balances, \DateTimeImmutable $date, string $description, int $by, \DateTimeImmutable $now): self
     {
-        if (LedgerAccount::Contingency === $from) {
+        if (!\in_array($from, [LedgerAccount::Stage, LedgerAccount::PettyCash], true)) {
             throw new \LogicException('Expenses are paid from a stage or petty cash.');
         }
         self::assertFunds($balances->balance(Balances::key($from, $stageId)), $amount);
@@ -163,15 +183,15 @@ class FundMovement implements Audited
     }
 
     /**
-     * Deposits and draws can be voided (with a reason), as long as no account ends up below zero, e.g. a deposit
-     * whose money was already drawn or carried over. Carry-overs follow from completing a stage; expenses and
+     * Deposits, draws and fund assignments can be voided (with a reason), as long as no account ends up below zero,
+     * e.g. a deposit whose money was already drawn or carried over. Carry-overs follow from completing a stage; expenses and
      * reimbursements are voided through their expense. A movement of a closed petty cash cycle is final.
      *
      * @param Balances $current the project's balances with this movement still counted
      */
     public function void(Balances $current, int $by, string $reason, \DateTimeImmutable $now): void
     {
-        if (!\in_array($this->type, [MovementType::Deposit, MovementType::ContingencyDraw], true)) {
+        if (!\in_array($this->type, [MovementType::Deposit, MovementType::ContingencyDraw, MovementType::FundAssignment], true)) {
             throw new Conflict('movement_not_voidable');
         }
         $this->cancel($current, $by, $reason, $now);

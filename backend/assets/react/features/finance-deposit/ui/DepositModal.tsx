@@ -21,7 +21,7 @@ import {
 
 interface Part {
   key: number;
-  /** "STAGE:11", "PETTY_CASH" or "CONTINGENCY". */
+  /** "STAGE:11", "PETTY_CASH", "CONTINGENCY" or "PROJECT_FUND". */
   target: string;
   categoryId: string;
   amount: string;
@@ -149,6 +149,9 @@ export function DepositModal({
                   </option>
                   <option value="CONTINGENCY">
                     {t('finance.account.CONTINGENCY')}
+                  </option>
+                  <option value="PROJECT_FUND">
+                    {t('finance.account.PROJECT_FUND')}
                   </option>
                 </select>
               </Field>

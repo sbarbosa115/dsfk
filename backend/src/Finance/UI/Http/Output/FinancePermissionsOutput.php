@@ -11,6 +11,7 @@ final readonly class FinancePermissionsOutput
         public bool $void,
         public bool $drawContingency,
         public bool $completeStages,
+        public bool $assignFund,
     ) {
     }
 }

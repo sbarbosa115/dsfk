@@ -30,6 +30,7 @@ Roles are assigned per project (`ProjectMember`), except `ADMIN`, which is globa
 | Create/complete milestones | ✅ | ✅ | — |
 | Register deposits and splits | ✅ | — | — |
 | Draw from contingency | ✅ | — | — |
+| Assign from the project fund | ✅ | — | — |
 | Record expense paid from stage balance | ✅ | ✅ | — |
 | Record expense paid from caja menor | ✅ | ✅ | — |
 | Submit out-of-pocket expense for reimbursement | — | — | ✅ |
@@ -50,6 +51,7 @@ Roles are assigned per project (`ProjectMember`), except `ADMIN`, which is globa
 
 ### 3.2 Stage
 Dynamic per project, ordered. `name, position, planned_start, planned_end, actual_start, actual_end, status (PENDING | IN_PROGRESS | COMPLETED)`
+- Several stages can be in progress at the same time. `position` is the order they are listed in, not a sequence the work must follow.
 
 ### 3.3 Category
 Defined per project (e.g. Payroll, Materials, Equipment, Subcontracts). No templates in v1.
@@ -73,6 +75,7 @@ Defined per project (e.g. Payroll, Materials, Equipment, Subcontracts). No templ
   - `STAGE` (with optional category as an earmark)
   - `PETTY_CASH` (the project's caja menor)
   - `CONTINGENCY`
+  - `PROJECT_FUND` (money for the project that has no stage yet)
 - Money availability is tracked **per stage**. Categories are used for the budget-vs-actual breakdown.
 
 ### 3.7 Contingency
@@ -82,7 +85,12 @@ Defined per project (e.g. Payroll, Materials, Equipment, Subcontracts). No templ
 ### 3.8 Stage funding, overruns and carry-over
 - `Stage available = allocations + contingency draws + carry-in − expenses paid from stage − transfers to petty cash`.
 - A stage must be completed: if it needs more money, the Admin keeps depositing. The dashboard shows **Budget**, **Funded**, **Spent**, and **Funded beyond budget** per stage.
-- When the Admin marks a stage `COMPLETED`, any remaining balance is carried over automatically to the next stage as a `Carryover` ledger entry. A stage never carries a deficit, because extra money comes from new deposits.
+- When the Admin marks a stage `COMPLETED`, any remaining balance is carried over as a `Carryover` ledger entry: to the open stage the Admin chooses, or by default to the **project fund**. A stage never carries a deficit, because extra money comes from new deposits.
+
+### 3.8a Project fund
+- One per project: money deposited to the project but not yet given to a stage, plus the leftovers of completed stages.
+- Only the Admin assigns from it: `destination (an open stage | caja menor), amount, date, note`, capped at its balance. No reason is required: it is not overrun cover.
+- No expense is paid from it. The contingency never receives leftovers; it stays a budgeted reserve.
 
 ### 3.9 Expenses
 `project, stage, category, budget_line (optional), date, amount, description, supplier, invoice_number, receipt files, paid_from (STAGE | PETTY_CASH | OUT_OF_POCKET), paid_by (user), status, created_by`
@@ -101,7 +109,7 @@ Above Team Lead limit:   SUBMITTED → PM_APPROVED → APPROVED (admin) → REIM
 
 ### 3.10 Caja menor (petty cash)
 - One per project, held by the project's PM.
-- Funded from deposit allocations (`PETTY_CASH`).
+- Funded from deposit allocations (`PETTY_CASH`) and project fund assignments; both count as top-ups.
 - Works in **cycles**: `OPEN → CLOSED (by PM) → SIGNED_OFF (by Admin)`.
   - The PM closes a cycle when it runs out, or earlier to ask for a top-up.
   - Closing generates a summary: opening balance, top-ups, each expense with its receipt, and the closing balance.
@@ -211,22 +219,23 @@ Still open: hosting details (PHP version, MySQL or MariaDB, SSH access).
 - Budget transitions are simple methods on the entity; the Symfony Workflow component was not needed.
 
 ## 11. Funding rules (implemented in phase 2)
-- **Ledger.** Each money movement (`DEPOSIT`, `CONTINGENCY_DRAW`, `CARRYOVER`) is a `FundMovement` with signed `LedgerEntry` rows per account: a stage, `PETTY_CASH` or `CONTINGENCY`. Balances are always computed from non-voided entries and are never stored.
+- **Ledger.** Each money movement (`DEPOSIT`, `CONTINGENCY_DRAW`, `FUND_ASSIGNMENT`, `CARRYOVER`) is a `FundMovement` with signed `LedgerEntry` rows per account: a stage, `PETTY_CASH`, `CONTINGENCY` or `PROJECT_FUND`. Balances are always computed from non-voided entries and are never stored.
 - **Deposits.**
   - Only the Admin records deposits, and only once the budget is approved.
   - The date can't be in the future.
-  - A deposit is split into one or more allocations: stage (with an optional category earmark), caja menor or contingency. The deposit amount is the sum of its allocations.
+  - A deposit is split into one or more allocations: stage (with an optional category earmark), caja menor, contingency or project fund. The deposit amount is the sum of its allocations.
   - Completed stages can't receive money.
 - **Proof of payment.** PDF, JPG, PNG, WEBP or HEIC, up to 10 MB. The file type is checked from the content, not from what the browser claims. Files are stored in `var/uploads/<project>/` under random names. Admin and PM can download them; Team Leads can't.
 - **Voiding.**
   - Movements are never deleted. The Admin voids them with a reason, and they stay in the history.
   - Voiding is refused if it would leave any account below zero, e.g. when the money was already used or moved.
-  - Carry-overs can't be voided.
+  - Carry-overs can't be voided: to undo one, assign the money back from the fund. Fund assignments are voided like draws.
 - **Contingency draws.** Admin only, capped at the contingency's available balance, into a stage that isn't finished, with a required reason.
+- **Fund assignments.** Admin only, capped at the fund's balance, into a stage that isn't finished or the caja menor (where it joins the open cycle as a top-up). The note is optional. An assignment is not a deposit: "Depositado" and "Dinero por mes" count deposits only.
 - **Closing a stage.**
   - Admin only. The stage must be in progress and all its milestones met.
-  - Its remaining balance moves to the next unfinished stage. If there is none, it goes to the contingency.
-- **Per-stage figures.** For each stage the app shows: budget, received (deposits + contingency draws + money moved in), available, amount beyond budget, and % funded. Team Leads don't see finances.
+  - Its remaining balance moves to the unfinished stage the Admin picks, or by default to the project fund. Stages can overlap, so no "next stage" is guessed.
+- **Per-stage figures.** For each stage the app shows: budget, received (deposits + contingency draws + fund assignments + money moved in), available, amount beyond budget, and % funded. Team Leads don't see finances.
 - **Deployment note.** `var/uploads/` must survive deploys and be included in backups.
 
 ## 12. Expense and caja menor rules (implemented in phase 3)

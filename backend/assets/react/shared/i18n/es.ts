@@ -322,7 +322,7 @@ export const es = {
     noStages:
       'Las etapas aparecen aquí con el dinero que reciben, una vez aprobado el presupuesto.',
     intro:
-      'El dinero recibido y dónde está: en cada etapa, en la caja menor y en la contingencia, frente al presupuesto aprobado.',
+      'El dinero recibido y dónde está: en cada etapa, en la caja menor, en la contingencia y en el fondo del proyecto, frente al presupuesto aprobado.',
     notApproved:
       'Los depósitos se registran cuando el administrador aprueba el presupuesto.',
     newDeposit: 'Registrar depósito',
@@ -335,10 +335,16 @@ export const es = {
     stagesAvailable: 'Disponible en etapas: {{amount}}',
     pettyCashDetail: 'Depositado: {{deposited}}',
     contingencyDetail: 'Presupuestada: {{budgeted}} · usada: {{drawn}}',
+    projectFundDetail: 'Sin asignar a una etapa · asignado: {{assigned}}',
+    assignFund: 'Asignar del fondo',
+    assignSubmit: 'Asignar',
+    assignDestination: 'Destino',
+    fundAvailable: 'Disponible en el fondo: {{amount}}',
     account: {
       STAGE: 'Etapa',
       PETTY_CASH: 'Caja menor',
       CONTINGENCY: 'Contingencia',
+      PROJECT_FUND: 'Fondo del proyecto',
     },
     unknownStage: 'Etapa eliminada',
     byStage: 'Fondos por etapa',
@@ -346,13 +352,13 @@ export const es = {
     budget: 'Presupuesto',
     received: 'Recibido',
     receivedDetail:
-      'Depositado: {{deposited}} · contingencia: {{draws}} · de la etapa anterior: {{carriedIn}}',
+      'Depositado: {{deposited}} · contingencia: {{draws}} · del fondo: {{assigned}} · de otras etapas: {{carriedIn}}',
     beyondBudget: '{{amount}} por encima del presupuesto',
     spentOf: 'Gastado: {{amount}} ({{percent}})',
     funded: 'Financiado',
     fundedOf: 'Financiado de {{name}}',
     available: 'Disponible',
-    carriedOut: '{{amount}} pasaron a la siguiente',
+    carriedOut: '{{amount}} trasladados al finalizar',
     byCategory: 'Por categoría',
     executed: 'Ejecutado',
     executedOf: 'Ejecutado de {{name}}',
@@ -370,6 +376,7 @@ export const es = {
       DEPOSIT: 'Depósito',
       CONTINGENCY_DRAW: 'Uso de contingencia',
       CARRYOVER: 'Saldo trasladado',
+      FUND_ASSIGNMENT: 'Asignación del fondo',
       EXPENSE: 'Gasto',
       REIMBURSEMENT: 'Reembolso',
     },
@@ -385,7 +392,7 @@ export const es = {
     note: 'Nota',
     allocations: 'Distribución',
     allocationsHint:
-      'Reparte el depósito entre las etapas abiertas, la caja menor y la contingencia.',
+      'Reparte el depósito entre las etapas abiertas, la caja menor, la contingencia y el fondo del proyecto (dinero que aún no tiene etapa).',
     destination: 'Destino {{n}}',
     stageOption: 'Etapa: {{name}}',
     earmark: 'Categoría {{n}}',
@@ -412,8 +419,9 @@ export const es = {
     completeTitle: 'Finalizar “{{name}}”',
     carryToStage:
       'Su saldo disponible ({{amount}}) pasará a la etapa “{{stage}}”.',
-    carryToContingency:
-      'Es la última etapa abierta: su saldo disponible ({{amount}}) pasará a la contingencia.',
+    carryTarget: 'Destino del saldo',
+    carryToFund:
+      'Su saldo disponible ({{amount}}) pasará al fondo del proyecto.',
     nothingToCarry: 'La etapa no tiene saldo disponible para trasladar.',
     completeFinal: 'Una etapa finalizada no recibe más dinero.',
     actualEnd: 'Fecha de finalización',
@@ -810,7 +818,7 @@ export const es = {
     user_inactive: 'Esa cuenta está desactivada. Actívala en Usuarios primero.',
     movement_not_found: 'El movimiento ya no existe.',
     movement_not_voidable:
-      'Solo se anulan depósitos y usos de contingencia; los traslados siguen a la etapa finalizada.',
+      'Solo se anulan depósitos, usos de contingencia y asignaciones del fondo; los traslados siguen a la etapa finalizada.',
     movement_already_voided: 'El movimiento ya estaba anulado.',
     void_would_overdraw:
       'No se puede anular: parte de ese dinero ya se usó o se trasladó.',

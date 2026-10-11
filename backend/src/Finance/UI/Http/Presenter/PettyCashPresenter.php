@@ -81,7 +81,7 @@ final readonly class PettyCashPresenter
     private function cycle(PettyCashCycle $cycle, string $currency, bool $withMovements): CycleOutput
     {
         $movements = $this->queries->cycleMovements((int) $cycle->getId());
-        $totals = [MovementType::Deposit->value => 0, MovementType::Expense->value => 0, MovementType::Reimbursement->value => 0];
+        $totals = [MovementType::Deposit->value => 0, MovementType::FundAssignment->value => 0, MovementType::Expense->value => 0, MovementType::Reimbursement->value => 0];
         $amounts = [];
         foreach ($movements as $m) {
             $amount = 0;
@@ -113,7 +113,7 @@ final readonly class PettyCashPresenter
             $cycle->getSignedOffAt()?->format(\DATE_ATOM),
             null === $cycle->getSignedOffById() ? null : ($names[$cycle->getSignedOffById()] ?? '—'),
             $this->money($cycle->getOpeningBalance(), $currency),
-            $this->money($totals[MovementType::Deposit->value], $currency),
+            $this->money($totals[MovementType::Deposit->value] + $totals[MovementType::FundAssignment->value], $currency),
             $this->money(-$totals[MovementType::Expense->value], $currency),
             $this->money(-$totals[MovementType::Reimbursement->value], $currency),
             $this->money($cycle->getClosingBalance() ?? $running, $currency),

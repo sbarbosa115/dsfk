@@ -56,13 +56,71 @@ final class FundMovementTest extends TestCase
         self::assertSame('Acero', $draw->getNote());
     }
 
-    public function testACarryOverMovesTheLeftoverToTheNextStageOrToTheContingency(): void
+    public function testACarryOverMovesTheLeftoverToTheChosenStageOrToTheProjectFund(): void
     {
-        $next = FundMovement::carryOver(self::PROJECT, 11, 12, 500, new \DateTimeImmutable('2026-10-01'), self::ADMIN, self::now());
-        self::assertSame([[LedgerAccount::Stage, 11, -500], [LedgerAccount::Stage, 12, 500]], self::entries($next));
+        $chosen = FundMovement::carryOver(self::PROJECT, 11, 12, 500, new \DateTimeImmutable('2026-10-01'), self::ADMIN, self::now());
+        self::assertSame([[LedgerAccount::Stage, 11, -500], [LedgerAccount::Stage, 12, 500]], self::entries($chosen));
 
-        $last = FundMovement::carryOver(self::PROJECT, 12, null, 500, new \DateTimeImmutable('2026-10-01'), self::ADMIN, self::now());
-        self::assertSame([[LedgerAccount::Stage, 12, -500], [LedgerAccount::Contingency, null, 500]], self::entries($last));
+        $unassigned = FundMovement::carryOver(self::PROJECT, 12, null, 500, new \DateTimeImmutable('2026-10-01'), self::ADMIN, self::now());
+        self::assertSame([[LedgerAccount::Stage, 12, -500], [LedgerAccount::ProjectFund, null, 500]], self::entries($unassigned), 'the contingency never receives leftovers: it is a budgeted reserve');
+    }
+
+    public function testADepositCanWaitInTheProjectFund(): void
+    {
+        $deposit = $this->deposit();
+        $deposit->allocate(LedgerAccount::ProjectFund, 40_000);
+
+        self::assertSame([[LedgerAccount::ProjectFund, null, 40_000]], self::entries($deposit));
+        $this->expectField(static fn () => $deposit->allocate(LedgerAccount::ProjectFund, 100, stageId: 11), 'stageId');
+    }
+
+    public function testTheFundIsAssignedToAStageOrTheCajaMenorButNeverBeyondWhatItHolds(): void
+    {
+        $balances = new Balances(['PROJECT_FUND' => ['DEPOSIT' => ['in' => 1000, 'out' => 0]]]);
+        $date = new \DateTimeImmutable('2026-10-01');
+
+        $this->expectField(static fn () => FundMovement::fundAssignment(self::PROJECT, LedgerAccount::Stage, 12, 1001, $balances, $date, null, self::ADMIN, self::now()), 'amount');
+
+        $toStage = FundMovement::fundAssignment(self::PROJECT, LedgerAccount::Stage, 12, 600, $balances, $date, ' Para el acero ', self::ADMIN, self::now());
+        self::assertSame(MovementType::FundAssignment, $toStage->getType());
+        self::assertSame(600, $toStage->getAmount());
+        self::assertSame([[LedgerAccount::ProjectFund, null, -600], [LedgerAccount::Stage, 12, 600]], self::entries($toStage));
+        self::assertSame('Para el acero', $toStage->getNote());
+
+        $toCajaMenor = FundMovement::fundAssignment(self::PROJECT, LedgerAccount::PettyCash, null, 400, $balances, $date, null, self::ADMIN, self::now());
+        self::assertSame([[LedgerAccount::ProjectFund, null, -400], [LedgerAccount::PettyCash, null, 400]], self::entries($toCajaMenor));
+        self::assertTrue($toCajaMenor->touchesPettyCash());
+    }
+
+    public function testTheFundOnlyGivesToAStageOrTheCajaMenor(): void
+    {
+        $balances = new Balances(['PROJECT_FUND' => ['DEPOSIT' => ['in' => 1000, 'out' => 0]]]);
+
+        $this->expectField(static fn () => FundMovement::fundAssignment(self::PROJECT, LedgerAccount::Contingency, null, 100, $balances, self::now(), null, self::ADMIN, self::now()), 'destination');
+        $this->expectField(static fn () => FundMovement::fundAssignment(self::PROJECT, LedgerAccount::ProjectFund, null, 100, $balances, self::now(), null, self::ADMIN, self::now()), 'destination');
+    }
+
+    public function testAnAssignmentCanBeVoidedWhileItsMoneyIsUnspent(): void
+    {
+        $assignment = FundMovement::fundAssignment(self::PROJECT, LedgerAccount::Stage, 12, 600, new Balances(['PROJECT_FUND' => ['DEPOSIT' => ['in' => 1000, 'out' => 0]]]), self::now(), null, self::ADMIN, self::now());
+        $spent = new Balances([
+            'PROJECT_FUND' => ['DEPOSIT' => ['in' => 1000, 'out' => 0], 'FUND_ASSIGNMENT' => ['in' => 0, 'out' => -600]],
+            'STAGE:12' => ['FUND_ASSIGNMENT' => ['in' => 600, 'out' => 0], 'EXPENSE' => ['in' => 0, 'out' => -500]],
+        ]);
+        $this->expectConflict(static fn () => $assignment->void($spent, self::ADMIN, 'Error', self::now()), 'void_would_overdraw');
+
+        $unspent = new Balances([
+            'PROJECT_FUND' => ['DEPOSIT' => ['in' => 1000, 'out' => 0], 'FUND_ASSIGNMENT' => ['in' => 0, 'out' => -600]],
+            'STAGE:12' => ['FUND_ASSIGNMENT' => ['in' => 600, 'out' => 0]],
+        ]);
+        $assignment->void($unspent, self::ADMIN, 'Etapa equivocada', self::now());
+        self::assertTrue($assignment->isVoided());
+    }
+
+    public function testNoExpenseIsPaidFromTheProjectFund(): void
+    {
+        $this->expectException(\LogicException::class);
+        FundMovement::spend(self::PROJECT, LedgerAccount::ProjectFund, null, null, 100, new Balances([]), self::now(), 'Cemento', self::ADMIN, self::now());
     }
 
     public function testVoidingKeepsTheRecordButNeverOverdrawsAnAccount(): void

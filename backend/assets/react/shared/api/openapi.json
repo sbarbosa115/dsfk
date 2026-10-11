@@ -856,7 +856,7 @@
                 "tags": [
                     "Finance"
                 ],
-                "summary": "Deposits, draws and carry-overs (voided ones included), newest first. `q` searches reference and note.",
+                "summary": "Deposits, draws, fund assignments and carry-overs (voided ones included), newest first. `q` searches reference and note.",
                 "operationId": "get_api_finance_movements",
                 "parameters": [
                     {
@@ -1096,12 +1096,94 @@
                 }
             }
         },
+        "/api/projects/{id}/fund/assignments": {
+            "post": {
+                "tags": [
+                    "Finance"
+                ],
+                "summary": "The Admin gives project fund money to an open stage or to the caja menor.",
+                "operationId": "post_api_finance_assign_fund",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "\\d+"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AssignmentInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The assignment",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MovementOutput"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "budget_not_approved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed (amount above the fund balance, stage completed, destination not STAGE or PETTY_CASH)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "project_not_found (also outside the project), stage_not_found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden: Team Leads see no money; only Admins move it",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/stages/{id}/complete": {
             "post": {
                 "tags": [
                     "Finance"
                 ],
-                "summary": "The Admin closes a stage whose milestones are met; what is left of its money moves to the next open stage.",
+                "summary": "The Admin closes a stage whose milestones are met; what is left of its money goes to `toStageId` or to the project fund.",
                 "operationId": "post_api_stages_complete",
                 "parameters": [
                     {
@@ -1137,6 +1219,16 @@
                     },
                     "409": {
                         "description": "budget_not_approved, stage_not_in_progress, stage_milestones_pending",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation_failed (toStageId: not an open stage of the project)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3646,7 +3738,8 @@
                 "enum": [
                     "STAGE",
                     "PETTY_CASH",
-                    "CONTINGENCY"
+                    "CONTINGENCY",
+                    "PROJECT_FUND"
                 ]
             },
             "AllocationInput": {
@@ -3747,12 +3840,56 @@
                 },
                 "type": "object"
             },
+            "AssignmentInput": {
+                "properties": {
+                    "destination": {
+                        "title": "STAGE or PETTY_CASH.",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LedgerAccount"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "stageId": {
+                        "title": "Required when the destination is STAGE.",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "amount": {
+                        "title": "Major units.",
+                        "type": "string",
+                        "pattern": "\\d{1,13}(\\.\\d{1,2})?",
+                        "default": ""
+                    },
+                    "date": {
+                        "title": "YYYY-MM-DD, not in the future.",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 2000
+                    }
+                },
+                "type": "object"
+            },
             "CompleteStageInput": {
                 "properties": {
                     "actualEnd": {
                         "title": "YYYY-MM-DD, not in the future nor before the stage started.",
                         "type": "string",
                         "default": ""
+                    },
+                    "toStageId": {
+                        "title": "An open stage of the same project for the leftover; without it the leftover goes to the project fund.",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
                     }
                 },
                 "type": "object"
@@ -4636,7 +4773,8 @@
                     "deposit",
                     "void",
                     "drawContingency",
-                    "completeStages"
+                    "completeStages",
+                    "assignFund"
                 ],
                 "properties": {
                     "deposit": {
@@ -4650,6 +4788,9 @@
                     },
                     "completeStages": {
                         "type": "boolean"
+                    },
+                    "assignFund": {
+                        "type": "boolean"
                     }
                 },
                 "type": "object"
@@ -4661,7 +4802,8 @@
                     "spent",
                     "stagesAvailable",
                     "pettyCash",
-                    "contingency"
+                    "contingency",
+                    "projectFund"
                 ],
                 "properties": {
                     "budget": {
@@ -4682,6 +4824,9 @@
                     },
                     "contingency": {
                         "type": "string"
+                    },
+                    "projectFund": {
+                        "type": "string"
                     }
                 },
                 "type": "object"
@@ -4695,6 +4840,7 @@
                     "deposited",
                     "contingencyDraws",
                     "carriedIn",
+                    "fundAssignments",
                     "carriedOut",
                     "received",
                     "available",
@@ -4731,11 +4877,14 @@
                     "carriedIn": {
                         "type": "string"
                     },
+                    "fundAssignments": {
+                        "type": "string"
+                    },
                     "carriedOut": {
                         "type": "string"
                     },
                     "received": {
-                        "title": "Deposited + draws + carried in.",
+                        "title": "Deposited + draws + carried in + fund assignments.",
                         "type": "string"
                     },
                     "available": {
@@ -4758,11 +4907,6 @@
                     "funded": {
                         "title": "Basis points of the budget received (can pass 10000).",
                         "type": "integer"
-                    },
-                    "nextStage": {
-                        "title": "Where its leftover goes when completed; null when completed or last.",
-                        "type": "string",
-                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -4813,10 +4957,35 @@
                         "type": "string"
                     },
                     "carriedIn": {
-                        "title": "Leftover of the last stage.",
+                        "title": "Leftovers of closed stages, from before they went to the project fund.",
                         "type": "string"
                     },
                     "drawn": {
+                        "type": "string"
+                    },
+                    "balance": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ProjectFundOutput": {
+                "required": [
+                    "deposited",
+                    "carriedIn",
+                    "assigned",
+                    "balance"
+                ],
+                "properties": {
+                    "deposited": {
+                        "type": "string"
+                    },
+                    "carriedIn": {
+                        "title": "Leftovers of closed stages.",
+                        "type": "string"
+                    },
+                    "assigned": {
+                        "title": "Given to stages and the caja menor.",
                         "type": "string"
                     },
                     "balance": {
@@ -4849,6 +5018,7 @@
                     "stages",
                     "categories",
                     "contingency",
+                    "projectFund",
                     "pettyCash"
                 ],
                 "properties": {
@@ -4878,6 +5048,9 @@
                     },
                     "contingency": {
                         "$ref": "#/components/schemas/ContingencyOutput"
+                    },
+                    "projectFund": {
+                        "$ref": "#/components/schemas/ProjectFundOutput"
                     },
                     "pettyCash": {
                         "$ref": "#/components/schemas/PettyCashSummaryOutput"
@@ -4931,7 +5104,8 @@
                         "enum": [
                             "STAGE",
                             "PETTY_CASH",
-                            "CONTINGENCY"
+                            "CONTINGENCY",
+                            "PROJECT_FUND"
                         ]
                     },
                     "stageId": {
@@ -5001,6 +5175,7 @@
                             "DEPOSIT",
                             "CONTINGENCY_DRAW",
                             "CARRYOVER",
+                            "FUND_ASSIGNMENT",
                             "EXPENSE",
                             "REIMBURSEMENT"
                         ]
@@ -5108,6 +5283,7 @@
                             "DEPOSIT",
                             "CONTINGENCY_DRAW",
                             "CARRYOVER",
+                            "FUND_ASSIGNMENT",
                             "EXPENSE",
                             "REIMBURSEMENT"
                         ]
@@ -5211,6 +5387,7 @@
                         "type": "string"
                     },
                     "topUps": {
+                        "title": "Deposits and fund assignments into petty cash.",
                         "type": "string"
                     },
                     "spent": {

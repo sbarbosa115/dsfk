@@ -10,7 +10,7 @@ final readonly class ContingencyOutput
     public function __construct(
         public string $budgeted,
         public string $deposited,
-        /** Leftover of the last stage. */
+        /** Leftovers of closed stages, from before they went to the project fund. */
         public string $carriedIn,
         public string $drawn,
         public string $balance,

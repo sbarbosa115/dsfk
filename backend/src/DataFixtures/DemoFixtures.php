@@ -116,7 +116,7 @@ final class DemoFixtures extends Fixture
         $this->bus->dispatch(new SignOffCycle($cycle, $admin));
 
         // Then the second stage: more money, more spending, Team Lead expenses at every step of their approval.
-        $this->deposit($project, $admin, -38, 'TRX-4602', [[LedgerAccount::Stage, '80000000', $structure], [LedgerAccount::PettyCash, '2000000', null]]);
+        $this->deposit($project, $admin, -38, 'TRX-4602', [[LedgerAccount::Stage, '80000000', $structure], [LedgerAccount::PettyCash, '2000000', null], [LedgerAccount::ProjectFund, '15000000', null]]);
         $this->bus->dispatch(new StartStage($structure, $this->day(-38)));
         $this->bus->dispatch(new CompleteMilestone((int) $this->plans->stage($structure)->getMilestones()[0]->getId(), $pm, $this->day(-8)));
         $this->spend($project, $pm, PaidFrom::Stage, $structure, $c['Materiales'], -30, '46800000', 'Acero de refuerzo', 'Aceros Andinos', 'FV-2207');
@@ -127,8 +127,8 @@ final class DemoFixtures extends Fixture
         $rejected = $this->spend($project, $lead, PaidFrom::OutOfPocket, $structure, $c['Nómina'], -2, '300000', 'Almuerzos de la cuadrilla', null, null);
         $this->bus->dispatch(new RejectExpense($rejected, $pm, false, 'Los almuerzos van por nómina, no como gasto.'));
 
-        // The first stage is closed: its leftover moves to the second.
-        $this->bus->dispatch(new CompleteStage($foundation, $this->day(-40), $admin));
+        // The first stage is closed: the Admin sends its leftover to the second.
+        $this->bus->dispatch(new CompleteStage($foundation, $this->day(-40), $admin, $structure));
     }
 
     /** Draft whose budget waits for the Admin. */

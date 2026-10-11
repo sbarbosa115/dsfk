@@ -14,7 +14,7 @@ final readonly class MovementOutput
      */
     public function __construct(
         public int $id,
-        #[OA\Property(enum: ['DEPOSIT', 'CONTINGENCY_DRAW', 'CARRYOVER', 'EXPENSE', 'REIMBURSEMENT'])]
+        #[OA\Property(enum: ['DEPOSIT', 'CONTINGENCY_DRAW', 'CARRYOVER', 'FUND_ASSIGNMENT', 'EXPENSE', 'REIMBURSEMENT'])]
         public string $type,
         #[OA\Property(format: 'date')]
         public string $date,

@@ -15,6 +15,7 @@ final readonly class FinanceTotalsOutput
         public string $stagesAvailable,
         public string $pettyCash,
         public string $contingency,
+        public string $projectFund,
     ) {
     }
 }

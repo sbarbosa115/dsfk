@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Finance\UI\Http\Controller;
 
 use App\Finance\Application\Command\Allocation;
+use App\Finance\Application\Command\AssignFromFund;
 use App\Finance\Application\Command\DrawContingency;
 use App\Finance\Application\Command\RecordDeposit;
 use App\Finance\Application\Query\FinanceQueries;
@@ -12,6 +13,7 @@ use App\Finance\Domain\Model\LedgerAccount;
 use App\Finance\Domain\Model\PaymentMethod;
 use App\Finance\Domain\Repository\LedgerRepository;
 use App\Finance\UI\Http\Input\AllocationInput;
+use App\Finance\UI\Http\Input\AssignmentInput;
 use App\Finance\UI\Http\Input\CompleteStageInput;
 use App\Finance\UI\Http\Input\DepositInput;
 use App\Finance\UI\Http\Input\DrawInput;
@@ -60,7 +62,7 @@ final class FinanceController extends AbstractController
         return $this->json($this->presenter->summary($id));
     }
 
-    /** Deposits, draws and carry-overs (voided ones included), newest first. `q` searches reference and note. */
+    /** Deposits, draws, fund assignments and carry-overs (voided ones included), newest first. `q` searches reference and note. */
     #[Route('/api/projects/{id}/movements', name: 'api_finance_movements', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[OA\Response(response: 200, description: 'One page of movements', content: new Model(type: MovementPageOutput::class))]
     public function movements(
@@ -107,15 +109,29 @@ final class FinanceController extends AbstractController
         return $this->created($movement);
     }
 
-    /** The Admin closes a stage whose milestones are met; what is left of its money moves to the next open stage. */
+    /** The Admin gives project fund money to an open stage or to the caja menor. */
+    #[Route('/api/projects/{id}/fund/assignments', name: 'api_finance_assign_fund', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[OA\Response(response: 201, description: 'The assignment', content: new Model(type: MovementOutput::class))]
+    #[OA\Response(response: 409, description: 'budget_not_approved', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
+    #[OA\Response(response: 422, description: 'validation_failed (amount above the fund balance, stage completed, destination not STAGE or PETTY_CASH)', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
+    public function assignFund(int $id, #[MapRequestPayload] AssignmentInput $input, #[CurrentUser] Actor $actor): JsonResponse
+    {
+        $this->guard->require(ProjectPermission::ADMINISTER, $id);
+        $movement = $this->bus->dispatch(new AssignFromFund($id, $actor->getId(), $input->destination ?? LedgerAccount::Stage, $input->stageId, $input->amount, new \DateTimeImmutable($input->date), $input->note));
+
+        return $this->created($movement);
+    }
+
+    /** The Admin closes a stage whose milestones are met; what is left of its money goes to `toStageId` or to the project fund. */
     #[Route('/api/stages/{id}/complete', name: 'api_stages_complete', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[OA\Response(response: 200, description: 'The refreshed funding summary', content: new Model(type: FinanceOutput::class))]
     #[OA\Response(response: 409, description: 'budget_not_approved, stage_not_in_progress, stage_milestones_pending', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
+    #[OA\Response(response: 422, description: 'validation_failed (toStageId: not an open stage of the project)', content: new OA\JsonContent(ref: '#/components/schemas/Error'))]
     public function completeStage(int $id, #[MapRequestPayload] CompleteStageInput $input, #[CurrentUser] Actor $actor, PlanQueries $plan): JsonResponse
     {
         $project = $plan->projectOfStage($id) ?? throw new NotFound('stage_not_found');
         $this->guard->require(ProjectPermission::ADMINISTER, $project);
-        $this->bus->dispatch(new CompleteStage($id, new \DateTimeImmutable($input->actualEnd), $actor->getId()));
+        $this->bus->dispatch(new CompleteStage($id, new \DateTimeImmutable($input->actualEnd), $actor->getId(), $input->toStageId));
 
         return $this->json($this->presenter->summary($project));
     }

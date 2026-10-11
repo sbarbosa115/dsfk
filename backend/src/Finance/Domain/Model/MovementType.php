@@ -8,8 +8,10 @@ enum MovementType: string
 {
     case Deposit = 'DEPOSIT';
     case ContingencyDraw = 'CONTINGENCY_DRAW';
-    /** Leftover of a completed stage moved to the next one (or to the contingency). */
+    /** Leftover of a completed stage, moved to the stage the Admin chose or to the project fund. */
     case Carryover = 'CARRYOVER';
+    /** Project fund money given to a stage or petty cash. */
+    case FundAssignment = 'FUND_ASSIGNMENT';
     /** Expense paid from a stage balance or petty cash. */
     case Expense = 'EXPENSE';
     /** Team Lead expenses paid back from petty cash. */
@@ -26,6 +28,6 @@ enum MovementType: string
      */
     public static function funding(): array
     {
-        return [self::Deposit, self::ContingencyDraw, self::Carryover];
+        return [self::Deposit, self::ContingencyDraw, self::Carryover, self::FundAssignment];
     }
 }
