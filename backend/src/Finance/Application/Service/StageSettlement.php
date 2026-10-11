@@ -10,7 +10,7 @@ use Psr\Clock\ClockInterface;
 
 /**
  * What completing a stage does to its money, in the Planning command's transaction: whatever is left moves to the
- * next open stage, or to the contingency after the last one.
+ * open stage the Admin chose, or to the project fund.
  */
 final readonly class StageSettlement
 {
@@ -18,13 +18,13 @@ final readonly class StageSettlement
     {
     }
 
-    public function settle(int $projectId, int $stageId, ?int $nextStageId, \DateTimeImmutable $date, int $actorId): void
+    public function settle(int $projectId, int $stageId, ?int $toStageId, \DateTimeImmutable $date, int $actorId): void
     {
         $this->ledger->lock($projectId);
         $left = $this->ledger->balances($projectId)->stage($stageId);
         if ($left <= 0) {
             return;
         }
-        $this->ledger->add(FundMovement::carryOver($projectId, $stageId, $nextStageId, $left, $date, $actorId, $this->clock->now()));
+        $this->ledger->add(FundMovement::carryOver($projectId, $stageId, $toStageId, $left, $date, $actorId, $this->clock->now()));
     }
 }

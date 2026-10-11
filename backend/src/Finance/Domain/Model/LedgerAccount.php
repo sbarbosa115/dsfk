@@ -10,4 +10,6 @@ enum LedgerAccount: string
     case Stage = 'STAGE';
     case PettyCash = 'PETTY_CASH';
     case Contingency = 'CONTINGENCY';
+    /** Money of the project not yet given to a stage: deposits waiting, leftovers of closed stages. */
+    case ProjectFund = 'PROJECT_FUND';
 }

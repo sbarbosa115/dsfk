@@ -14,7 +14,7 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * Deposits, contingency draws, voids, carry-overs and proofs. Budget (BuildsPlan): Cimentación 1,437,506.25 ·
+ * Deposits, contingency draws, the project fund, voids, carry-overs and proofs. Budget (BuildsPlan): Cimentación 1,437,506.25 ·
  * Estructura 3,000,000 · contingency 500,000.
  */
 final class FinanceApiTest extends ApiTestCase
@@ -65,11 +65,12 @@ final class FinanceApiTest extends ApiTestCase
             $this->toStage($this->foundation, '1500000', $this->categories['Materiales']),
             ['destination' => 'PETTY_CASH', 'amount' => '300000'],
             ['destination' => 'CONTINGENCY', 'amount' => '200000'],
+            ['destination' => 'PROJECT_FUND', 'amount' => '100000'],
         ], 'TRX-001');
 
         $this->assertStatus(201);
         self::assertSame('DEPOSIT', $movement['type']);
-        self::assertSame('2000000.00', $movement['amount']);
+        self::assertSame('2100000.00', $movement['amount']);
         self::assertSame('TRANSFER', $movement['method']);
         self::assertSame('TRX-001', $movement['reference']);
         self::assertSame('Materiales', $movement['entries'][0]['categoryName']);
@@ -79,21 +80,23 @@ final class FinanceApiTest extends ApiTestCase
 
         $finance = $this->json('GET', $this->base.'/finance');
         self::assertSame('COP', $finance['currency']);
-        self::assertSame('2000000.00', $finance['totals']['deposited']);
+        self::assertSame('2100000.00', $finance['totals']['deposited'], 'money waiting in the fund was deposited too');
         self::assertSame('4937506.25', $finance['totals']['budget']);
         self::assertSame('1500000.00', $finance['totals']['stagesAvailable']);
         self::assertSame('300000.00', $finance['totals']['pettyCash']);
         self::assertSame('200000.00', $finance['totals']['contingency']);
+        self::assertSame('100000.00', $finance['totals']['projectFund']);
+        self::assertSame(['deposited' => '100000.00', 'carriedIn' => '0.00', 'assigned' => '0.00', 'balance' => '100000.00'], $finance['projectFund']);
         $stage = $finance['stages'][0];
         self::assertSame('1437506.25', $stage['budget']);
         self::assertSame('1500000.00', $stage['received']);
         self::assertSame('1500000.00', $stage['available']);
         self::assertSame('62493.75', $stage['beyondBudget']);
         self::assertSame(10435, $stage['funded']);
-        self::assertSame('Estructura', $stage['nextStage']);
         self::assertSame('500000.00', $finance['contingency']['budgeted']);
         self::assertSame(['Materiales', 'Nómina'], array_column($finance['categories'], 'name'));
         self::assertTrue($finance['permissions']['deposit']);
+        self::assertTrue($finance['permissions']['assignFund']);
     }
 
     public function testOnlyTheAdminMovesMoneyAndTeamLeadsSeeNoFinances(): void
@@ -234,7 +237,7 @@ final class FinanceApiTest extends ApiTestCase
         $this->assertError(403, 'forbidden');
     }
 
-    public function testCompletingAStageCarriesItsLeftoverToTheNextStage(): void
+    public function testCompletingAStageMovesItsLeftoverToTheProjectFund(): void
     {
         $this->approve();
         $this->deposit([$this->toStage($this->foundation, '1500000', $this->categories['Materiales'])]);
@@ -243,9 +246,7 @@ final class FinanceApiTest extends ApiTestCase
         $this->request('POST', $uri, ['actualEnd' => self::TODAY]);
         $this->assertError(409, 'stage_not_in_progress');
 
-        $this->loginAs($this->pm);
-        $this->request('POST', "/api/stages/{$this->foundation}/start", ['actualStart' => '2026-10-01']);
-        $this->assertStatus(200);
+        $this->start($this->foundation);
         $this->loginAs($this->admin);
         $this->request('POST', $uri, ['actualEnd' => self::TODAY]);
         $this->assertError(409, 'stage_milestones_pending');
@@ -262,12 +263,14 @@ final class FinanceApiTest extends ApiTestCase
         self::assertSame('COMPLETED', $foundation['status']);
         self::assertSame('0.00', $foundation['available']);
         self::assertSame('1500000.00', $foundation['carriedOut']);
-        self::assertNull($foundation['nextStage']);
-        self::assertSame('1500000.00', $structure['carriedIn']);
-        self::assertSame('1500000.00', $structure['available']);
+        self::assertSame('0.00', $structure['carriedIn'], 'no stage is guessed as "the next one" any more');
+        self::assertSame('1500000.00', $finance['projectFund']['carriedIn']);
+        self::assertSame('1500000.00', $finance['projectFund']['balance']);
+        self::assertSame('0.00', $finance['contingency']['balance'], 'the contingency never receives leftovers');
 
         $movements = $this->json('GET', $this->base.'/movements')['items'];
         self::assertSame('CARRYOVER', $movements[0]['type']);
+        self::assertSame('PROJECT_FUND', $movements[0]['entries'][1]['account']);
         $this->request('POST', '/api/movements/'.$movements[0]['id'].'/void', ['reason' => 'x']);
         $this->assertError(409, 'movement_not_voidable');
 
@@ -277,20 +280,45 @@ final class FinanceApiTest extends ApiTestCase
         self::assertSame('COMPLETED', $this->json('GET', $this->base.'/plan')['stages'][0]['status']);
     }
 
-    public function testTheLastStagesLeftoverGoesToTheContingency(): void
+    public function testTheAdminCanSendTheLeftoverToAnotherOpenStageEvenAnEarlierOne(): void
     {
         $this->approve();
         $this->deposit([$this->toStage($this->structure, '100000')]);
-        $this->loginAs($this->pm);
-        $this->request('POST', "/api/stages/{$this->structure}/start", ['actualStart' => '2026-10-01']);
+        $this->start($this->foundation);
+        $this->start($this->structure);
         $this->completeMilestones(1);
-
         $this->loginAs($this->admin);
-        $finance = $this->json('POST', "/api/stages/{$this->structure}/complete", ['actualEnd' => self::TODAY]);
+        $uri = "/api/stages/{$this->structure}/complete";
 
+        foreach ([$this->structure, 999999] as $wrong) {
+            $data = $this->request('POST', $uri, ['actualEnd' => self::TODAY, 'toStageId' => $wrong]);
+            $this->assertStatus(422);
+            self::assertArrayHasKey('toStageId', $data['violations']);
+        }
+        self::assertSame('IN_PROGRESS', $this->json('GET', $this->base.'/plan')['stages'][1]['status'], 'a refused close changes nothing');
+
+        $finance = $this->json('POST', $uri, ['actualEnd' => self::TODAY, 'toStageId' => $this->foundation]);
         $this->assertStatus(200);
-        self::assertSame('100000.00', $finance['contingency']['carriedIn']);
-        self::assertSame('100000.00', $finance['contingency']['balance']);
+        self::assertSame('100000.00', $finance['stages'][0]['carriedIn']);
+        self::assertSame('100000.00', $finance['stages'][0]['available']);
+        self::assertSame('0.00', $finance['projectFund']['balance']);
+    }
+
+    public function testALeftoverCannotGoToAStageAlreadyCompleted(): void
+    {
+        $this->approve();
+        $this->deposit([$this->toStage($this->structure, '100000')]);
+        $this->start($this->foundation);
+        $this->start($this->structure);
+        $this->completeMilestones(0);
+        $this->completeMilestones(1);
+        $this->loginAs($this->admin);
+        $this->request('POST', "/api/stages/{$this->foundation}/complete", ['actualEnd' => self::TODAY]);
+        $this->assertStatus(200);
+
+        $data = $this->request('POST', "/api/stages/{$this->structure}/complete", ['actualEnd' => self::TODAY, 'toStageId' => $this->foundation]);
+        $this->assertStatus(422);
+        self::assertArrayHasKey('toStageId', $data['violations']);
     }
 
     public function testACategoryHoldingDepositedMoneyCannotBeDeleted(): void
@@ -388,6 +416,13 @@ final class FinanceApiTest extends ApiTestCase
     private function toStage(int $stageId, string $amount, ?int $categoryId = null): array
     {
         return ['destination' => 'STAGE', 'stageId' => $stageId, 'amount' => $amount, 'categoryId' => $categoryId];
+    }
+
+    private function start(int $stageId): void
+    {
+        $this->loginAs($this->pm);
+        $this->request('POST', "/api/stages/$stageId/start", ['actualStart' => '2026-10-01']);
+        $this->assertStatus(200);
     }
 
     private function completeMilestones(int $stageIndex): void

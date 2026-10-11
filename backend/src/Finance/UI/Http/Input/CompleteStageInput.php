@@ -13,6 +13,8 @@ final class CompleteStageInput
         #[Assert\NotBlank]
         #[Assert\Date]
         public string $actualEnd = '',
+        /** An open stage of the same project for the leftover; without it the leftover goes to the project fund. */
+        public ?int $toStageId = null,
     ) {
     }
 }

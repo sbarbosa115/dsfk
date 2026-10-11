@@ -9,7 +9,6 @@ use App\Document\Application\Query\AttachmentView;
 use App\Finance\Application\Port\Currencies;
 use App\Finance\Application\Port\FundedPlan;
 use App\Finance\Application\Port\People;
-use App\Finance\Application\Port\PlanStage;
 use App\Finance\Application\Port\Spending;
 use App\Finance\Domain\Model\Balances;
 use App\Finance\Domain\Model\FundMovement;
@@ -27,6 +26,7 @@ use App\Finance\UI\Http\Output\FinanceTotalsOutput;
 use App\Finance\UI\Http\Output\LedgerEntryOutput;
 use App\Finance\UI\Http\Output\MovementOutput;
 use App\Finance\UI\Http\Output\PettyCashSummaryOutput;
+use App\Finance\UI\Http\Output\ProjectFundOutput;
 use App\Finance\UI\Http\Output\StageFundingOutput;
 use App\Finance\UI\Http\Output\VoidOutput;
 use App\Shared\Domain\Money\MinorUnits;
@@ -62,12 +62,13 @@ final readonly class FinancePresenter
         $totalSpent = 0;
         $stagesAvailable = 0;
         $stagesBudget = 0;
-        foreach ($plannedStages as $i => $stage) {
+        foreach ($plannedStages as $stage) {
             $key = Balances::key(LedgerAccount::Stage, $stage->id);
             $dep = $b->in($key, MovementType::Deposit);
             $draws = $b->in($key, MovementType::ContingencyDraw);
             $carriedIn = $b->in($key, MovementType::Carryover);
-            $received = $dep + $draws + $carriedIn;
+            $assigned = $b->in($key, MovementType::FundAssignment);
+            $received = $dep + $draws + $carriedIn + $assigned;
             $available = $b->balance($key);
             $spent = array_sum($spending[$stage->id] ?? []);
             $deposited += $dep;
@@ -83,6 +84,7 @@ final readonly class FinancePresenter
                 $money($dep),
                 $money($draws),
                 $money($carriedIn),
+                $money($assigned),
                 $money($b->out($key, MovementType::Carryover)),
                 $money($received),
                 $money($available),
@@ -91,13 +93,13 @@ final readonly class FinancePresenter
                 $money($stage->budget - $spent),
                 self::share($spent, $stage->budget),
                 MinorUnits::basisPoints($received, $stage->budget),
-                $stage->isCompleted() ? null : self::nextOpen(\array_slice($plannedStages, $i + 1))?->name,
             );
         }
 
         $pc = Balances::key(LedgerAccount::PettyCash);
         $ct = Balances::key(LedgerAccount::Contingency);
-        $deposited += $b->in($pc, MovementType::Deposit) + $b->in($ct, MovementType::Deposit);
+        $fund = Balances::key(LedgerAccount::ProjectFund);
+        $deposited += $b->in($pc, MovementType::Deposit) + $b->in($ct, MovementType::Deposit) + $b->in($fund, MovementType::Deposit);
         $contingencyBudget = $this->plan->contingency($projectId);
 
         $spentByCategory = [];
@@ -115,7 +117,7 @@ final readonly class FinancePresenter
         return new FinanceOutput(
             $currency,
             $approved,
-            new FinancePermissionsOutput(deposit: $admin && $approved, void: $admin, drawContingency: $admin && $approved, completeStages: $admin && $approved),
+            new FinancePermissionsOutput(deposit: $admin && $approved, void: $admin, drawContingency: $admin && $approved, completeStages: $admin && $approved, assignFund: $admin && $approved),
             new FinanceTotalsOutput(
                 $money($stagesBudget + $contingencyBudget),
                 $money($deposited),
@@ -123,6 +125,7 @@ final readonly class FinancePresenter
                 $money($stagesAvailable),
                 $money($b->balance($pc)),
                 $money($b->balance($ct)),
+                $money($b->balance($fund)),
             ),
             $stages,
             $categories,
@@ -132,6 +135,12 @@ final readonly class FinancePresenter
                 $money($b->in($ct, MovementType::Carryover)),
                 $money($b->out($ct, MovementType::ContingencyDraw)),
                 $money($b->balance($ct)),
+            ),
+            new ProjectFundOutput(
+                $money($b->in($fund, MovementType::Deposit)),
+                $money($b->in($fund, MovementType::Carryover)),
+                $money($b->out($fund, MovementType::FundAssignment)),
+                $money($b->balance($fund)),
             ),
             new PettyCashSummaryOutput($money($b->in($pc, MovementType::Deposit)), $money($b->balance($pc))),
         );
@@ -203,17 +212,4 @@ final readonly class FinancePresenter
         return MinorUnits::basisPoints($spent, $budget);
     }
 
-    /**
-     * @param list<PlanStage> $later
-     */
-    private static function nextOpen(array $later): ?PlanStage
-    {
-        foreach ($later as $stage) {
-            if (!$stage->isCompleted()) {
-                return $stage;
-            }
-        }
-
-        return null;
-    }
 }

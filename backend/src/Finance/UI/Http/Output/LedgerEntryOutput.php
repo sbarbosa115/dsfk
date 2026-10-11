@@ -9,7 +9,7 @@ use OpenApi\Attributes as OA;
 final readonly class LedgerEntryOutput
 {
     public function __construct(
-        #[OA\Property(enum: ['STAGE', 'PETTY_CASH', 'CONTINGENCY'])]
+        #[OA\Property(enum: ['STAGE', 'PETTY_CASH', 'CONTINGENCY', 'PROJECT_FUND'])]
         public string $account,
         public ?int $stageId,
         public ?string $stageName,

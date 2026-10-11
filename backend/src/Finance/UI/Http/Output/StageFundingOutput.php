@@ -18,8 +18,9 @@ final readonly class StageFundingOutput
         public string $deposited,
         public string $contingencyDraws,
         public string $carriedIn,
+        public string $fundAssignments,
         public string $carriedOut,
-        /** Deposited + draws + carried in. */
+        /** Deposited + draws + carried in + fund assignments. */
         public string $received,
         public string $available,
         /** Received above the budget. */
@@ -30,8 +31,6 @@ final readonly class StageFundingOutput
         public int $executed,
         /** Basis points of the budget received (can pass 10000). */
         public int $funded,
-        /** Where its leftover goes when completed; null when completed or last. */
-        public ?string $nextStage,
     ) {
     }
 }
