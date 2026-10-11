@@ -99,3 +99,21 @@ closing). README: the API rows and the ledger bullet.
 - No moving money by hand from a stage to the fund, from the fund to the contingency, or between two stages.
   Assigning from the fund covers these.
 - Old leftovers in the contingency are not migrated.
+
+## Timeline
+
+Recorded with `timeline.py`, from 2026-10-11 08:08 to 2026-10-11 08:55. Active time leaves out the pauses.
+
+| Step | Started | Active | Wall clock |
+|---|---|---|---|
+| Plan | 2026-10-11 08:08 | 8m | 18m |
+| Branch and stack | 2026-10-11 08:26 | 1m | 1m |
+| Build test-first | 2026-10-11 08:28 | 8m | 8m |
+| Gate | 2026-10-11 08:35 | 1m | 1m |
+| Security audit | 2026-10-11 08:36 | 1m | 1m |
+| Regression run (smoke, then manual) | 2026-10-11 08:37 | 13m | 13m |
+| Definition of done | 2026-10-11 08:50 | 1m | 1m |
+| Pull request | 2026-10-11 08:51 | 0m | 4m |
+| **Total** | | **33m** | **46m** |
+
+Paused for 14m in all.
