@@ -125,3 +125,20 @@ finalizada pasa al fondo del proyecto o a la etapa que elija el administrador."
 - No changes to an approved stage (more lines, a bigger contingency): only new stages. Overruns stay flagged.
 - No removal or reordering of approved stages.
 - No separate amendment screen or endpoints: the budget card and its three endpoints carry it.
+
+## Timeline
+
+Recorded with `timeline.py`, from 2026-10-11 09:46 to 2026-10-11 10:22. Active time leaves out the pauses.
+
+| Step | Started | Active | Wall clock |
+|---|---|---|---|
+| Plan | 2026-10-11 09:46 | 7m | 9m |
+| Branch and stack | 2026-10-11 09:58 | 1m | 1m |
+| Build test-first | 2026-10-11 09:59 | 12m | 12m |
+| Security audit | 2026-10-11 10:11 | 0m | 0m |
+| Regression run (smoke, then manual) | 2026-10-11 10:12 | 10m | 10m |
+| Definition of done | 2026-10-11 10:21 | 1m | 1m |
+| Pull request | 2026-10-11 10:22 | 0m | 0m |
+| **Total** | | **31m** | **36m** |
+
+Paused for 2m in all.
