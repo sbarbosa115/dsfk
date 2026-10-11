@@ -203,8 +203,8 @@ observaciones" and "Devuelto por Administrador: “Revisar el precio del acero�
 edits the Acero line (pencil) and sends it again.
 
 **PLN-06 · The Admin approves: the baseline is fixed and the project is active**
-Aprobar presupuesto › confirm. **Expected:** "Aprobado", the note "Presupuesto aprobado el … Ya no se puede
-modificar…", the project's status Activo (Resumen tab and the Proyectos list); Iniciar etapa and Marcar cumplido
+Aprobar presupuesto › confirm. **Expected:** "Aprobado", the note "Presupuesto aprobado el … Lo aprobado ya no se
+modifica… Las etapas nuevas entran como adición.", the project's status Activo (Resumen tab and the Proyectos list); Iniciar etapa and Marcar cumplido
 appear; stage delete buttons are gone; a stage's name can still be edited but its dates cannot (they are
 disabled, with "Las fechas planeadas quedaron fijas…").
 
@@ -217,6 +217,33 @@ and the Avance tile its share of the project (12,4 % with the Acero at $ 32.000 
 As Laura: no Reabrir. As the super admin: Reabrir on Excavación puts the stage back to 0 %. Then mark it met again.
 "Ver como" Carlos (Team Lead): the plan shows the stages and milestones, with no amounts, no Partidas, no
 Categorías amounts and no buttons that change anything.
+
+**PLN-09 · A stage added to a running project waits for the Admin**
+Smoke: `e2e/plan.spec.ts` (on the demo seed, Torre Norte).
+As the super admin (or Laura): Presupuesto y plan › Agregar etapa: the dialog says the stage "se agrega como
+adición" › Nombre `Paisajismo` › Agregar etapa. **Expected:** the stage is listed last with "Adición 1 · Borrador"
+and "Pendiente de aprobación", its own Agregar partida and Agregar hito, no Iniciar etapa; the budget card shows
+"Adición 1 · Borrador", an "Adiciones al presupuesto" list and "Enviar adición" (disabled, with "Para enviar la
+adición falta:"); Total etapas is unchanged; the approved stages have no Agregar partida. Fondos and Registrar
+gasto do not list Paisajismo.
+
+**PLN-10 · Send, return and approve an addition**
+Add a line and a 100 % milestone to Paisajismo › Enviar adición. "Ver como" none: as the super admin, Devolver
+adición with a comment; as Laura, fix a line › Enviar adición; as the super admin, Aprobar adición. **Expected:**
+the badge goes Enviada a aprobación → Devuelta con observaciones (the comment shown on the card) → Aprobada; Total
+etapas and every stage's share grow or shift; Paisajismo shows Pendiente and Iniciar etapa; Fondos lists it; two
+emails in Mailpit: "Adición 1 al presupuesto enviada a aprobación: Torre Norte" (to the admins) and "…aprobada"
+(to Laura).
+
+**PLN-11 · The new stage runs in parallel**
+Iniciar etapa on Paisajismo while Estructura is En curso. **Expected:** both En curso. Then: a deposit to it, Asignar
+del fondo to it, a Gasto on it; Finalizar etapa on either one first works as for any stage.
+
+**PLN-12 · An emptied addition goes away; Team Leads**
+Smoke (part): `e2e/plan.spec.ts` deletes PLN-09's stage and checks the card; by hand: Adición 2 and the Team Lead.
+Add a stage `Temporal` (it opens Adición 2) › Eliminar etapa on it. **Expected:** the card has no open addition
+again (only Adición 1 · Aprobada in the list). While an addition is Enviada, "Ver como" Carlos (Team Lead): its
+stage shows "Adición N · Pendiente de aprobación", no amounts and no buttons.
 
 ## 7. Fondos
 
