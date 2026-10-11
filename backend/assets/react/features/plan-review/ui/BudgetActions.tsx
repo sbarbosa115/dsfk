@@ -5,7 +5,8 @@ import {ActionButton, ConfirmModal, Field, FormModal} from '@/shared/ui';
 
 /**
  * The budget's workflow buttons: the PM (or Admin) sends a complete draft for approval; the Admin approves it
- * or returns it with what to change.
+ * or returns it with what to change. Once the budget is approved the same buttons carry its open addition
+ * (Adición), worded for it.
  */
 export function BudgetActions({plan}: {plan: Plan}) {
   const [dialog, setDialog] = useState<'submit' | 'approve' | 'return' | null>(
@@ -16,6 +17,12 @@ export function BudgetActions({plan}: {plan: Plan}) {
   const base = `/projects/${plan.project.id}/budget`;
   const close = () => setDialog(null);
   const incomplete = (plan.issues?.length ?? 0) > 0;
+  const amendment = plan.budgetStatus === 'APPROVED';
+  const label = {
+    submit: amendment ? t('plan.amendment.submit') : t('plan.submit'),
+    approve: amendment ? t('plan.amendment.approve') : t('plan.approve'),
+    returnIt: amendment ? t('plan.amendment.returnIt') : t('plan.returnBudget'),
+  };
 
   const go = async (path: string, body?: unknown) => {
     if (await action.run(`${base}/${path}`, 'POST', body)) {
@@ -35,7 +42,7 @@ export function BudgetActions({plan}: {plan: Plan}) {
           disabled={incomplete}
           onClick={() => setDialog('submit')}
         >
-          {t('plan.submit')}
+          {label.submit}
         </ActionButton>
       ) : plan.permissions.review ? (
         <>
@@ -44,7 +51,7 @@ export function BudgetActions({plan}: {plan: Plan}) {
             size="md"
             onClick={() => setDialog('return')}
           >
-            {t('plan.returnBudget')}
+            {label.returnIt}
           </ActionButton>
           <ActionButton
             action="confirm"
@@ -53,41 +60,45 @@ export function BudgetActions({plan}: {plan: Plan}) {
             icon="check"
             onClick={() => setDialog('approve')}
           >
-            {t('plan.approve')}
+            {label.approve}
           </ActionButton>
         </>
       ) : null}
       {dialog === 'submit' && (
         <ConfirmModal
-          title={t('plan.submit')}
-          confirmLabel={t('plan.submit')}
+          title={label.submit}
+          confirmLabel={label.submit}
           action="confirm"
           busy={action.busy}
           error={action.formError}
           onConfirm={() => void go('submit')}
           onClose={close}
         >
-          {t('plan.submitConfirm')}
+          {amendment
+            ? t('plan.amendment.submitConfirm')
+            : t('plan.submitConfirm')}
         </ConfirmModal>
       )}
       {dialog === 'approve' && (
         <ConfirmModal
-          title={t('plan.approve')}
-          confirmLabel={t('plan.approve')}
+          title={label.approve}
+          confirmLabel={label.approve}
           action="confirm"
           busy={action.busy}
           error={action.formError}
           onConfirm={() => void go('approve')}
           onClose={close}
         >
-          {t('plan.approveConfirm')}
+          {amendment
+            ? t('plan.amendment.approveConfirm')
+            : t('plan.approveConfirm')}
         </ConfirmModal>
       )}
       {dialog === 'return' && (
         <FormModal
           action="revert"
-          title={t('plan.returnBudget')}
-          submitLabel={t('plan.returnBudget')}
+          title={label.returnIt}
+          submitLabel={label.returnIt}
           submit={action}
           onSubmit={() => void go('return', {comment})}
           onClose={close}

@@ -1,7 +1,7 @@
 import {usePlanAction, type Plan, type PlanStage} from '@/entities/plan';
 import {t} from '@/shared/i18n';
 import {emptyToNull, useForm} from '@/shared/lib/forms';
-import {DateInput, Field, FormModal} from '@/shared/ui';
+import {Alert, DateInput, Field, FormModal} from '@/shared/ui';
 
 /** Adds a stage (stage = undefined) or edits one. After approval only the name changes. */
 export function StageFormModal({
@@ -19,7 +19,9 @@ export function StageFormModal({
     plannedStart: stage?.plannedStart ?? '',
     plannedEnd: stage?.plannedEnd ?? '',
   });
-  const datesLocked = !plan.permissions.edit;
+  const datesLocked = stage ? !stage.editable : !plan.permissions.addStage;
+  // After approval a new stage is an addition: say so before it is added.
+  const addition = !stage && plan.budgetStatus === 'APPROVED';
 
   const onSubmit = async () => {
     const {name, plannedStart, plannedEnd} = form.values;
@@ -43,6 +45,11 @@ export function StageFormModal({
       onClose={onClose}
       onSubmit={() => void onSubmit()}
     >
+      {addition && (
+        <div className="span-2">
+          <Alert kind="info">{t('plan.amendment.addHint')}</Alert>
+        </div>
+      )}
       <Field
         label={t('plan.stageName')}
         error={action.errors['name']}

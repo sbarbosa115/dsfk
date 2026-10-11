@@ -13,7 +13,6 @@ final readonly class BudgetReturned
         public string $comment,
         /** The amendment's number; null for the budget itself. */
         public ?int $amendment = null,
-    )
-    {
+    ) {
     }
 }

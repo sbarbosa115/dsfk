@@ -31,7 +31,7 @@ export function PlanBoard({projectId}: {projectId: number}) {
     return <Loading />;
   }
   const p = plan.data;
-  const addStage = p.permissions.edit ? (
+  const addStage = p.permissions.addStage ? (
     <ActionButton
       action="setup"
       main

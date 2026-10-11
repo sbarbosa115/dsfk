@@ -12,7 +12,6 @@ final readonly class BudgetApproved
         public int $byUserId,
         /** The amendment's number; null for the budget itself. */
         public ?int $amendment = null,
-    )
-    {
+    ) {
     }
 }

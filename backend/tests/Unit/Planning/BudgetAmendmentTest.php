@@ -46,8 +46,8 @@ final class BudgetAmendmentTest extends TestCase
         self::assertFalse($original->isPendingApproval());
 
         $budget->assertStageEditable($added);
-        $this->expectConflict(fn () => $budget->assertStageEditable($original), 'budget_locked');
-        $this->expectConflict(fn () => $budget->changeContingency(1), 'budget_locked');
+        $this->expectConflict(static fn () => $budget->assertStageEditable($original), 'budget_locked');
+        $this->expectConflict(static fn () => $budget->changeContingency(1), 'budget_locked');
         self::assertSame(BudgetStatus::Approved, $budget->getStatus(), 'the budget itself stays approved');
     }
 
@@ -61,7 +61,7 @@ final class BudgetAmendmentTest extends TestCase
 
         self::assertSame($amendment, $budget->submit(2, [], $this->now));
         self::assertSame(BudgetStatus::Submitted, $amendment->getStatus());
-        $this->expectConflict(fn () => $budget->assertStageEditable($added), 'budget_locked');
+        $this->expectConflict(static fn () => $budget->assertStageEditable($added), 'budget_locked');
         $this->expectConflict(fn () => $budget->amendmentToEdit($this->now), 'budget_locked');
 
         self::assertSame($amendment, $budget->returnToDraft(1, ' Falta el hito de entrega ', $this->now));
@@ -74,7 +74,7 @@ final class BudgetAmendmentTest extends TestCase
         self::assertSame(BudgetStatus::Approved, $amendment->getStatus());
         self::assertSame($later, $amendment->getApprovedAt());
         self::assertFalse($added->isPendingApproval());
-        $this->expectConflict(fn () => $budget->assertStageEditable($added), 'budget_locked');
+        $this->expectConflict(static fn () => $budget->assertStageEditable($added), 'budget_locked');
 
         $events = array_values(array_filter($budget->getEvents(), static fn ($e): bool => null !== $e->getAmendment()));
         self::assertSame(['SUBMITTED', 'RETURNED', 'SUBMITTED', 'APPROVED'], array_map(static fn ($e) => $e->getStatus()->value, $events));

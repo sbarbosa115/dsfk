@@ -5653,7 +5653,8 @@
                     "submit",
                     "review",
                     "track",
-                    "reopenMilestones"
+                    "reopenMilestones",
+                    "addStage"
                 ],
                 "properties": {
                     "viewFinancials": {
@@ -5661,7 +5662,7 @@
                         "type": "boolean"
                     },
                     "edit": {
-                        "title": "Stages, lines, milestones and contingency can be edited (the budget is a draft or was returned).",
+                        "title": "The budget's own stages, lines, milestones, order and contingency can be edited (it is a draft or was returned).",
                         "type": "boolean"
                     },
                     "manageCategories": {
@@ -5669,10 +5670,11 @@
                         "type": "boolean"
                     },
                     "submit": {
+                        "title": "The budget, or its open amendment, can be sent to the Admin.",
                         "type": "boolean"
                     },
                     "review": {
-                        "title": "The Admin may approve or return it (it is submitted).",
+                        "title": "The Admin may approve or return the budget, or its amendment (it is submitted).",
                         "type": "boolean"
                     },
                     "track": {
@@ -5680,6 +5682,10 @@
                         "type": "boolean"
                     },
                     "reopenMilestones": {
+                        "type": "boolean"
+                    },
+                    "addStage": {
+                        "title": "\"Agregar etapa\": while the budget is written, and after approval into an amendment.",
                         "type": "boolean"
                     }
                 },
@@ -5793,7 +5799,9 @@
                     "status",
                     "progress",
                     "milestoneWeightTotal",
-                    "milestones"
+                    "milestones",
+                    "approved",
+                    "editable"
                 ],
                 "properties": {
                     "id": {
@@ -5853,7 +5861,7 @@
                         "nullable": true
                     },
                     "weight": {
-                        "title": "Share of the budget in basis points; null for Team Leads",
+                        "title": "Share of the budget in basis points; null for Team Leads and while not approved",
                         "type": "integer",
                         "nullable": true
                     },
@@ -5864,6 +5872,19 @@
                             "$ref": "#/components/schemas/LineOutput"
                         },
                         "nullable": true
+                    },
+                    "amendment": {
+                        "title": "The amendment (Adici\u00f3n) that added it after approval; null for the stages of the original budget.",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "approved": {
+                        "title": "False while its amendment waits for the Admin: it cannot be started, funded or charged yet.",
+                        "type": "boolean"
+                    },
+                    "editable": {
+                        "title": "Its dates, lines and milestones can be changed now, by this user.",
+                        "type": "boolean"
                     }
                 },
                 "type": "object"
@@ -5925,6 +5946,50 @@
                     "createdAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "amendment": {
+                        "title": "The amendment's number; null for the budget itself.",
+                        "type": "integer",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "AmendmentOutput": {
+                "required": [
+                    "number",
+                    "status",
+                    "stages",
+                    "total"
+                ],
+                "properties": {
+                    "number": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "DRAFT",
+                            "SUBMITTED",
+                            "RETURNED",
+                            "APPROVED"
+                        ]
+                    },
+                    "stages": {
+                        "title": "Names of its stages, in order.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "total": {
+                        "title": "Major units: the sum of its stages.",
+                        "type": "string"
+                    },
+                    "approvedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -5935,14 +6000,15 @@
                     "stagesTotal",
                     "total",
                     "byCategory",
-                    "events"
+                    "events",
+                    "amendments"
                 ],
                 "properties": {
                     "contingency": {
                         "type": "string"
                     },
                     "stagesTotal": {
-                        "title": "Sum of the stages (contingency excluded)",
+                        "title": "Sum of the approved stages (contingency excluded)",
                         "type": "string"
                     },
                     "total": {
@@ -5963,6 +6029,13 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/BudgetEventOutput"
+                        }
+                    },
+                    "amendments": {
+                        "title": "Additions to the approved budget, oldest first.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AmendmentOutput"
                         }
                     }
                 },

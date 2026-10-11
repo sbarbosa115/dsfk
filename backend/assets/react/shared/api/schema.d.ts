@@ -1569,16 +1569,19 @@ export interface components {
         PlanPermissionsOutput: {
             /** Amounts are shown (PM and Admin). */
             viewFinancials: boolean;
-            /** Stages, lines, milestones and contingency can be edited (the budget is a draft or was returned). */
+            /** The budget's own stages, lines, milestones, order and contingency can be edited (it is a draft or was returned). */
             edit: boolean;
             /** Categories can be added and renamed (also after approval). */
             manageCategories: boolean;
+            /** The budget, or its open amendment, can be sent to the Admin. */
             submit: boolean;
-            /** The Admin may approve or return it (it is submitted). */
+            /** The Admin may approve or return the budget, or its amendment (it is submitted). */
             review: boolean;
             /** Stages can be started and milestones met (the budget is approved). */
             track: boolean;
             reopenMilestones: boolean;
+            /** "Agregar etapa": while the budget is written, and after approval into an amendment. */
+            addStage: boolean;
         };
         PersonOutput: {
             id: number;
@@ -1631,10 +1634,16 @@ export interface components {
             milestones: components["schemas"]["MilestoneOutput"][];
             /** Major units; null for Team Leads */
             budgetTotal?: string | null;
-            /** Share of the budget in basis points; null for Team Leads */
+            /** Share of the budget in basis points; null for Team Leads and while not approved */
             weight?: number | null;
             /** null for Team Leads */
             lines?: components["schemas"]["LineOutput"][] | null;
+            /** The amendment (Adición) that added it after approval; null for the stages of the original budget. */
+            amendment?: number | null;
+            /** False while its amendment waits for the Admin: it cannot be started, funded or charged yet. */
+            approved: boolean;
+            /** Its dates, lines and milestones can be changed now, by this user. */
+            editable: boolean;
         };
         CategoryOutput: {
             id: number;
@@ -1652,16 +1661,31 @@ export interface components {
             comment?: string | null;
             /** Format: date-time */
             createdAt: string;
+            /** The amendment's number; null for the budget itself. */
+            amendment?: number | null;
+        };
+        AmendmentOutput: {
+            number: number;
+            /** @enum {string} */
+            status: "DRAFT" | "SUBMITTED" | "RETURNED" | "APPROVED";
+            /** Names of its stages, in order. */
+            stages: string[];
+            /** Major units: the sum of its stages. */
+            total: string;
+            /** Format: date-time */
+            approvedAt?: string | null;
         };
         BudgetOutput: {
             contingency: string;
-            /** Sum of the stages (contingency excluded) */
+            /** Sum of the approved stages (contingency excluded) */
             stagesTotal: string;
             total: string;
             /** Format: date-time */
             approvedAt?: string | null;
             byCategory: components["schemas"]["CategoryTotalOutput"][];
             events: components["schemas"]["BudgetEventOutput"][];
+            /** Additions to the approved budget, oldest first. */
+            amendments: components["schemas"]["AmendmentOutput"][];
         };
         PlanIssueOutput: {
             /** @enum {string} */

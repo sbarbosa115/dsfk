@@ -14,8 +14,8 @@ import {
 import {StageFormModal} from './StageFormModal';
 
 /**
- * What can be done to a stage, in the house order: start it (after approval), then edit, move, and delete
- * last (only while the budget is a draft).
+ * What can be done to a stage, in the house order: start it (once it is approved), then edit, move (only while the
+ * budget is a draft), and delete last (while what it belongs to, the budget or its addition, is being written).
  */
 export function StageActions({
   plan,
@@ -40,13 +40,13 @@ export function StageActions({
     void move.run(`/projects/${plan.project.id}/stages/order`, 'PUT', {ids});
   };
 
-  if (!edit && !track) {
+  if (!edit && !track && !stage.editable) {
     return null;
   }
 
   return (
     <div className="row-actions">
-      {track && stage.status === 'PENDING' && (
+      {track && stage.approved && stage.status === 'PENDING' && (
         <ActionButton action="setup" onClick={() => setDialog('start')}>
           {t('plan.startStage')}
         </ActionButton>
@@ -72,10 +72,12 @@ export function StageActions({
             disabled={index === plan.stages.length - 1}
             onClick={() => moveTo(index + 1)}
           />
-          <ActionButton action="danger" onClick={() => setDialog('delete')}>
-            {t('plan.deleteStage')}
-          </ActionButton>
         </>
+      )}
+      {stage.editable && (
+        <ActionButton action="danger" onClick={() => setDialog('delete')}>
+          {t('plan.deleteStage')}
+        </ActionButton>
       )}
       {move.formError && <Alert kind="error">{move.formError}</Alert>}
       {dialog === 'edit' && (

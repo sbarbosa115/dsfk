@@ -8,8 +8,8 @@ use App\Planning\Application\Port\People;
 use App\Planning\Application\Port\ProjectCatalog;
 use App\Planning\Domain\Model\Budget;
 use App\Planning\Domain\Model\BudgetAmendment;
-use App\Planning\Domain\Model\BudgetStatus;
 use App\Planning\Domain\Model\BudgetLine;
+use App\Planning\Domain\Model\BudgetStatus;
 use App\Planning\Domain\Model\Milestone;
 use App\Planning\Domain\Model\Stage;
 use App\Planning\Domain\Repository\PlanRepository;
@@ -136,7 +136,7 @@ final readonly class PlanPresenter
     }
 
     /**
-     * @param list<Stage>             $stages
+     * @param list<Stage>           $stages
      * @param callable(int): string $money
      */
     private static function amendment(BudgetAmendment $amendment, array $stages, callable $money): AmendmentOutput
