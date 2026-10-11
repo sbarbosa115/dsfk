@@ -35,7 +35,8 @@ test('FIN-10 · the Admin assigns project fund money to a stage', async ({
 }) => {
   const page = await signedInAs(ADMIN);
   await page.goto(`/projects/${TORRE_NORTE}?tab=finance`);
-  const finishing = page.getByRole('row', {name: /Acabados/});
+  // The stage's row (its status names it); the movement it receives mentions Acabados too.
+  const finishing = page.getByRole('row', {name: /^Pendiente: Acabados/});
   await expect(finishing).toBeVisible();
 
   await page.getByRole('button', {name: 'Asignar del fondo'}).click();

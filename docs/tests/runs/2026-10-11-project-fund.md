@@ -23,6 +23,7 @@ the last row is green.
 
 | # | When | Commit | Result | Failed |
 |---|---|---|---|---|
+| 1 | 2026-10-11 08:39 | `02720a9` | Not green: 10 passed, 1 failed | FIN-10 |
 <!-- smoke.py adds a row per run of the whole suite -->
 
 ### Smoke findings
