@@ -455,7 +455,7 @@
         ]
       }
     ],
-    "related": ["contingencia", "caja-menor"]
+    "related": ["contingencia", "caja-menor", "mover-dinero"]
   },
   {
     "id": "contingencia",
@@ -486,6 +486,66 @@
       }
     ],
     "related": ["depositos", "avance-etapas"]
+  },
+  {
+    "id": "mover-dinero",
+    "title": "Mover dinero entre etapas, el fondo y la caja menor",
+    "summary": "Dónde puede estar el dinero del proyecto, cómo pasa de un lugar a otro y qué no se puede mover.",
+    "audiences": ["ADMIN", "PROJECT_MANAGER"],
+    "keywords": [
+      "mover",
+      "trasladar",
+      "pasar dinero",
+      "devolver",
+      "fondo del proyecto",
+      "caja menor",
+      "etapa",
+      "contingencia",
+      "anular",
+      "saldo"
+    ],
+    "sections": [
+      {
+        "body": [
+          "El dinero de un proyecto está en uno de cuatro lugares: cada etapa, la Caja menor, la Contingencia y el Fondo del proyecto (el dinero que aún no tiene etapa). Entra siempre con un depósito y solo el administrador lo mueve.",
+          "La caja menor no pertenece a ninguna etapa: paga gastos de cualquiera, y el gasto cuenta en la etapa y la categoría que elijas al registrarlo."
+        ]
+      },
+      {
+        "heading": "Del fondo a una etapa o a la caja menor",
+        "steps": [
+          "En Fondos presiona Asignar del fondo.",
+          "Elige el Destino (una etapa abierta o la Caja menor) y el Monto, y presiona Asignar."
+        ]
+      },
+      {
+        "heading": "De la contingencia a una etapa",
+        "steps": [
+          "En Fondos presiona Usar contingencia, elige la Etapa, el Monto y el Motivo, y presiona Pasar a la etapa."
+        ],
+        "note": "La contingencia solo entrega dinero a etapas; no recibe saldos de etapas finalizadas."
+      },
+      {
+        "heading": "De una etapa a otra, o al fondo",
+        "body": [
+          "Mientras una etapa está en curso su dinero no se mueve. Al finalizarla (Fondos › Finalizar etapa), en Destino del saldo eliges a dónde va lo que le sobra: al Fondo del proyecto o a otra etapa abierta. Desde el fondo lo asignas después a donde haga falta."
+        ]
+      },
+      {
+        "heading": "Deshacer un movimiento",
+        "body": [
+          "Si el dinero se puso en el lugar equivocado, anula el movimiento en Fondos › Movimientos (menú de la fila › Anular, con un motivo) y vuelve a registrarlo bien: una Asignación del fondo anulada devuelve el dinero al fondo; un depósito anulado deja de contar completo, en todas sus partes."
+        ],
+        "note": "No se puede anular si parte de ese dinero ya se gastó o se movió, ni si pertenece a un ciclo de caja menor cerrado. Los saldos trasladados al finalizar una etapa no se anulan: se devuelven asignándolos desde el fondo."
+      },
+      {
+        "heading": "Lo que no se puede mover",
+        "body": [
+          "Dinero de la caja menor a una etapa o al fondo (sale solo con gastos y reembolsos), dinero de la contingencia al fondo, y dinero entre proyectos: cada proyecto tiene sus cuentas aparte."
+        ]
+      }
+    ],
+    "related": ["depositos", "contingencia", "caja-menor", "avance-etapas"]
   },
   {
     "id": "avance-etapas",
@@ -531,7 +591,7 @@
         "note": "Varias etapas pueden estar en curso a la vez. Todos sus hitos deben estar cumplidos. Una etapa finalizada no recibe más dinero."
       }
     ],
-    "related": ["hitos", "contingencia", "tablero"]
+    "related": ["hitos", "contingencia", "tablero", "mover-dinero"]
   },
   {
     "id": "registrar-gasto",
@@ -710,19 +770,24 @@
       "saldo",
       "recarga",
       "efectivo",
-      "arqueo"
+      "arqueo",
+      "devolver",
+      "sacar dinero",
+      "etapa",
+      "fondo del proyecto"
     ],
     "sections": [
       {
         "body": [
-          "La caja menor es el dinero para gastos pequeños y para reembolsar a los líderes. Se lleva por ciclos: mientras un ciclo está abierto se le suman las entradas y se le restan los gastos y reembolsos."
+          "La caja menor es el dinero para gastos pequeños y para reembolsar a los líderes. Se lleva por ciclos: mientras un ciclo está abierto se le suman las entradas y se le restan los gastos y reembolsos.",
+          "Hay una sola caja menor por proyecto y sirve para cualquier etapa: al registrar un gasto pagado con la caja menor eliges la etapa y la categoría a las que corresponde, y ahí cuenta en el presupuesto; el efectivo sale de la caja menor."
         ]
       },
       {
         "heading": "Ver el estado",
         "body": [
           "La pestaña Caja menor muestra el Saldo, lo que entró y salió en el ciclo actual, sus movimientos con sus soportes, y los ciclos anteriores.",
-          "Para recargarla, el administrador registra un depósito en Fondos con destino Caja menor."
+          "Para recargarla, el administrador registra un depósito en Fondos con destino Caja menor, o usa Asignar del fondo con destino Caja menor. Las dos cuentan como entradas del ciclo."
         ],
         "image": {
           "src": "petty-cash",
@@ -736,9 +801,15 @@
           "Presiona Cerrar ciclo, agrega una Nota de cierre si hace falta y confirma."
         ],
         "note": "El ciclo queda “Cerrado, por firmar” y el administrador recibe un correo. El siguiente ciclo empieza con el saldo final. Los movimientos de un ciclo cerrado ya no se anulan."
+      },
+      {
+        "heading": "Devolver dinero de la caja menor",
+        "body": [
+          "No hay un botón para sacar dinero de la caja menor: sale solo con gastos y reembolsos. Lo que entró por error se corrige anulando ese movimiento en Fondos (ver Mover dinero entre etapas, el fondo y la caja menor), mientras no se haya gastado y su ciclo siga abierto."
+        ]
       }
     ],
-    "related": ["firmar-ciclo", "reembolsos", "depositos"]
+    "related": ["firmar-ciclo", "reembolsos", "depositos", "mover-dinero"]
   },
   {
     "id": "firmar-ciclo",

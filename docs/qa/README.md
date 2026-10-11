@@ -40,8 +40,8 @@ Reference screens (the ones that follow it best):
 | Presupuesto y plan | `/projects/:id?tab=plan` | Admin | [project](flows/project.md) | 2026-10-08 | — (all fixed) |
 | Tablero (project) | `/projects/:id?tab=dashboard` | Admin | [project](flows/project.md) | 2026-10-08 | — (all fixed) |
 | Gastos + modals | `/projects/:id?tab=expenses` | Admin | [project](flows/project.md) | 2026-10-08 | — (all fixed) |
-| Fondos + modals | `/projects/:id?tab=finance` | Admin, PM | [project](flows/project.md) | 2026-10-11 | QA-0018, QA-0019, QA-0020 |
-| Caja menor + modals | `/projects/:id?tab=petty-cash` | Admin | [project](flows/project.md) | 2026-10-11 | QA-0020 |
+| Fondos + modals | `/projects/:id?tab=finance` | Admin, PM | [project](flows/project.md) | 2026-10-11 | — (all fixed) |
+| Caja menor + modals | `/projects/:id?tab=petty-cash` | Admin | [project](flows/project.md) | 2026-10-11 | — (all fixed) |
 | Resumen (datos, equipo) | `/projects/:id?tab=overview` | Admin | [project](flows/project.md) | 2026-10-08 | — (all fixed) |
 | Usuarios + modals | `/users` | Admin | [admin](flows/admin.md) | 2026-10-08 | — (all fixed) |
 | Configuración | `/settings` | Admin | [admin](flows/admin.md) | 2026-10-08 | — (all fixed) |

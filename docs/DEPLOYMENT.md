@@ -144,6 +144,10 @@ It ends with the rollback command for this deploy: `git reset --hard <previous> 
 ./deploy/cpanel-update.sh`. Migrations are not reverted: restore the pre-migration dump if one ran. If a change does
 not show up, restart PHP from cPanel (OPcache).
 
+**After a deploy, reload the app.** A browser tab that was open before the deploy keeps running the screens it
+loaded then, so new buttons do not appear in it. Reload it with Ctrl+Shift+R, or sign out and in again; tell the
+people who had the app open to do the same.
+
 ### Moving a server from the old layout (once)
 
 Until this version the app was copied into `~/public_html/dsfk` from a build clone in `~/dsfk-src`. To move to
@@ -190,5 +194,6 @@ delete it with `~/dsfk-src` and `~/dsfk-build`.
 | 404 on every page but `/` | The front-controller block is missing from `backend/public/.htaccess`: run the script (it appends it) |
 | 403, or the site shows a folder listing | The Document Root must be `dsfk/backend/public` |
 | Emails never arrive | Is the `messenger:consume` cron there (the script warns if not)? Is `MAILER_DSN` correct? Check `messenger:failed:show` and `backend/var/log/worker.log` |
+| A new button or screen is missing after a deploy | The open tab still runs the old screens: reload with Ctrl+Shift+R, or sign out and in. Check the build has it: `grep -l "<a text of the new screen>" backend/public/build/*.js` |
 | Login works, then you're logged out immediately | `backend/var/sessions` must be writable: run the script, then `bin/console app:doctor` |
 | Upload rejected as too large | `upload_max_filesize` and `post_max_size` must be at least 12M (*MultiPHP INI Editor*) |

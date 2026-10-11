@@ -3,15 +3,15 @@ id: QA-0018
 title: Between 601 and about 1200 px the stage table is wider than its card and Finalizar etapa is cut off
 category: ui
 severity: P2
-status: open
+status: fixed
 confidence: reproduced
 area: project
 view: Fondos
 route: /projects/:id?tab=finance
 found: 2026-10-11
 last_seen: 2026-10-11
-fixed_seen:
-commit: 6ee1ac0
+fixed_seen: 2026-10-11
+commit: 7e584a7
 related: [QA-0001]
 ---
 
@@ -49,3 +49,4 @@ The card layout for tables only starts at `@media (max-width: 600px)` (`backend/
 ## History
 
 - 2026-10-11 · found in run 2026-10-11-project-fund at 6ee1ac0
+- 2026-10-11 · fixed in 7e584a7 on feature/qa-fixes-and-docs; re-checked: UI-11 smoke test at 768 and 1024 px, screenshots at 768/1024/1440 and dark

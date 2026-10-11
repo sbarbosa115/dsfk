@@ -3,15 +3,15 @@ id: QA-0019
 title: The Fondo del proyecto tile's detail line breaks the label: value pattern of its sibling tiles
 category: ui
 severity: P3
-status: open
+status: fixed
 confidence: reproduced
 area: project
 view: Fondos
 route: /projects/:id?tab=finance
 found: 2026-10-11
 last_seen: 2026-10-11
-fixed_seen:
-commit: 6ee1ac0
+fixed_seen: 2026-10-11
+commit: 7e584a7
 related: []
 ---
 
@@ -49,3 +49,4 @@ Tiles as read by the browser: `Caja menor · Depositado: $ 5.000.000`, `Continge
 ## History
 
 - 2026-10-11 · found in run 2026-10-11-project-fund at 6ee1ac0
+- 2026-10-11 · fixed in 7e584a7 on feature/qa-fixes-and-docs; re-checked: FinanceBoard.test.tsx and FinanceApiTest (projectFund.received)

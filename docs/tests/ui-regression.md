@@ -487,6 +487,12 @@ Torre Norte › Tablero › Etapas and Fondos › Fondos por etapa have a "Color
 Finalizada). Gastos: Espera al administrador is amber, Reembolsado violet, Aprobado green. Equipo and the active
 users are plain rows; an inactive user is grey. Caja menor › Ciclos anteriores lists no "Abierto".
 
+**UI-11 · On a tablet or small laptop a row's actions stay in view**
+Smoke: `e2e/ui.spec.ts` (768 and 1024 px).
+Torre Norte › Fondos at 768 and 1024 px wide. **Expected:** "Finalizar etapa" on Estructura is fully inside its card;
+the Acciones column stays at the card's right edge while the other columns scroll under it, with a shadow on that
+edge; at 1280 px and wider there is no shadow and nothing scrolls; on a phone (≤ 600 px) tables are cards as before.
+
 **UI-10 · Pesos are whole on screen and exact where a decision is made**
 Smoke (part): `e2e/ui.spec.ts` covers the money headers aligning right; by hand: the tooltip.
 Record an expense of `100.000,50` (Torre Norte › Gastos › Registrar gasto). **Expected:** its row says $ 100.001,
