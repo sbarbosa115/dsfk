@@ -71,7 +71,7 @@ function MovementActions({
   );
 }
 
-/** Deposits, draws and carry-overs, newest first; voided ones stay, greyed out, with who voided them and why. */
+/** Deposits, draws, fund assignments and carry-overs, newest first; voided ones stay, greyed out, with who voided them and why. */
 export function MovementList({
   projectId,
   finance,
