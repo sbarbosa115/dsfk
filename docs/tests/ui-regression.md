@@ -259,17 +259,40 @@ Anular it with motivo `Duplicado`. **Expected:** the dialog names the deposit (d
 row turns grey with "Anulado por Administrador el …: “Duplicado”" and loses its buttons; Cimentación's Disponible
 is back to $ 1.500.000. Buscar `dup` shows only that movement.
 
-**FIN-07 · Completing a stage carries its money on**
+**FIN-07 · Completing a stage sends its money where the Admin says**
 As Laura: Presupuesto y plan › Vaciado de zapatas › Marcar cumplido. Super admin › Fondos › Finalizar etapa on
-Cimentación: "Su saldo disponible ($ 1.500.000) pasará a la etapa “Estructura”." › Finalizar etapa.
-**Expected:** Cimentación's row turns green (Finalizada) with Disponible $ 0 and "$ 1.500.000 pasaron a la
-siguiente"; Estructura Disponible $ 1.650.000; a "Saldo trasladado" movement with no Anular; Presupuesto y plan
+Cimentación: "Destino del saldo" shows Fondo del proyecto, with "Su saldo disponible ($ 1.500.000) pasará al fondo
+del proyecto."; it offers "Etapa: Estructura" but not Cimentación itself. Choose Etapa: Estructura: the sentence
+becomes "…pasará a la etapa “Estructura”." › Finalizar etapa.
+**Expected:** Cimentación's row turns green (Finalizada) with Disponible $ 0 and "$ 1.500.000 trasladados al
+finalizar"; Estructura Disponible $ 1.650.000; a "Saldo trasladado" movement with no Anular; Presupuesto y plan
 shows Cimentación Finalizada; Registrar depósito no longer offers Cimentación.
 
 **FIN-08 · A category holding money stays**
 As Laura: Presupuesto y plan › Nueva categoría `Herramienta`. Super admin: Registrar depósito › Estructura,
 Categoría Herramienta, `1.000`. As Laura: deleting Herramienta says "La categoría se usa en partidas o gastos y no
 se puede eliminar."
+
+**FIN-09 · A deposit can leave part of its money in the project fund**
+Smoke: `e2e/fund.spec.ts` (on the demo seed).
+Registrar depósito › Referencia `FONDO-1`, Destino 1 Fondo del proyecto, Monto 1 `1.000.000` › Registrar.
+**Expected:** the Fondo del proyecto tile grows by $ 1.000.000; the FONDO-1 movement lists "Fondo del proyecto".
+
+**FIN-10 · Assigning from the project fund**
+Smoke: `e2e/fund.spec.ts` (on the demo seed).
+Asignar del fondo (next to Usar contingencia; only while the fund holds money) › the dialog says "Disponible en el
+fondo: …"; Destino Etapa: Acabados, Monto `2.000.000` › Asignar. **Expected:** the fund tile drops by
+$ 2.000.000, Acabados Recibido and Disponible $ 2.000.000, an "Asignación del fondo" movement to Acabados. An amount
+above the fund says "El monto supera el saldo disponible del fondo del proyecto." under Monto.
+
+**FIN-11 · The fund tops up the caja menor**
+Asignar del fondo › Destino Caja menor, `100.000` › Asignar. **Expected:** the Caja menor tile grows by $ 100.000;
+Caja menor › the open cycle lists the "Asignación del fondo" and counts it in Recargas.
+
+**FIN-12 · Voiding an assignment gives the fund its money back**
+The "Asignación del fondo" row of FIN-10 › its menu › Anular › motivo `Etapa equivocada`. **Expected:** the row is
+grey with the reason; the fund tile and Acabados' Disponible are back to what they were before FIN-10. An
+assignment whose money was already spent says "No se puede anular…".
 
 ## 8. Gastos
 

@@ -236,13 +236,13 @@ final class FinanceApiTest extends ApiTestCase
 
         $data = $this->assign(['destination' => 'STAGE', 'stageId' => $this->structure, 'amount' => '600000']);
         $this->assertStatus(422);
-        self::assertArrayHasKey('amount', $data['violations'], 'never more than the fund holds');
+        self::assertSame(['El monto supera el saldo disponible del fondo del proyecto.'], $data['violations']['amount'], 'never more than the fund holds, said in Spanish');
         $data = $this->assign(['destination' => 'STAGE', 'amount' => '1000']);
         $this->assertStatus(422);
         self::assertArrayHasKey('stageId', $data['violations']);
         $data = $this->assign(['destination' => 'CONTINGENCY', 'amount' => '1000']);
         $this->assertStatus(422);
-        self::assertArrayHasKey('destination', $data['violations']);
+        self::assertSame(['El fondo se asigna a una etapa o a la caja menor.'], $data['violations']['destination']);
 
         $toStage = $this->assign(['destination' => 'STAGE', 'stageId' => $this->structure, 'amount' => '200000', 'note' => 'Acero']);
         $this->assertStatus(201);
@@ -364,7 +364,7 @@ final class FinanceApiTest extends ApiTestCase
         foreach ([$this->structure, 999999] as $wrong) {
             $data = $this->request('POST', $uri, ['actualEnd' => self::TODAY, 'toStageId' => $wrong]);
             $this->assertStatus(422);
-            self::assertArrayHasKey('toStageId', $data['violations']);
+            self::assertSame(['Elige otra etapa que no esté finalizada.'], $data['violations']['toStageId']);
         }
         self::assertSame('IN_PROGRESS', $this->json('GET', $this->base.'/plan')['stages'][1]['status'], 'a refused close changes nothing');
 
