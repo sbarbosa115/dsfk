@@ -25,6 +25,7 @@ the last row is green.
 |---|---|---|---|---|
 | 1 | 2026-10-11 08:39 | `02720a9` | Not green: 10 passed, 1 failed | FIN-10 |
 | 2 | 2026-10-11 08:40 | `df37751` | Green: 11 passed, 0 failed | — |
+| 3 | 2026-10-11 08:49 | `2aa9398` | Green: 11 passed, 0 failed | — |
 <!-- smoke.py adds a row per run of the whole suite -->
 
 ### Smoke findings
