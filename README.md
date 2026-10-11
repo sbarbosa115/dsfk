@@ -97,14 +97,15 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
 | `POST /projects/{id}/budget/{return {comment}\|approve}` | admin | the plan; approving activates the project | 409 `budget_not_submitted` |
 | `POST /stages/{id}/start {actualStart}` · `POST /milestones/{id}/complete {completedAt, notes}` | PM, admin, after approval | the plan | 409 `budget_not_approved`, `stage_already_started`, `milestone_already_completed`; 422 future date |
 | `POST /milestones/{id}/reopen` | admin | the plan | 409 `stage_completed` |
-| `GET /projects/{id}/finance` | PM, admin | funding per stage, category, caja menor and contingency next to the budget, with `permissions` | 403 Team Lead, 404 |
-| `GET /projects/{id}/movements?q=` | PM, admin | page of deposits, draws and carry-overs (voided included), newest first; `q` in reference and note | 403, 404 |
+| `GET /projects/{id}/finance` | PM, admin | funding per stage, category, caja menor, contingency and project fund next to the budget, with `permissions` | 403 Team Lead, 404 |
+| `GET /projects/{id}/movements?q=` | PM, admin | page of deposits, draws, fund assignments and carry-overs (voided included), newest first; `q` in reference and note | 403, 404 |
 | `POST /projects/{id}/deposits` `{date, method, reference?, note?, allocations: [{destination, amount, stageId?, categoryId?}]}` | admin, after approval | 201 movement | 409 `budget_not_approved`; 422 per part (`allocations[1].stageId`: other project's or completed stage), future date |
 | `POST /projects/{id}/contingency/draws` `{stageId, amount, date, reason}` | admin, after approval | 201 movement | 409 `budget_not_approved`; 422 `amount` above the contingency balance |
-| `POST /movements/{id}/void` `{reason}` | admin | 200 movement, kept with who, when and why | 409 `movement_not_voidable` (carry-overs), `movement_already_voided`, `void_would_overdraw`, `cycle_closed` |
+| `POST /projects/{id}/fund/assignments` `{destination: STAGE\|PETTY_CASH, stageId?, amount, date, note?}` | admin, after approval | 201 movement (`FUND_ASSIGNMENT`); into the caja menor it joins the open cycle as a top-up | 409 `budget_not_approved`; 422 `amount` above the fund balance, `stageId` (other project's or completed stage), `destination` |
+| `POST /movements/{id}/void` `{reason}` | admin | 200 movement, kept with who, when and why | 409 `movement_not_voidable` (carry-overs, expenses), `movement_already_voided`, `void_would_overdraw`, `cycle_closed` |
 | `POST /movements/{id}/attachments` multipart `file` | admin | 201 movement with its files | 422 `file`: type by content (PDF, JPG, PNG, WEBP, HEIC), 10 MB |
 | `GET /attachments/{id}` | PM, admin | the file, inline, `nosniff`, sandboxed | 403 Team Lead, 404 `attachment_not_found`, `file_missing` |
-| `POST /stages/{id}/complete` `{actualEnd}` | admin, after approval | the funding summary; the stage's leftover moves to the next open stage, or to the contingency after the last | 409 `stage_not_in_progress`, `stage_milestones_pending` |
+| `POST /stages/{id}/complete` `{actualEnd, toStageId?}` | admin, after approval | the funding summary; the stage's leftover moves to `toStageId` (another open stage) or, without it, to the project fund | 409 `stage_not_in_progress`, `stage_milestones_pending`; 422 `toStageId` (itself, completed, other project's) |
 | `GET /projects/{id}/expenses?q=&status=A,B&stageId=` | member | page of expenses, newest first (a Team Lead's own only), with `summary` (pending, to reimburse, Team Lead limit) | 404, 422 unknown status |
 | `POST /projects/{id}/expenses` `{stageId, categoryId, date, amount, description, supplier?, invoiceNumber?, paidFrom}` | member, after approval | 201 expense: the PM and Admins pay from `STAGE` or `PETTY_CASH` (counts at once), Team Leads are `OUT_OF_POCKET` (SUBMITTED) | 409 `budget_not_approved`; 422 `insufficient_funds` (with `available`), `validation_failed` |
 | `GET\|PUT /expenses/{id}` | its Team Lead, PM, admin | the expense with its history; PUT corrects a pending or rejected one (back to SUBMITTED) | 404 `expense_not_found` (also another Team Lead's), 409 `expense_not_editable` |
@@ -140,9 +141,13 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   modals, totals and confirmations show the centavos (`formatMoney(…, {exact: true})`: `$ 62.493,75`). Amounts are
   stored and sent exactly; only the display rounds.
 - **Money moves only through the ledger.** A movement's entries are signed amounts per account (a stage, the caja
-  menor, the contingency); balances are sums of the entries of movements that are not voided, and movements are
+  menor, the contingency, the project fund); balances are sums of the entries of movements that are not voided, and movements are
   never deleted. Every money write locks the project's row for its transaction, so two writes cannot spend the
   same balance.
+- **The project fund is where unassigned money waits; the contingency is only a reserve.** Stages can run at the
+  same time, so no stage is "the next one": a closed stage's leftover goes to the fund unless the Admin picks an
+  open stage, and the Admin assigns from the fund later. Leftovers carried into the contingency before this stay
+  there (`contingency.carriedIn`).
 - **Expenses move money through Finance in their own transaction.** The Expense context calls Finance's
   `ExpensePayments` (pay, refund, pay back) and reads spending back for the budget comparison; handlers lock the
   expenses they change (`SELECT … FOR UPDATE`), so a void and a reimbursement, or two reimbursements, never both
@@ -186,6 +191,9 @@ endpoint. The full contract is `backend/assets/react/shared/api/openapi.json` (`
   is run by hand.
 - The help guides' screenshots (`pages/help/assets/*.png`) predate the UI audit: they show the old row icons and
   green buttons, while their text describes the row's main button and menu.
+- Project fund (PRD `docs/pdr/prd-project-fund.md`): an assignment has no category earmark; money cannot be moved
+  by hand from a stage back to the fund, from the fund to the contingency, or between two stages (assigning from
+  the fund covers these); old leftovers in the contingency are not migrated.
 - `app:create-admin` asks for the password interactively or prints a generated one; there is no
   non-interactive `--password` option.
 
