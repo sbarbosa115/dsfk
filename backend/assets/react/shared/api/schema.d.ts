@@ -179,7 +179,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Deposits, draws and carry-overs (voided ones included), newest first. `q` searches reference and note. */
+        /** Deposits, draws, fund assignments and carry-overs (voided ones included), newest first. `q` searches reference and note. */
         get: operations["get_api_finance_movements"];
         put?: never;
         post?: never;
@@ -221,6 +221,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{id}/fund/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The Admin gives project fund money to an open stage or to the caja menor. */
+        post: operations["post_api_finance_assign_fund"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/stages/{id}/complete": {
         parameters: {
             query?: never;
@@ -230,7 +247,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** The Admin closes a stage whose milestones are met; what is left of its money moves to the next open stage. */
+        /** The Admin closes a stage whose milestones are met; what is left of its money goes to `toStageId` or to the project fund. */
         post: operations["post_api_stages_complete"];
         delete?: never;
         options?: never;
@@ -922,7 +939,7 @@ export interface components {
         /** @enum {string} */
         PaymentMethod: "TRANSFER" | "CASH" | "CHECK" | "OTHER";
         /** @enum {string} */
-        LedgerAccount: "STAGE" | "PETTY_CASH" | "CONTINGENCY";
+        LedgerAccount: "STAGE" | "PETTY_CASH" | "CONTINGENCY" | "PROJECT_FUND";
         AllocationInput: {
             /** @default null */
             destination: components["schemas"]["LedgerAccount"] | null;
@@ -973,12 +990,41 @@ export interface components {
             /** @default  */
             reason: string;
         };
+        AssignmentInput: {
+            /**
+             * STAGE or PETTY_CASH.
+             * @default null
+             */
+            destination: components["schemas"]["LedgerAccount"] | null;
+            /**
+             * Required when the destination is STAGE.
+             * @default null
+             */
+            stageId: number | null;
+            /**
+             * Major units.
+             * @default
+             */
+            amount: string;
+            /**
+             * YYYY-MM-DD, not in the future.
+             * @default
+             */
+            date: string;
+            /** @default null */
+            note: string | null;
+        };
         CompleteStageInput: {
             /**
              * YYYY-MM-DD, not in the future nor before the stage started.
              * @default
              */
             actualEnd: string;
+            /**
+             * An open stage of the same project for the leftover; without it the leftover goes to the project fund.
+             * @default null
+             */
+            toStageId: number | null;
         };
         VoidInput: {
             /** @default  */
@@ -1292,6 +1338,7 @@ export interface components {
             void: boolean;
             drawContingency: boolean;
             completeStages: boolean;
+            assignFund: boolean;
         };
         FinanceTotalsOutput: {
             /** Stages plus contingency. */
@@ -1301,6 +1348,7 @@ export interface components {
             stagesAvailable: string;
             pettyCash: string;
             contingency: string;
+            projectFund: string;
         };
         StageFundingOutput: {
             id: number;
@@ -1311,8 +1359,9 @@ export interface components {
             deposited: string;
             contingencyDraws: string;
             carriedIn: string;
+            fundAssignments: string;
             carriedOut: string;
-            /** Deposited + draws + carried in. */
+            /** Deposited + draws + carried in + fund assignments. */
             received: string;
             available: string;
             /** Received above the budget. */
@@ -1323,8 +1372,6 @@ export interface components {
             executed: number;
             /** Basis points of the budget received (can pass 10000). */
             funded: number;
-            /** Where its leftover goes when completed; null when completed or last. */
-            nextStage?: string | null;
         };
         CategorySpendingOutput: {
             id: number;
@@ -1339,9 +1386,17 @@ export interface components {
         ContingencyOutput: {
             budgeted: string;
             deposited: string;
-            /** Leftover of the last stage. */
+            /** Leftovers of closed stages, from before they went to the project fund. */
             carriedIn: string;
             drawn: string;
+            balance: string;
+        };
+        ProjectFundOutput: {
+            deposited: string;
+            /** Leftovers of closed stages. */
+            carriedIn: string;
+            /** Given to stages and the caja menor. */
+            assigned: string;
             balance: string;
         };
         PettyCashSummaryOutput: {
@@ -1356,6 +1411,7 @@ export interface components {
             stages: components["schemas"]["StageFundingOutput"][];
             categories: components["schemas"]["CategorySpendingOutput"][];
             contingency: components["schemas"]["ContingencyOutput"];
+            projectFund: components["schemas"]["ProjectFundOutput"];
             pettyCash: components["schemas"]["PettyCashSummaryOutput"];
         };
         FinancePersonOutput: {
@@ -1370,7 +1426,7 @@ export interface components {
         };
         LedgerEntryOutput: {
             /** @enum {string} */
-            account: "STAGE" | "PETTY_CASH" | "CONTINGENCY";
+            account: "STAGE" | "PETTY_CASH" | "CONTINGENCY" | "PROJECT_FUND";
             stageId?: number | null;
             stageName?: string | null;
             categoryId?: number | null;
@@ -1387,7 +1443,7 @@ export interface components {
         MovementOutput: {
             id: number;
             /** @enum {string} */
-            type: "DEPOSIT" | "CONTINGENCY_DRAW" | "CARRYOVER" | "EXPENSE" | "REIMBURSEMENT";
+            type: "DEPOSIT" | "CONTINGENCY_DRAW" | "CARRYOVER" | "FUND_ASSIGNMENT" | "EXPENSE" | "REIMBURSEMENT";
             /** Format: date */
             date: string;
             /** Major units, positive. */
@@ -1412,7 +1468,7 @@ export interface components {
         CycleMovementOutput: {
             id: number;
             /** @enum {string} */
-            type: "DEPOSIT" | "CONTINGENCY_DRAW" | "CARRYOVER" | "EXPENSE" | "REIMBURSEMENT";
+            type: "DEPOSIT" | "CONTINGENCY_DRAW" | "CARRYOVER" | "FUND_ASSIGNMENT" | "EXPENSE" | "REIMBURSEMENT";
             /** Format: date */
             date: string;
             /** Major units, signed: what it put into (+) or took out of (−) petty cash. */
@@ -1442,6 +1498,7 @@ export interface components {
             signedOffAt?: string | null;
             signedOffBy?: string | null;
             openingBalance: string;
+            /** Deposits and fund assignments into petty cash. */
             topUps: string;
             spent: string;
             reimbursed: string;
@@ -2531,6 +2588,68 @@ export interface operations {
             };
         };
     };
+    post_api_finance_assign_fund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignmentInput"];
+            };
+        };
+        responses: {
+            /** @description The assignment */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovementOutput"];
+                };
+            };
+            /** @description forbidden: Team Leads see no money; only Admins move it */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description project_not_found (also outside the project), stage_not_found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description budget_not_approved */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed (amount above the fund balance, stage completed, destination not STAGE or PETTY_CASH) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     post_api_stages_complete: {
         parameters: {
             query?: never;
@@ -2575,6 +2694,15 @@ export interface operations {
             };
             /** @description budget_not_approved, stage_not_in_progress, stage_milestones_pending */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description validation_failed (toStageId: not an open stage of the project) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

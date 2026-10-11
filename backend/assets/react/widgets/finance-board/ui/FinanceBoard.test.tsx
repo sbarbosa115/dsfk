@@ -216,7 +216,7 @@ describe('FinanceBoard', () => {
     );
   });
 
-  it('says where a completed stage’s money goes before completing it', async () => {
+  it('sends a completed stage’s money to the project fund unless another open stage is chosen', async () => {
     const fetchMock = mockApi({
       'GET /api/projects/9/finance': financeFixture(),
       'GET /api/projects/9/movements': page([]),
@@ -228,6 +228,18 @@ describe('FinanceBoard', () => {
       await screen.findByRole('button', {name: 'Finalizar etapa'}),
     );
     const dialog = screen.getByRole('dialog');
+    const target = within(dialog).getByLabelText('Destino del saldo');
+    expect(target).toHaveDisplayValue('Fondo del proyecto');
+    expect(
+      within(target)
+        .getAllByRole('option')
+        .map((o) => o.textContent),
+      'the stage itself is not offered',
+    ).toEqual(['Fondo del proyecto', 'Etapa: Estructura']);
+    expect(text(dialog.textContent ?? '')).toContain(
+      'Su saldo disponible ($ 1.500.000) pasará al fondo del proyecto.',
+    );
+    await userEvent.selectOptions(target, 'Etapa: Estructura');
     expect(text(dialog.textContent ?? '')).toContain(
       'Su saldo disponible ($ 1.500.000) pasará a la etapa “Estructura”.',
     );
@@ -238,8 +250,65 @@ describe('FinanceBoard', () => {
     await vi.waitFor(() =>
       expect(
         sentBody(fetchMock, 'POST', '/api/stages/11/complete'),
-      ).toHaveProperty('actualEnd'),
+      ).toMatchObject({toStageId: 12}),
     );
+  });
+
+  it('assigns project fund money to a stage, showing what the fund holds', async () => {
+    const withFund = financeFixture({
+      totals: {...financeFixture().totals, projectFund: '400000.00'},
+      projectFund: {
+        deposited: '400000.00',
+        carriedIn: '0.00',
+        assigned: '0.00',
+        balance: '400000.00',
+      },
+    });
+    const fetchMock = mockApi({
+      'GET /api/projects/9/finance': withFund,
+      'GET /api/projects/9/movements': page([]),
+      'POST /api/projects/9/fund/assignments': depositFixture({
+        type: 'FUND_ASSIGNMENT',
+      }),
+    });
+    renderWithProviders(<FinanceBoard projectId={9} />);
+
+    const tile = await screen.findByText('Fondo del proyecto');
+    expect(text(tile.parentElement!.textContent ?? '')).toContain('$ 400.000');
+    await userEvent.click(
+      screen.getByRole('button', {name: 'Asignar del fondo'}),
+    );
+    const dialog = screen.getByRole('dialog');
+    expect(text(dialog.textContent ?? '')).toContain(
+      'Disponible en el fondo: $ 400.000',
+    );
+    await userEvent.selectOptions(
+      within(dialog).getByLabelText('Destino'),
+      'Etapa: Estructura',
+    );
+    await userEvent.type(within(dialog).getByLabelText(/^Monto/), '250000');
+    await userEvent.click(
+      within(dialog).getByRole('button', {name: 'Asignar'}),
+    );
+
+    await vi.waitFor(() =>
+      expect(
+        sentBody(fetchMock, 'POST', '/api/projects/9/fund/assignments'),
+      ).toMatchObject({destination: 'STAGE', stageId: 12, amount: '250000'}),
+    );
+  });
+
+  it('hides the fund assignment while the fund is empty', async () => {
+    mockApi({
+      'GET /api/projects/9/finance': financeFixture(),
+      'GET /api/projects/9/movements': page([]),
+    });
+    renderWithProviders(<FinanceBoard projectId={9} />);
+
+    await screen.findByText('Fondo del proyecto');
+    expect(
+      screen.queryByRole('button', {name: 'Asignar del fondo'}),
+    ).not.toBeInTheDocument();
   });
 
   it('gives the Project Manager the figures without the Admin’s actions', async () => {
@@ -250,6 +319,7 @@ describe('FinanceBoard', () => {
           void: false,
           drawContingency: false,
           completeStages: false,
+          assignFund: false,
         },
       }),
       'GET /api/projects/9/movements': page([

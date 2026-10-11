@@ -10,6 +10,7 @@ import {
 import {stageLegend, stageTone} from '@/entities/plan';
 import {DepositModal} from '@/features/finance-deposit';
 import {DrawModal} from '@/features/finance-draw';
+import {AssignFundModal} from '@/features/fund-assign';
 import {AttachProofModal} from '@/features/movement-proof';
 import {VoidMovementModal} from '@/features/movement-void';
 import {CompleteStageModal} from '@/features/stage-complete';
@@ -33,12 +34,15 @@ import {
 import {MovementList} from './MovementList';
 
 type Dialog =
-  | {kind: 'deposit' | 'draw'}
+  | {kind: 'deposit' | 'draw' | 'assign'}
   | {kind: 'complete'; stage: StageFunding}
   | {kind: 'void' | 'attach'; movement: Movement}
   | null;
 
-/** The "Fondos" tab: where the deposited money is, per stage, petty cash and contingency, and how it got there. */
+/**
+ * The "Fondos" tab: where the deposited money is (per stage, petty cash, contingency and the project fund) and how it
+ * got there.
+ */
 export function FinanceBoard({projectId}: {projectId: number}) {
   const finance = useQuery({
     queryKey: financeKey(projectId),
@@ -62,6 +66,8 @@ export function FinanceBoard({projectId}: {projectId: number}) {
   const money = (amount: string) => formatMoney(amount, f.currency);
   const canDraw =
     f.permissions.drawContingency && Number(f.contingency.balance) > 0;
+  const canAssign =
+    f.permissions.assignFund && Number(f.projectFund.balance) > 0;
 
   return (
     <div className="settings-sections">
@@ -111,6 +117,17 @@ export function FinanceBoard({projectId}: {projectId: number}) {
               })}
             </span>
           </Stat>
+          <Stat
+            label={t('finance.account.PROJECT_FUND')}
+            value={money(f.totals.projectFund)}
+            money
+          >
+            <span className="small muted">
+              {t('finance.projectFundDetail', {
+                assigned: money(f.projectFund.assigned),
+              })}
+            </span>
+          </Stat>
         </div>
       </section>
 
@@ -132,6 +149,15 @@ export function FinanceBoard({projectId}: {projectId: number}) {
           actions={
             f.permissions.deposit ? (
               <>
+                {canAssign && (
+                  <ActionButton
+                    action="setup"
+                    size="md"
+                    onClick={() => setDialog({kind: 'assign'})}
+                  >
+                    {t('finance.assignFund')}
+                  </ActionButton>
+                )}
                 {canDraw && (
                   <ActionButton
                     action="revert"
@@ -161,6 +187,9 @@ export function FinanceBoard({projectId}: {projectId: number}) {
       )}
       {dialog?.kind === 'draw' && (
         <DrawModal projectId={projectId} finance={f} onClose={close} />
+      )}
+      {dialog?.kind === 'assign' && (
+        <AssignFundModal projectId={projectId} finance={f} onClose={close} />
       )}
       {dialog?.kind === 'complete' && (
         <CompleteStageModal
@@ -243,6 +272,7 @@ function StagesCard({
               title={t('finance.receivedDetail', {
                 deposited: money(s.deposited),
                 draws: money(s.contingencyDraws),
+                assigned: money(s.fundAssignments),
                 carriedIn: money(s.carriedIn),
               })}
             >

@@ -9,7 +9,10 @@ import {formatMoney, today} from '@/shared/lib/format';
 import {useForm} from '@/shared/lib/forms';
 import {Alert, DateInput, Field, FormModal} from '@/shared/ui';
 
-/** The Admin closes a stage whose milestones are met; what is left of its money moves on. */
+/**
+ * The Admin closes a stage whose milestones are met. What is left of its money goes to the project fund, or to
+ * another open stage they choose: stages can run at the same time, so none is "the next one".
+ */
 export function CompleteStageModal({
   projectId,
   finance,
@@ -22,13 +25,20 @@ export function CompleteStageModal({
   onClose: () => void;
 }) {
   const action = useFinanceAction(projectId);
-  const form = useForm({actualEnd: today()});
-  const left = Number(stage.available);
+  const form = useForm({actualEnd: today(), toStageId: ''});
+  const left = Number(stage.available) > 0;
   const amount = formatMoney(stage.available, finance.currency, {exact: true});
+  const otherOpen = finance.stages.filter(
+    (s) => s.id !== stage.id && s.status !== 'COMPLETED',
+  );
+  const target = otherOpen.find((s) => String(s.id) === form.values.toStageId);
 
   const onSubmit = async () => {
     const done = await action.run(() =>
-      postFinance<Finance>(`/stages/${stage.id}/complete`, form.values),
+      postFinance<Finance>(`/stages/${stage.id}/complete`, {
+        actualEnd: form.values.actualEnd,
+        toStageId: target?.id ?? null,
+      }),
     );
     if (done) {
       onClose();
@@ -45,14 +55,29 @@ export function CompleteStageModal({
     >
       <div className="span-2">
         <Alert kind="info">
-          {left > 0
-            ? stage.nextStage
-              ? t('finance.carryToStage', {amount, stage: stage.nextStage})
-              : t('finance.carryToContingency', {amount})
+          {left
+            ? target
+              ? t('finance.carryToStage', {amount, stage: target.name})
+              : t('finance.carryToFund', {amount})
             : t('finance.nothingToCarry')}{' '}
           {t('finance.completeFinal')}
         </Alert>
       </div>
+      {left && (
+        <Field
+          label={t('finance.carryTarget')}
+          error={action.errors['toStageId']}
+        >
+          <select {...form.bind('toStageId')}>
+            <option value="">{t('finance.account.PROJECT_FUND')}</option>
+            {otherOpen.map((s) => (
+              <option key={s.id} value={s.id}>
+                {t('finance.stageOption', {name: s.name})}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
       <Field label={t('finance.actualEnd')} error={action.errors['actualEnd']}>
         <DateInput {...form.bind('actualEnd')} />
       </Field>

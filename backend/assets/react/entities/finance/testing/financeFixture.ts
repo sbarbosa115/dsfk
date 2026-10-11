@@ -10,6 +10,7 @@ export function financeFixture(overrides: Partial<Finance> = {}): Finance {
       void: true,
       drawContingency: true,
       completeStages: true,
+      assignFund: true,
     },
     totals: {
       budget: '4937506.25',
@@ -18,6 +19,7 @@ export function financeFixture(overrides: Partial<Finance> = {}): Finance {
       stagesAvailable: '1500000.00',
       pettyCash: '300000.00',
       contingency: '200000.00',
+      projectFund: '0.00',
     },
     stages: [
       {
@@ -28,6 +30,7 @@ export function financeFixture(overrides: Partial<Finance> = {}): Finance {
         deposited: '1500000.00',
         contingencyDraws: '0.00',
         carriedIn: '0.00',
+        fundAssignments: '0.00',
         carriedOut: '0.00',
         received: '1500000.00',
         available: '1500000.00',
@@ -36,7 +39,6 @@ export function financeFixture(overrides: Partial<Finance> = {}): Finance {
         remainingBudget: '1437506.25',
         executed: 0,
         funded: 10435,
-        nextStage: 'Estructura',
       },
       {
         id: 12,
@@ -46,6 +48,7 @@ export function financeFixture(overrides: Partial<Finance> = {}): Finance {
         deposited: '0.00',
         contingencyDraws: '0.00',
         carriedIn: '0.00',
+        fundAssignments: '0.00',
         carriedOut: '0.00',
         received: '0.00',
         available: '0.00',
@@ -54,7 +57,6 @@ export function financeFixture(overrides: Partial<Finance> = {}): Finance {
         remainingBudget: '3000000.00',
         executed: 0,
         funded: 0,
-        nextStage: null,
       },
     ],
     categories: [
@@ -73,6 +75,12 @@ export function financeFixture(overrides: Partial<Finance> = {}): Finance {
       carriedIn: '0.00',
       drawn: '0.00',
       balance: '200000.00',
+    },
+    projectFund: {
+      deposited: '0.00',
+      carriedIn: '0.00',
+      assigned: '0.00',
+      balance: '0.00',
     },
     pettyCash: {deposited: '300000.00', balance: '300000.00'},
     ...overrides,
