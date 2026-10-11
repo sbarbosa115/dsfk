@@ -61,6 +61,24 @@ final class NotificationTest extends ApiTestCase
         self::assertSame([['pm@example.com', 'Presupuesto aprobado: Torre']], array_column($this->mails(), 'head'));
     }
 
+    public function testAnAdditionToTheBudgetSaysSoInTheEmails(): void
+    {
+        $this->approve();
+        $this->mails();
+        $this->loginAs($this->pm);
+        $added = $this->json('POST', $this->base.'/stages', ['name' => 'Acabados exteriores'])['stages'][2]['id'];
+        $this->json('POST', "/api/stages/$added/lines", $this->line($this->categories['Materiales']));
+        $this->json('POST', "/api/stages/$added/milestones", ['name' => 'Fachada', 'weight' => '100']);
+        $this->request('POST', $this->base.'/budget/submit');
+        $submitted = $this->mails();
+        self::assertSame([['admin@example.com', 'Adición 1 al presupuesto enviada a aprobación: Torre']], array_column($submitted, 'head'));
+        self::assertStringContainsString('Pm envió la adición 1 al presupuesto del proyecto Torre para tu aprobación.', $submitted[0]['html']);
+
+        $this->loginAs($this->admin);
+        $this->request('POST', $this->base.'/budget/approve');
+        self::assertSame([['pm@example.com', 'Adición 1 al presupuesto aprobada: Torre']], array_column($this->mails(), 'head'));
+    }
+
     public function testATeamLeadsExpenseGoesToThePmAndARejectionBackToTheLead(): void
     {
         $this->approve();

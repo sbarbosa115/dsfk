@@ -7,12 +7,15 @@ namespace App\Planning\UI\Http\Presenter;
 use App\Planning\Application\Port\People;
 use App\Planning\Application\Port\ProjectCatalog;
 use App\Planning\Domain\Model\Budget;
+use App\Planning\Domain\Model\BudgetAmendment;
+use App\Planning\Domain\Model\BudgetStatus;
 use App\Planning\Domain\Model\BudgetLine;
 use App\Planning\Domain\Model\Milestone;
 use App\Planning\Domain\Model\Stage;
 use App\Planning\Domain\Repository\PlanRepository;
 use App\Planning\Domain\Service\PlanCompleteness;
 use App\Planning\Domain\Service\Progress;
+use App\Planning\UI\Http\Output\AmendmentOutput;
 use App\Planning\UI\Http\Output\BudgetEventOutput;
 use App\Planning\UI\Http\Output\BudgetOutput;
 use App\Planning\UI\Http\Output\CategoryOutput;
@@ -55,6 +58,10 @@ final readonly class PlanPresenter
         $names = $this->people->names(self::peopleIn($budget, $stages));
         $person = static fn (int $id): PersonOutput => new PersonOutput($id, $names[$id] ?? '—');
         $today = $this->clock->now();
+        // A stage waiting for the Admin (in an open amendment) is shown, but counts in no figure yet.
+        $approved = array_values(array_filter($stages, static fn (Stage $s): bool => !$s->isPendingApproval()));
+        $open = $budget->isApproved() ? $budget->openAmendment() : null;
+        $editable = static fn (Stage $s): bool => $canPlan && (null === $s->getAmendment() ? $budget->isEditable() : $s->getAmendment()->isEditable());
 
         $stageOutputs = array_map(static fn (Stage $s): StageOutput => new StageOutput(
             (int) $s->getId(),
@@ -78,7 +85,7 @@ final readonly class PlanPresenter
                 $m->isOverdue($today),
             ), $s->getMilestones()),
             $financials ? $money($s->budgetTotal()) : null,
-            $financials ? Progress::stageWeight($s, $stages) : null,
+            $financials && !$s->isPendingApproval() ? Progress::stageWeight($s, $approved) : null,
             $financials ? array_map(static fn (BudgetLine $l): LineOutput => new LineOutput(
                 (int) $l->getId(),
                 (int) $l->getCategory()->getId(),
@@ -88,10 +95,13 @@ final readonly class PlanPresenter
                 $money($l->getUnitPrice()),
                 $money($l->getTotal()),
             ), $s->getLines()) : null,
+            $s->getAmendment()?->getNumber(),
+            !$s->isPendingApproval(),
+            $editable($s),
         ), $stages);
 
         $categories = $this->plans->categoriesOf($projectId);
-        $stagesTotal = Progress::budget($stages);
+        $stagesTotal = Progress::budget($approved);
 
         return new PlanOutput(
             new PlanProjectOutput($projectId, $project['name'], $currency, $project['status']),
@@ -99,13 +109,14 @@ final readonly class PlanPresenter
                 $financials,
                 $canPlan && $budget->isEditable(),
                 $canPlan,
-                $canPlan && $budget->isEditable(),
-                $admin && 'SUBMITTED' === $budget->getStatus()->value,
+                $canPlan && ($budget->isEditable() || (null !== $open && $open->isEditable())),
+                $admin && (BudgetStatus::Submitted === $budget->getStatus() || BudgetStatus::Submitted === $open?->getStatus()),
                 $canPlan && $budget->isApproved(),
                 $admin && $budget->isApproved(),
+                $canPlan && ($budget->isEditable() || ($budget->isApproved() && (null === $open || $open->isEditable()))),
             ),
             $budget->getStatus()->value,
-            Progress::ofProject($stages),
+            Progress::ofProject($approved),
             $stageOutputs,
             array_map(static fn ($c): CategoryOutput => new CategoryOutput((int) $c->getId(), $c->getName()), $categories),
             $financials ? new BudgetOutput(
@@ -113,13 +124,31 @@ final readonly class PlanPresenter
                 $money($stagesTotal),
                 $money($stagesTotal + $budget->getContingency()),
                 $budget->getApprovedAt(),
-                array_map(static fn ($c): CategoryTotalOutput => new CategoryTotalOutput((int) $c->getId(), $money(self::categoryTotal((int) $c->getId(), $stages))), $categories),
-                array_map(static fn ($e): BudgetEventOutput => new BudgetEventOutput($e->getStatus()->value, $person($e->getUserId()), $e->getComment(), $e->getCreatedAt()), $budget->getEvents()),
+                array_map(static fn ($c): CategoryTotalOutput => new CategoryTotalOutput((int) $c->getId(), $money(self::categoryTotal((int) $c->getId(), $approved))), $categories),
+                array_map(static fn ($e): BudgetEventOutput => new BudgetEventOutput($e->getStatus()->value, $person($e->getUserId()), $e->getComment(), $e->getCreatedAt(), $e->getAmendment()?->getNumber()), $budget->getEvents()),
+                array_map(static fn (BudgetAmendment $a): AmendmentOutput => self::amendment($a, $stages, $money), $budget->getAmendments()),
             ) : null,
-            $financials ? ($budget->isEditable() ? array_map(
+            $financials ? ($budget->isEditable() || (null !== $open && $open->isEditable()) ? array_map(
                 static fn (array $i): PlanIssueOutput => new PlanIssueOutput($i['code'], $i['stageId'] ?? null),
-                PlanCompleteness::issues($stages),
+                PlanCompleteness::issues($budget->underReview($stages)),
             ) : []) : null,
+        );
+    }
+
+    /**
+     * @param list<Stage>             $stages
+     * @param callable(int): string $money
+     */
+    private static function amendment(BudgetAmendment $amendment, array $stages, callable $money): AmendmentOutput
+    {
+        $own = array_values(array_filter($stages, static fn (Stage $s): bool => $s->getAmendment() === $amendment));
+
+        return new AmendmentOutput(
+            $amendment->getNumber(),
+            $amendment->getStatus()->value,
+            array_map(static fn (Stage $s): string => $s->getName(), $own),
+            $money(Progress::budget($own)),
+            $amendment->getApprovedAt(),
         );
     }
 

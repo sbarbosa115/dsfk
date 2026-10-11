@@ -7,7 +7,13 @@ namespace App\Planning\Domain\Event;
 /** The Admin sent the budget back to the PM, with a comment. */
 final readonly class BudgetReturned
 {
-    public function __construct(public int $projectId, public int $byUserId, public string $comment)
+    public function __construct(
+        public int $projectId,
+        public int $byUserId,
+        public string $comment,
+        /** The amendment's number; null for the budget itself. */
+        public ?int $amendment = null,
+    )
     {
     }
 }

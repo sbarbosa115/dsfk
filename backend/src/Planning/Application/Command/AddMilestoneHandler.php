@@ -16,7 +16,7 @@ final readonly class AddMilestoneHandler implements CommandHandler
     public function __invoke(AddMilestone $c): void
     {
         $stage = $this->plans->stage($c->stageId);
-        $this->plans->budgetFor($stage->getProjectId())->assertEditable();
+        $this->plans->budgetFor($stage->getProjectId())->assertStageEditable($stage);
         $stage->addMilestone($c->name, $c->weight, $c->plannedDate);
     }
 }

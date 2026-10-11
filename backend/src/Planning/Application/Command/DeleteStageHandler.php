@@ -16,7 +16,12 @@ final readonly class DeleteStageHandler implements CommandHandler
     public function __invoke(DeleteStage $command): void
     {
         $stage = $this->plans->stage($command->stageId);
-        $this->plans->budgetFor($stage->getProjectId())->assertEditable();
+        $budget = $this->plans->budgetFor($stage->getProjectId());
+        $budget->assertStageEditable($stage);
         $this->plans->removeStage($stage);
+        $amendment = $stage->getAmendment();
+        if (null !== $amendment && [] === array_filter($this->plans->stagesOf($stage->getProjectId()), static fn ($s): bool => $s !== $stage && $s->getAmendment() === $amendment)) {
+            $budget->dropAmendment($amendment);
+        }
     }
 }

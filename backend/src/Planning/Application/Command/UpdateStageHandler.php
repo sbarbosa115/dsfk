@@ -20,7 +20,7 @@ final readonly class UpdateStageHandler implements CommandHandler
             $stage->rename($c->name);
         }
         if ($c->has('plannedStart') || $c->has('plannedEnd')) {
-            $this->plans->budgetFor($stage->getProjectId())->assertEditable();
+            $this->plans->budgetFor($stage->getProjectId())->assertStageEditable($stage);
             $stage->schedule(
                 $c->has('plannedStart') ? $c->plannedStart : $stage->getPlannedStart(),
                 $c->has('plannedEnd') ? $c->plannedEnd : $stage->getPlannedEnd(),

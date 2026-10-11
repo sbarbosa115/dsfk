@@ -17,7 +17,7 @@ final readonly class AddLineHandler implements CommandHandler
     public function __invoke(AddLine $c): void
     {
         $stage = $this->plans->stage($c->stageId);
-        $this->plans->budgetFor($stage->getProjectId())->assertEditable();
+        $this->plans->budgetFor($stage->getProjectId())->assertStageEditable($stage);
         $stage->addLine(
             LineCategory::of($this->plans, $c->categoryId),
             $c->description,

@@ -55,6 +55,17 @@ final class ExpenseApiTest extends ApiTestCase
         $this->assertError(409, 'budget_not_approved');
     }
 
+    public function testAStageWaitingForApprovalTakesNoExpenses(): void
+    {
+        $this->approve();
+        $this->loginAs($this->pm);
+        $added = $this->json('POST', $this->base.'/stages', ['name' => 'Acabados exteriores'])['stages'][2]['id'];
+
+        $data = $this->request('POST', $this->base.'/expenses', $this->expense('1000', 'STAGE', $added));
+        $this->assertStatus(422);
+        self::assertArrayHasKey('stageId', $data['violations'], 'a pending stage is unknown outside the plan');
+    }
+
     public function testThePmPaysFromAStageAndItCountsAtOnceWithinTheMoneyThere(): void
     {
         $this->fund();

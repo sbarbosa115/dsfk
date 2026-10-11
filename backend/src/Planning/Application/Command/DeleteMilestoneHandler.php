@@ -16,7 +16,7 @@ final readonly class DeleteMilestoneHandler implements CommandHandler
     public function __invoke(DeleteMilestone $command): void
     {
         $milestone = $this->plans->milestone($command->milestoneId);
-        $this->plans->budgetFor($milestone->getStage()->getProjectId())->assertEditable();
+        $this->plans->budgetFor($milestone->getStage()->getProjectId())->assertStageEditable($milestone->getStage());
         $milestone->getStage()->removeMilestone($milestone);
     }
 }

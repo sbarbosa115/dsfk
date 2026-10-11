@@ -13,6 +13,10 @@ use App\Planning\Domain\Model\Stage;
 use App\Planning\Domain\Repository\PlanRepository;
 use App\Planning\Domain\Service\Progress;
 
+/**
+ * The plan as the other contexts see it. A stage waiting for the Admin's approval (in an open amendment) is not part
+ * of it yet: no money, no expenses, no figures, no reminders.
+ */
 final readonly class DoctrinePlanDirectory implements PlanDirectory
 {
     public function __construct(private PlanRepository $plans)
@@ -28,14 +32,14 @@ final readonly class DoctrinePlanDirectory implements PlanDirectory
     {
         return array_map(
             static fn (Stage $s): StageSummary => new StageSummary((int) $s->getId(), $s->getName(), $s->getStatus()->value, $s->budgetTotal()),
-            $this->plans->stagesOf($projectId),
+            $this->approvedStages($projectId),
         );
     }
 
     public function categories(int $projectId): array
     {
         $budget = [];
-        foreach ($this->plans->stagesOf($projectId) as $stage) {
+        foreach ($this->approvedStages($projectId) as $stage) {
             foreach ($stage->getLines() as $line) {
                 $id = (int) $line->getCategory()->getId();
                 $budget[$id] = ($budget[$id] ?? 0) + $line->getTotal();
@@ -63,13 +67,13 @@ final readonly class DoctrinePlanDirectory implements PlanDirectory
             $s->getActualStart(),
             $s->getActualEnd(),
             array_map(static fn (Milestone $m): array => ['weight' => $m->getWeight(), 'plannedDate' => $m->getPlannedDate(), 'completed' => $m->isCompleted()], $s->getMilestones()),
-        ), $this->plans->stagesOf($projectId));
+        ), $this->approvedStages($projectId));
     }
 
     public function overdueMilestones(int $projectId, \DateTimeImmutable $today): array
     {
         $overdue = [];
-        foreach ($this->plans->stagesOf($projectId) as $stage) {
+        foreach ($this->approvedStages($projectId) as $stage) {
             foreach ($stage->getMilestones() as $m) {
                 $date = $m->getPlannedDate();
                 if (null !== $date && $m->isOverdue($today)) {
@@ -84,11 +88,19 @@ final readonly class DoctrinePlanDirectory implements PlanDirectory
 
     public function progress(int $projectId): int
     {
-        return Progress::ofProject($this->plans->stagesOf($projectId));
+        return Progress::ofProject($this->approvedStages($projectId));
     }
 
     public function contingency(int $projectId): int
     {
         return $this->plans->findBudget($projectId)?->getContingency() ?? 0;
+    }
+
+    /**
+     * @return list<Stage>
+     */
+    private function approvedStages(int $projectId): array
+    {
+        return array_values(array_filter($this->plans->stagesOf($projectId), static fn (Stage $s): bool => !$s->isPendingApproval()));
     }
 }

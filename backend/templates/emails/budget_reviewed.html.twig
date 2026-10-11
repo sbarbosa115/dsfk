@@ -2,9 +2,9 @@
 {% set link = '/projects/' ~ project.id %}
 {% block content %}
 {% if approved %}
-<p>{{ 'budget_reviewed.approved'|trans({by: by, project: project.name}, 'emails') }}</p>
+<p>{{ 'budget_reviewed.approved'|trans({by: by, project: project.name, amendment: amendment}, 'emails') }}</p>
 {% else %}
-<p>{{ 'budget_reviewed.returned'|trans({by: by, project: project.name}, 'emails') }}</p>
+<p>{{ 'budget_reviewed.returned'|trans({by: by, project: project.name, amendment: amendment}, 'emails') }}</p>
 <blockquote style="margin:0;padding:8px 12px;border-left:4px solid #8a5a00;background:#fff6e0;">{{ comment }}</blockquote>
 <p>{{ 'budget_reviewed.next'|trans({}, 'emails') }}</p>
 {% endif %}

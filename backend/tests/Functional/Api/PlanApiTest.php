@@ -161,8 +161,8 @@ final class PlanApiTest extends ApiTestCase
 
         $this->request('PUT', $this->base.'/budget/contingency', ['contingency' => '1']);
         $this->assertError(409, 'budget_locked');
-        $this->request('POST', $this->base.'/stages', ['name' => 'Nueva']);
-        $this->assertError(409, 'budget_locked');
+        $plan = $this->json('POST', $this->base.'/stages', ['name' => 'Nueva']);
+        self::assertSame(1, $plan['stages'][2]['amendment'], 'a stage added now is an addition the Admin approves apart');
     }
 
     public function testAfterApprovalStageNamesCanBeFixedButNotTheirDates(): void
@@ -273,6 +273,92 @@ final class PlanApiTest extends ApiTestCase
         self::assertSame('2026-10-15', $plan['stages'][0]['actualStart']);
         $this->request('POST', "/api/stages/$second/start", ['actualStart' => '2026-10-15']);
         $this->assertError(409, 'stage_already_started');
+    }
+
+    public function testAStageAddedToARunningProjectWaitsForTheAdminAndThenRunsInParallel(): void
+    {
+        $this->loginAs($this->pm);
+        $foundation = $this->buildPlan()['stages'][0]['id'];
+        $this->approve();
+        $this->loginAs($this->pm);
+        $this->request('POST', "/api/stages/$foundation/start", ['actualStart' => '2026-10-01']);
+        $categories = array_column($this->json('GET', $this->base.'/plan')['categories'], 'id', 'name');
+        self::assertTrue($this->json('GET', $this->base.'/plan')['permissions']['addStage'], 'the approved plan takes new stages');
+
+        $plan = $this->json('POST', $this->base.'/stages', ['name' => 'Acabados exteriores', 'plannedStart' => '2026-11-01']);
+        $this->assertStatus(200);
+        $added = $plan['stages'][2];
+        self::assertSame(['amendment' => 1, 'approved' => false, 'editable' => true], ['amendment' => $added['amendment'], 'approved' => $added['approved'], 'editable' => $added['editable']]);
+        self::assertNull($added['weight'], 'no share of the budget until approved');
+        self::assertFalse($plan['stages'][0]['editable'], 'the approved stages stay locked');
+        self::assertSame('APPROVED', $plan['budgetStatus']);
+        self::assertSame([['number' => 1, 'status' => 'DRAFT', 'stages' => ['Acabados exteriores'], 'total' => '0.00', 'approvedAt' => null]], array_map(
+            static fn (array $a): array => array_intersect_key($a, array_flip(['number', 'status', 'stages', 'total', 'approvedAt'])),
+            $plan['budget']['amendments'],
+        ));
+        self::assertSame([['code' => 'stage_without_lines', 'stageId' => $added['id']], ['code' => 'milestone_weights', 'stageId' => $added['id']]], $plan['issues'], 'only the amendment is checked');
+
+        $this->json('POST', "/api/stages/{$added['id']}/lines", $this->line($categories['Materiales'], quantity: '10', unitPrice: '200000'));
+        $this->assertStatus(200);
+        $plan = $this->json('POST', "/api/stages/{$added['id']}/milestones", ['name' => 'Fachada', 'weight' => '100']);
+        $milestone = $plan['stages'][2]['milestones'][0]['id'];
+        self::assertSame('4437506.25', $plan['budget']['stagesTotal'], 'figures leave a pending stage out');
+        self::assertSame('2000000.00', $plan['budget']['amendments'][0]['total']);
+        $this->request('POST', "/api/stages/{$plan['stages'][0]['id']}/lines", $this->line($categories['Materiales']));
+        $this->assertError(409, 'budget_locked');
+        $this->request('POST', "/api/stages/{$added['id']}/start", ['actualStart' => '2026-10-15']);
+        $this->assertError(409, 'stage_not_approved');
+
+        $plan = $this->json('POST', $this->base.'/budget/submit');
+        $this->assertStatus(200);
+        self::assertSame('SUBMITTED', $plan['budget']['amendments'][0]['status']);
+        self::assertFalse($plan['permissions']['addStage']);
+        $this->request('POST', $this->base.'/stages', ['name' => 'Otra']);
+        $this->assertError(409, 'budget_locked');
+        $this->request('DELETE', "/api/stages/{$added['id']}");
+        $this->assertError(409, 'budget_locked');
+
+        $this->loginAs($this->admin);
+        self::assertTrue($this->json('GET', $this->base.'/plan')['permissions']['review']);
+        $this->request('POST', $this->base.'/budget/return', ['comment' => 'Falta la fecha de fin']);
+        $this->loginAs($this->pm);
+        $this->request('PATCH', "/api/stages/{$added['id']}", ['plannedEnd' => '2027-02-28']);
+        $this->assertStatus(200);
+        $this->request('POST', $this->base.'/budget/submit');
+        $this->loginAs($this->admin);
+        $plan = $this->json('POST', $this->base.'/budget/approve');
+        $this->assertStatus(200);
+
+        self::assertSame('APPROVED', $plan['budget']['amendments'][0]['status']);
+        self::assertSame(['SUBMITTED', 'APPROVED', 'SUBMITTED', 'RETURNED', 'SUBMITTED', 'APPROVED'], array_column($plan['budget']['events'], 'status'));
+        self::assertSame([null, null, 1, 1, 1, 1], array_column($plan['budget']['events'], 'amendment'));
+        self::assertSame('6437506.25', $plan['budget']['stagesTotal']);
+        self::assertSame(3107, $plan['stages'][2]['weight'], '2,000,000 / 6,437,506.25');
+        self::assertTrue($plan['stages'][2]['approved']);
+        self::assertSame('ACTIVE', $this->json('GET', $this->base)['status']);
+
+        $this->loginAs($this->pm);
+        $plan = $this->json('POST', "/api/stages/{$added['id']}/start", ['actualStart' => '2026-10-15']);
+        self::assertSame(['IN_PROGRESS', 'PENDING', 'IN_PROGRESS'], array_column($plan['stages'], 'status'), 'two stages at the same time');
+        $this->request('POST', "/api/milestones/$milestone/complete", ['completedAt' => '2026-10-15']);
+        $this->assertStatus(200);
+        self::assertSame(2, $this->json('POST', $this->base.'/stages', ['name' => 'Paisajismo'])['budget']['amendments'][1]['number'], 'the next addition opens');
+    }
+
+    public function testAnAmendmentLeftWithoutStagesGoesAway(): void
+    {
+        $this->loginAs($this->pm);
+        $this->buildPlan();
+        $this->approve();
+        $this->loginAs($this->pm);
+        $added = $this->json('POST', $this->base.'/stages', ['name' => 'Temporal'])['stages'][2]['id'];
+
+        $plan = $this->json('DELETE', "/api/stages/$added");
+        $this->assertStatus(200);
+        self::assertSame([], $plan['budget']['amendments']);
+        self::assertSame([], $plan['issues']);
+        $this->request('POST', $this->base.'/budget/submit');
+        $this->assertError(409, 'budget_locked');
     }
 
     public function testALineCannotUseAnotherProjectsCategory(): void

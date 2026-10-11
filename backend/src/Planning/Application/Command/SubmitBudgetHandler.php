@@ -19,11 +19,12 @@ final readonly class SubmitBudgetHandler implements CommandHandler
 
     public function __invoke(SubmitBudget $command): void
     {
-        $this->plans->budgetFor($command->projectId)->submit(
+        $budget = $this->plans->budgetFor($command->projectId);
+        $amendment = $budget->submit(
             $command->actorId,
-            PlanCompleteness::issues($this->plans->stagesOf($command->projectId)),
+            PlanCompleteness::issues($budget->underReview($this->plans->stagesOf($command->projectId))),
             $this->clock->now(),
         );
-        $this->events->publish(new BudgetSubmitted($command->projectId, $command->actorId));
+        $this->events->publish(new BudgetSubmitted($command->projectId, $command->actorId, $amendment?->getNumber()));
     }
 }
