@@ -87,7 +87,8 @@ final class FinanceApiTest extends ApiTestCase
         self::assertSame('300000.00', $finance['totals']['pettyCash']);
         self::assertSame('200000.00', $finance['totals']['contingency']);
         self::assertSame('100000.00', $finance['totals']['projectFund']);
-        self::assertSame(['deposited' => '100000.00', 'carriedIn' => '0.00', 'assigned' => '0.00', 'balance' => '100000.00'], $finance['projectFund']);
+        self::assertSame(['deposited' => '100000.00', 'carriedIn' => '0.00', 'received' => '100000.00', 'assigned' => '0.00', 'balance' => '100000.00'], $finance['projectFund']);
+        self::assertSame(['deposited' => '300000.00', 'received' => '300000.00', 'balance' => '300000.00'], $finance['pettyCash']);
         $stage = $finance['stages'][0];
         self::assertSame('1437506.25', $stage['budget']);
         self::assertSame('1500000.00', $stage['received']);
@@ -271,7 +272,8 @@ final class FinanceApiTest extends ApiTestCase
         $this->assertStatus(201);
 
         $finance = $this->json('GET', $this->base.'/finance');
-        self::assertSame(['deposited' => '500000.00', 'carriedIn' => '0.00', 'assigned' => '300000.00', 'balance' => '200000.00'], $finance['projectFund']);
+        self::assertSame(['deposited' => '500000.00', 'carriedIn' => '0.00', 'received' => '500000.00', 'assigned' => '300000.00', 'balance' => '200000.00'], $finance['projectFund']);
+        self::assertSame(['deposited' => '0.00', 'received' => '100000.00', 'balance' => '100000.00'], $finance['pettyCash'], 'the caja menor tile counts what the fund gave it (QA-0020)');
         self::assertSame('200000.00', $finance['stages'][1]['fundAssignments']);
         self::assertSame('200000.00', $finance['stages'][1]['received']);
         self::assertSame('100000.00', $finance['totals']['pettyCash']);
@@ -354,6 +356,7 @@ final class FinanceApiTest extends ApiTestCase
         self::assertSame('1500000.00', $foundation['carriedOut']);
         self::assertSame('0.00', $structure['carriedIn'], 'no stage is guessed as "the next one" any more');
         self::assertSame('1500000.00', $finance['projectFund']['carriedIn']);
+        self::assertSame('1500000.00', $finance['projectFund']['received'], 'leftovers count as received by the fund (QA-0019)');
         self::assertSame('1500000.00', $finance['projectFund']['balance']);
         self::assertSame('0.00', $finance['contingency']['balance'], 'the contingency never receives leftovers');
 

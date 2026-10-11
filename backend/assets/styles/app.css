@@ -2139,6 +2139,45 @@ select.filter-select {
   }
 }
 
+/*
+ * Between the phone's cards and a wide screen (601–1279 px) a table can still be wider than its card (QA-0018): its
+ * cells get tighter, and the Acciones column stays pinned to the card's right edge, so a row's actions are always in
+ * view. When the table does scroll sideways (DataTable marks it `is-overflowing`), a shadow on that edge says so.
+ */
+@media (min-width: 601px) and (max-width: 1279px) {
+  .table th,
+  .table td {
+    padding: 10px;
+  }
+
+  .col-progress .progress {
+    min-width: 64px;
+  }
+}
+
+@media (min-width: 601px) {
+  .table th.col-actions,
+  .table td.actions {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+  }
+
+  /* Tinted rows keep their tint (`.table tr.row-tone td` wins); plain ones need a fill to cover what scrolls under. */
+  .table td.actions {
+    background: var(--color-surface);
+  }
+
+  .table th.col-actions {
+    background: var(--color-surface-sunken);
+  }
+
+  .table-wrap.is-overflowing th.col-actions,
+  .table-wrap.is-overflowing td.actions {
+    box-shadow: -8px 0 8px -8px var(--color-overlay);
+  }
+}
+
 /* A figure's note in a money column may wrap, so the table fits without scrolling sideways. */
 .num .cell-note {
   white-space: normal;

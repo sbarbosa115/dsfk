@@ -260,6 +260,7 @@ describe('FinanceBoard', () => {
       projectFund: {
         deposited: '400000.00',
         carriedIn: '0.00',
+        received: '400000.00',
         assigned: '0.00',
         balance: '400000.00',
       },
@@ -275,6 +276,14 @@ describe('FinanceBoard', () => {
 
     const tile = await screen.findByText('Fondo del proyecto');
     expect(text(tile.parentElement!.textContent ?? '')).toContain('$ 400.000');
+    expect(
+      text(tile.parentElement!.textContent ?? ''),
+      'the same "label: value" lines as its neighbours (QA-0019)',
+    ).toContain('Recibido: $ 400.000 · asignado: $ 0');
+    expect(
+      text(screen.getByText('Caja menor').parentElement!.textContent ?? ''),
+      'everything that came in, fund assignments too (QA-0020)',
+    ).toContain('Recibido: $ 300.000');
     await userEvent.click(
       screen.getByRole('button', {name: 'Asignar del fondo'}),
     );

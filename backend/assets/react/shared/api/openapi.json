@@ -4973,6 +4973,7 @@
                 "required": [
                     "deposited",
                     "carriedIn",
+                    "received",
                     "assigned",
                     "balance"
                 ],
@@ -4982,6 +4983,10 @@
                     },
                     "carriedIn": {
                         "title": "Leftovers of closed stages.",
+                        "type": "string"
+                    },
+                    "received": {
+                        "title": "Deposited + carried in: everything that came in.",
                         "type": "string"
                     },
                     "assigned": {
@@ -4997,10 +5002,15 @@
             "PettyCashSummaryOutput": {
                 "required": [
                     "deposited",
+                    "received",
                     "balance"
                 ],
                 "properties": {
                     "deposited": {
+                        "type": "string"
+                    },
+                    "received": {
+                        "title": "Everything that came in: deposits and fund assignments.",
                         "type": "string"
                     },
                     "balance": {

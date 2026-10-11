@@ -11,6 +11,8 @@ final readonly class ProjectFundOutput
         public string $deposited,
         /** Leftovers of closed stages. */
         public string $carriedIn,
+        /** Deposited + carried in: everything that came in. */
+        public string $received,
         /** Given to stages and the caja menor. */
         public string $assigned,
         public string $balance,

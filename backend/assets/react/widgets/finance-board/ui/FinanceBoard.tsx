@@ -101,7 +101,7 @@ export function FinanceBoard({projectId}: {projectId: number}) {
           >
             <span className="small muted">
               {t('finance.pettyCashDetail', {
-                deposited: money(f.pettyCash.deposited),
+                received: money(f.pettyCash.received),
               })}
             </span>
           </Stat>
@@ -124,6 +124,7 @@ export function FinanceBoard({projectId}: {projectId: number}) {
           >
             <span className="small muted">
               {t('finance.projectFundDetail', {
+                received: money(f.projectFund.received),
                 assigned: money(f.projectFund.assigned),
               })}
             </span>
