@@ -28,6 +28,7 @@ final readonly class CycleOutput
         public ?string $signedOffAt,
         public ?string $signedOffBy,
         public string $openingBalance,
+        /** Deposits and fund assignments into petty cash. */
         public string $topUps,
         public string $spent,
         public string $reimbursed,

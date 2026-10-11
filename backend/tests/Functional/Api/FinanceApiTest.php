@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Api;
 
+use App\Finance\Application\Query\FinanceQueries;
 use App\Identity\Domain\Model\User;
 use App\Project\Domain\Model\Project;
 use App\Project\Domain\Model\ProjectRole;
@@ -204,6 +205,59 @@ final class FinanceApiTest extends ApiTestCase
         self::assertSame('150000.00', $finance['contingency']['drawn']);
         self::assertSame('150000.00', $finance['stages'][1]['contingencyDraws']);
         self::assertSame('150000.00', $finance['stages'][1]['available']);
+    }
+
+    public function testTheAdminAssignsTheProjectFundToAStageOrTheCajaMenor(): void
+    {
+        $this->approve();
+        $this->deposit([['destination' => 'PROJECT_FUND', 'amount' => '500000']]);
+
+        $this->loginAs($this->pm);
+        $this->assign(['destination' => 'STAGE', 'stageId' => $this->structure, 'amount' => '1000']);
+        $this->assertError(403, 'forbidden');
+        $this->loginAs($this->admin);
+
+        $data = $this->assign(['destination' => 'STAGE', 'stageId' => $this->structure, 'amount' => '600000']);
+        $this->assertStatus(422);
+        self::assertArrayHasKey('amount', $data['violations'], 'never more than the fund holds');
+        $data = $this->assign(['destination' => 'STAGE', 'amount' => '1000']);
+        $this->assertStatus(422);
+        self::assertArrayHasKey('stageId', $data['violations']);
+        $data = $this->assign(['destination' => 'CONTINGENCY', 'amount' => '1000']);
+        $this->assertStatus(422);
+        self::assertArrayHasKey('destination', $data['violations']);
+
+        $toStage = $this->assign(['destination' => 'STAGE', 'stageId' => $this->structure, 'amount' => '200000', 'note' => 'Acero']);
+        $this->assertStatus(201);
+        self::assertSame('FUND_ASSIGNMENT', $toStage['type']);
+        self::assertSame('200000.00', $toStage['amount']);
+        self::assertSame('Acero', $toStage['note']);
+        $this->assign(['destination' => 'PETTY_CASH', 'amount' => '100000']);
+        $this->assertStatus(201);
+
+        $finance = $this->json('GET', $this->base.'/finance');
+        self::assertSame(['deposited' => '500000.00', 'carriedIn' => '0.00', 'assigned' => '300000.00', 'balance' => '200000.00'], $finance['projectFund']);
+        self::assertSame('200000.00', $finance['stages'][1]['fundAssignments']);
+        self::assertSame('200000.00', $finance['stages'][1]['received']);
+        self::assertSame('100000.00', $finance['totals']['pettyCash']);
+        self::assertSame('500000.00', $finance['totals']['deposited'], 'an assignment is not a deposit');
+        self::assertSame(1, (int) $this->em->getConnection()->fetchOne('SELECT COUNT(*) FROM fund_movement WHERE petty_cash_cycle_id IS NOT NULL'), 'the caja menor part joins the open cycle');
+        self::assertSame('100000.00', $this->json('GET', $this->base.'/petty-cash')['current']['topUps'], 'shown as a top-up of the cycle');
+        self::assertSame(100000_00, static::getContainer()->get(FinanceQueries::class)->lastPettyCashTopUp((int) $this->project->getId()), 'it counts as a top-up for the low-balance alert');
+        self::assertSame(['FUND_ASSIGNMENT', 'FUND_ASSIGNMENT', 'DEPOSIT'], array_column($this->json('GET', $this->base.'/movements')['items'], 'type'));
+
+        $this->json('POST', '/api/movements/'.$toStage['id'].'/void', ['reason' => 'Etapa equivocada']);
+        $this->assertStatus(200);
+        self::assertSame('400000.00', $this->json('GET', $this->base.'/finance')['projectFund']['balance']);
+
+        // A completed stage no longer receives money.
+        $this->start($this->foundation);
+        $this->completeMilestones(0);
+        $this->loginAs($this->admin);
+        $this->request('POST', "/api/stages/{$this->foundation}/complete", ['actualEnd' => self::TODAY]);
+        $data = $this->assign(['destination' => 'STAGE', 'stageId' => $this->foundation, 'amount' => '1000']);
+        $this->assertStatus(422);
+        self::assertArrayHasKey('stageId', $data['violations']);
     }
 
     public function testVoidingRemovesAMovementFromTheBalancesButKeepsTheRecord(): void
@@ -416,6 +470,18 @@ final class FinanceApiTest extends ApiTestCase
     private function toStage(int $stageId, string $amount, ?int $categoryId = null): array
     {
         return ['destination' => 'STAGE', 'stageId' => $stageId, 'amount' => $amount, 'categoryId' => $categoryId];
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     *
+     * @return array<string, mixed>
+     */
+    private function assign(array $body): array
+    {
+        $data = $this->request('POST', $this->base.'/fund/assignments', $body + ['date' => self::TODAY]);
+
+        return \is_array($data) ? $data : [];
     }
 
     private function start(int $stageId): void

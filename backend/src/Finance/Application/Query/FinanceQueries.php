@@ -65,7 +65,7 @@ interface FinanceQueries
      */
     public function cycleFacts(int $cycleId): ?array;
 
-    /** Petty cash's last top-up (a deposit's part for it), minor units; 0 if it never had one. */
+    /** Petty cash's last top-up (a deposit's part or a fund assignment), minor units; 0 if it never had one. */
     public function lastPettyCashTopUp(int $projectId): int;
 
     /** Whether any ledger entry earmarks money for the category (so Planning keeps it). */
