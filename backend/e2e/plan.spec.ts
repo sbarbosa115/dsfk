@@ -42,10 +42,13 @@ test('PLN-09 · a stage added to a running project waits for the Admin', async (
   await expect(
     page.getByRole('table', {name: 'Adiciones al presupuesto'}),
   ).toContainText('Paisajismo');
-  await expect(
-    page.getByText('Total etapas', {exact: true}).locator('..'),
+  expect(
+    await page
+      .getByText('Total etapas', {exact: true})
+      .locator('..')
+      .innerText(),
     'a pending stage counts in no figure',
-  ).toHaveText(total);
+  ).toBe(total);
 
   await page.goto(`/projects/${TORRE_NORTE}?tab=finance`);
   await expect(
