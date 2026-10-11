@@ -261,6 +261,7 @@ export const es = {
       submittedNote:
         'La adición {{number}} espera la aprobación del administrador. Mientras tanto nadie la modifica.',
       issuesTitle: 'Para enviar la adición falta:',
+      returnedNote: 'Devuelta por {{user}}: “{{comment}}”',
       addHint:
         'El presupuesto ya está aprobado: la etapa se agrega como adición y el administrador debe aprobarla antes de iniciarla.',
     },

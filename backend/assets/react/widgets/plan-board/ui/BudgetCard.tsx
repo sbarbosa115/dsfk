@@ -62,7 +62,7 @@ export function BudgetCard({plan}: {plan: Plan}) {
       {/* What the Admin asked to change comes before the figures: it is what to read first (QA-0010). */}
       {returned && lastReturn && (
         <Alert kind="warning">
-          {t('plan.returnedNote', {
+          {t(open ? 'plan.amendment.returnedNote' : 'plan.returnedNote', {
             user: lastReturn.user.fullName,
             comment: lastReturn.comment,
           })}
