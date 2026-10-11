@@ -150,6 +150,23 @@ final class FinanceApiTest extends ApiTestCase
         $data = $this->draw($foreignStage, '10');
         $this->assertStatus(422);
         self::assertArrayHasKey('stageId', $data['violations']);
+
+        // Nor this project's fund, nor a closed stage's leftover.
+        $this->deposit([['destination' => 'PROJECT_FUND', 'amount' => '1000']]);
+        $data = $this->assign(['destination' => 'STAGE', 'stageId' => $foreignStage, 'amount' => '10']);
+        $this->assertStatus(422);
+        self::assertArrayHasKey('stageId', $data['violations']);
+        $this->start($this->foundation);
+        $this->completeMilestones(0);
+        $this->loginAs($this->admin);
+        $data = $this->request('POST', "/api/stages/{$this->foundation}/complete", ['actualEnd' => self::TODAY, 'toStageId' => $foreignStage]);
+        $this->assertStatus(422);
+        self::assertArrayHasKey('toStageId', $data['violations']);
+
+        // And the other project's PM cannot assign this project's fund.
+        $this->loginAs($otherPm);
+        $this->assign(['destination' => 'STAGE', 'stageId' => $this->structure, 'amount' => '10']);
+        $this->assertError(404, 'project_not_found');
     }
 
     public function testDepositValidationNamesTheWrongPart(): void
