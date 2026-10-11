@@ -127,8 +127,8 @@ pocket).
 Intro + (Admin, budget approved) "Usar contingencia" (only when the contingency balance > 0) and "Registrar
 depósito". Before approval: info "Los depósitos se registran cuando el administrador aprueba el presupuesto." Stats:
 "Depositado" (de X presupuestados), "Gastado" (Disponible en etapas), "Caja menor" (Depositado), "Contingencia"
-(Presupuestada · usada). "Fondos por etapa": Etapa (+ "X pasaron a la siguiente"), Presupuesto (+ "Gastado: X
-(N%)"), Recibido (tooltip with deposited / contingency / carried in; "X por encima del presupuesto"), Financiado
+(Presupuestada · usada), "Fondo del proyecto" (money with no stage yet: deposits sent there and closed stages' leftovers; "asignado: X"). "Fondos por etapa": Etapa (+ "X trasladados al finalizar"), Presupuesto (+ "Gastado: X
+(N%)"), Recibido (tooltip with deposited / contingency / from the fund / from other stages; "X por encima del presupuesto"), Financiado
 (bar), Disponible, and "Finalizar etapa" on En curso rows (Admin). "Por categoría": Presupuesto, Gastado, Ejecutado.
 "Movimientos": search "Referencia o nota…", table Fecha, Movimiento (type + method · reference), Destino (entries,
 note, "Anulado por X el D: “reason”"), Monto; voided rows greyed. Empty: "Aún no hay movimientos de dinero." /
@@ -136,13 +136,14 @@ note, "Anulado por X el D: “reason”"), Monto; voided rows greyed. Empty: "A�
 
 | Action (button) | When (Admin) | Modal → result |
 |---|---|---|
-| Registrar depósito | budget APPROVED | "Registrar depósito" (wide): Fecha (not future), Medio de pago (Transferencia/Efectivo/Cheque/Otro), Referencia (opc.), "Distribución": rows of Destino N (Etapa: X for open stages / Caja menor / Contingencia), Categoría N (opc., stages only), Monto N, "Quitar"; "Agregar destino"; "Total del depósito: …"; Nota (opc.); submit "Registrar" → `POST /projects/{id}/deposits` |
+| Registrar depósito | budget APPROVED | "Registrar depósito" (wide): Fecha (not future), Medio de pago (Transferencia/Efectivo/Cheque/Otro), Referencia (opc.), "Distribución": rows of Destino N (Etapa: X for open stages / Caja menor / Contingencia / Fondo del proyecto), Categoría N (opc., stages only), Monto N, "Quitar"; "Agregar destino"; "Total del depósito: …"; Nota (opc.); submit "Registrar" → `POST /projects/{id}/deposits` |
 | Usar contingencia | APPROVED, contingency balance > 0 | "Usar contingencia": Etapa (open), Monto (hint "Disponible en la contingencia: …"), Fecha, Motivo (required); submit "Pasar a la etapa" → `POST …/contingency/draws` |
-| Finalizar etapa | APPROVED, stage En curso | "Finalizar “X”": info where the balance goes (next open stage, or contingency if last, or "no tiene saldo") + "Una etapa finalizada no recibe más dinero."; Fecha de finalización → `POST /stages/{id}/complete` → COMPLETED + CARRYOVER movement; refused if milestones pending |
+| Asignar del fondo | APPROVED, fund balance > 0 (Admin) | "Asignar del fondo": Destino (Etapa: X for open stages / Caja menor), Monto (hint "Disponible en el fondo: …"), Fecha (not future), Nota (opc.); submit "Asignar" → `POST /projects/{id}/fund/assignments` → FUND_ASSIGNMENT; into the caja menor it joins the open cycle as an entry; refused above the fund's balance |
+| Finalizar etapa | APPROVED, stage En curso | "Finalizar “X”": info where the balance goes + "Una etapa finalizada no recibe más dinero."; "Destino del saldo" (only when there is a balance): Fondo del proyecto (default) or another open stage, the sentence follows the choice; Fecha de finalización → `POST /stages/{id}/complete {actualEnd, toStageId?}` → COMPLETED + CARRYOVER to the fund or the chosen stage; refused if milestones pending. Several stages can be En curso at once |
 | Adjuntar (deposit row) | non-voided deposit | "Adjuntar comprobante": Archivo → `POST /movements/{id}/attachments`; then a "Comprobante" link |
-| Anular (ban icon) | non-voided deposit or contingency draw | "Anular movimiento": warning "<type> del <date> por <amount> (<destinations>). Seguirá en la lista como anulado…"; Motivo de la anulación → `POST /movements/{id}/void` |
+| Anular (ban icon) | non-voided deposit, contingency draw or fund assignment | "Anular movimiento": warning "<type> del <date> por <amount> (<destinations>). Seguirá en la lista como anulado…"; Motivo de la anulación → `POST /movements/{id}/void` |
 
-Movement types: Depósito, Uso de contingencia, Saldo trasladado (carry-over; never voidable). PM: read-only.
+Movement types: Depósito, Uso de contingencia, Asignación del fondo, Saldo trasladado (carry-over; never voidable). PM: read-only. The contingency no longer receives leftovers (only those from before the fund stay there).
 
 ### Caja menor · `?tab=petty-cash` (Admin, PM)
 
@@ -231,7 +232,7 @@ gasto" from Caja menor → Aprobado; Caja menor balance drops. 3. Gastos → app
 - Expenses: `widgets/expense-board/ui/{ExpenseBoard,ExpenseDetailModal}.tsx`, `features/expense-form`,
   `expense-review`, `expense-receipt`, `expense-void`, `expense-reimburse` → `backend/src/Expense/UI/Http/Controller/ExpenseController.php`
   (permissions `Expense/UI/Http/Presenter/ExpensePresenter.php`, rules `Expense/Domain/Model/Expense.php`).
-- Funds: `widgets/finance-board/ui/{FinanceBoard,MovementList}.tsx`, `features/finance-deposit`, `finance-draw`,
+- Funds: `widgets/finance-board/ui/{FinanceBoard,MovementList}.tsx`, `features/finance-deposit`, `finance-draw`, `fund-assign`,
   `movement-void`, `movement-proof`, `stage-complete` → `backend/src/Finance/UI/Http/Controller/{FinanceController,MovementController}.php`.
 - Caja menor: `widgets/petty-cash-board/ui/PettyCashBoard.tsx`, `features/cycle-close`, `cycle-signoff` →
   `backend/src/Finance/UI/Http/Controller/PettyCashController.php`.
