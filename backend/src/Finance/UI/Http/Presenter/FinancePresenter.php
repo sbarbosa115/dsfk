@@ -211,5 +211,4 @@ final readonly class FinancePresenter
 
         return MinorUnits::basisPoints($spent, $budget);
     }
-
 }
