@@ -1,4 +1,5 @@
 export {changePlan, fetchPlan, planKey, storePlan} from './api/planApi';
+export {approvedStages} from './model/stages';
 export {usePlanAction} from './model/usePlanAction';
 export type {
   BudgetStatus,

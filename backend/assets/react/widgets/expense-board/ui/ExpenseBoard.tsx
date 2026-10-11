@@ -11,7 +11,7 @@ import {
   type ExpensePage,
 } from '@/entities/expense';
 import {attachmentUrl} from '@/entities/finance';
-import {fetchPlan, planKey, type Plan} from '@/entities/plan';
+import {approvedStages, fetchPlan, planKey, type Plan} from '@/entities/plan';
 import {ExpenseFormModal} from '@/features/expense-form';
 import {AttachReceiptModal} from '@/features/expense-receipt';
 import {ReimburseModal} from '@/features/expense-reimburse';
@@ -227,7 +227,7 @@ function Board({plan, manager}: {plan: Plan; manager: boolean}) {
               onChange: (stageId) => list.update({stageId}),
               options: [
                 {value: '', label: t('common.all')},
-                ...plan.stages.map((s) => ({
+                ...approvedStages(plan).map((s) => ({
                   value: String(s.id),
                   label: s.name,
                 })),
