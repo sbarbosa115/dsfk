@@ -220,3 +220,22 @@ test('UI-10 · money columns and their headers align right', async ({
   await expect(header).toHaveClass(/\bnum\b/);
   await expect(header).toHaveCSS('text-align', 'right');
 });
+
+test('UI-11 · on a tablet or small laptop a row’s actions stay in view', async ({
+  signedInAs,
+}) => {
+  const page = await signedInAs(ADMIN);
+  for (const width of [768, 1024]) {
+    await page.setViewportSize({width, height: 900});
+    await page.goto(`/projects/${TORRE_NORTE}?tab=finance`);
+    const row = page.getByRole('row', {name: /^En curso: Estructura/});
+    const button = row.getByRole('button', {name: 'Finalizar etapa'});
+    const card = page.locator('.card', {has: row});
+    const buttonBox = (await button.boundingBox())!;
+    const cardBox = (await card.boundingBox())!;
+    expect(
+      buttonBox.x + buttonBox.width,
+      `at ${width} px the button ends inside its card`,
+    ).toBeLessThanOrEqual(cardBox.x + cardBox.width);
+  }
+});

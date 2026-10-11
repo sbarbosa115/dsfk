@@ -79,10 +79,15 @@ export function financeFixture(overrides: Partial<Finance> = {}): Finance {
     projectFund: {
       deposited: '0.00',
       carriedIn: '0.00',
+      received: '0.00',
       assigned: '0.00',
       balance: '0.00',
     },
-    pettyCash: {deposited: '300000.00', balance: '300000.00'},
+    pettyCash: {
+      deposited: '300000.00',
+      received: '300000.00',
+      balance: '300000.00',
+    },
     ...overrides,
   };
 }

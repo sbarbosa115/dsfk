@@ -927,6 +927,35 @@ function labelCells(
   return React.cloneElement(row, {}, cells);
 }
 
+/**
+ * Whether the element's content is wider than the element (a table scrolling sideways in its card), kept up to date
+ * as either changes size. Browsers without ResizeObserver (and jsdom) never report it.
+ */
+function useOverflowing<E extends HTMLElement>(): [
+  React.RefObject<E | null>,
+  boolean,
+] {
+  const ref = React.useRef<E>(null);
+  const [overflowing, setOverflowing] = React.useState(false);
+  React.useEffect(() => {
+    const element = ref.current;
+    if (!element || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const check = () =>
+      setOverflowing(element.scrollWidth > element.clientWidth + 1);
+    const observer = new ResizeObserver(check);
+    observer.observe(element);
+    if (element.firstElementChild) {
+      observer.observe(element.firstElementChild);
+    }
+    check();
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, overflowing];
+}
+
 export function DataTable<T>({
   columns,
   rows,
@@ -937,6 +966,7 @@ export function DataTable<T>({
   label,
 }: DataTableProps<T>) {
   const headers = actions ? [...columns, t('common.actions')] : columns;
+  const [wrap, overflowing] = useOverflowing<HTMLDivElement>();
   const body = rows.map((row, index) =>
     labelCells(renderRow(row, index), headers),
   );
@@ -955,7 +985,12 @@ export function DataTable<T>({
   }
 
   return (
-    <div className={`table-wrap ${className}`.trim()}>
+    <div
+      ref={wrap}
+      className={`table-wrap ${overflowing ? 'is-overflowing' : ''} ${className}`
+        .replace(/\s+/g, ' ')
+        .trim()}
+    >
       <table className="table" aria-label={label}>
         <thead>
           <tr>

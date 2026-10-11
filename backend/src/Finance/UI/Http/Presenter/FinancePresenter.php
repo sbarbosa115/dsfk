@@ -139,10 +139,15 @@ final readonly class FinancePresenter
             new ProjectFundOutput(
                 $money($b->in($fund, MovementType::Deposit)),
                 $money($b->in($fund, MovementType::Carryover)),
+                $money($b->in($fund, MovementType::Deposit) + $b->in($fund, MovementType::Carryover)),
                 $money($b->out($fund, MovementType::FundAssignment)),
                 $money($b->balance($fund)),
             ),
-            new PettyCashSummaryOutput($money($b->in($pc, MovementType::Deposit)), $money($b->balance($pc))),
+            new PettyCashSummaryOutput(
+                $money($b->in($pc, MovementType::Deposit)),
+                $money($b->in($pc, MovementType::Deposit) + $b->in($pc, MovementType::FundAssignment)),
+                $money($b->balance($pc)),
+            ),
         );
     }
 

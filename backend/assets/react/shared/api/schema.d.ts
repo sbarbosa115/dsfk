@@ -1395,12 +1395,16 @@ export interface components {
             deposited: string;
             /** Leftovers of closed stages. */
             carriedIn: string;
+            /** Deposited + carried in: everything that came in. */
+            received: string;
             /** Given to stages and the caja menor. */
             assigned: string;
             balance: string;
         };
         PettyCashSummaryOutput: {
             deposited: string;
+            /** Everything that came in: deposits and fund assignments. */
+            received: string;
             balance: string;
         };
         FinanceOutput: {
