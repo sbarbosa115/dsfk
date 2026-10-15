@@ -183,14 +183,6 @@ else
     [[ -d "$BACKEND/vendor" ]] || fail "backend/vendor/ is missing and Composer is not available: upload vendor/ built with PHP 8.4, or install Composer."
 fi
 
-step "Production cache"
-# Before the migrations, not after: right after a pull, var/cache/prod still holds the previous version's
-# container, and in prod Symfony trusts it without checking. A migration check booting that stale container can
-# fail for reasons that have nothing to do with the database. The directory is removed rather than cleared with
-# cache:clear, because cache:clear has to boot that same stale container to run at all.
-rm -rf "$BACKEND/var/cache/prod"
-console cache:warmup --env=prod --no-debug
-
 step "Frontend build"
 # The build is not in git: without Node there is nothing to serve.
 [[ -n "$NODE_BIN_DIR" ]] || fail "Node.js 20.19+ or 22.12+ not found. Install it in cPanel → Setup Node.js App, or set NODE_DIR=/folder/with/node."
@@ -206,6 +198,17 @@ else
 fi
 (cd "$BACKEND" && npx encore production)
 [[ -f "$BACKEND/public/build/entrypoints.json" ]] || fail "The build wrote no entrypoints.json. Run \"npx encore production\" in backend/ and read the error above it."
+
+step "Production cache"
+# After the frontend build, not before: in prod Webpack Encore caches entrypoints.json in this cache, so a warmup
+# ahead of the build stores the previous build's file names, and every page then asks for scripts the build has just
+# deleted — a blank screen until the cache is cleared again.
+# Before the migrations, not after: right after a pull, var/cache/prod still holds the previous version's
+# container, and in prod Symfony trusts it without checking. A migration check booting that stale container can
+# fail for reasons that have nothing to do with the database. The directory is removed rather than cleared with
+# cache:clear, because cache:clear has to boot that same stale container to run at all.
+rm -rf "$BACKEND/var/cache/prod"
+console cache:warmup --env=prod --no-debug
 
 step "Database server"
 # Doctrine picks its SQL dialect from serverVersion in DATABASE_URL, not from the server. A MySQL version string on
