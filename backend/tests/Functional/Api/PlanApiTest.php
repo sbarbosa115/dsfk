@@ -361,6 +361,51 @@ final class PlanApiTest extends ApiTestCase
         $this->assertError(409, 'budget_locked');
     }
 
+    public function testAnApprovedStageThatNeverStartedCanStillBeDeleted(): void
+    {
+        $this->loginAs($this->pm);
+        [$foundation, $structure] = array_column($this->buildPlan()['stages'], 'id');
+        $this->approve();
+        $this->loginAs($this->pm);
+        $added = $this->json('POST', $this->base.'/stages', ['name' => 'Adicionales'])['stages'][2]['id'];
+        $this->json('POST', "/api/stages/$added/lines", $this->line(array_column($this->json('GET', $this->base.'/plan')['categories'], 'id')[0]));
+        $this->json('POST', "/api/stages/$added/milestones", ['name' => 'Tanque', 'weight' => '100']);
+        $this->approve();
+        $this->loginAs($this->pm);
+
+        $plan = $this->json('GET', $this->base.'/plan');
+        self::assertSame([[false, true], [false, true], [false, true]], array_map(static fn (array $s): array => [$s['editable'], $s['deletable']], $plan['stages']));
+        $this->loginAs($this->lead);
+        self::assertSame([false, false, false], array_column($this->json('GET', $this->base.'/plan')['stages'], 'deletable'));
+        $this->request('DELETE', "/api/stages/$added");
+        $this->assertError(403, 'forbidden');
+        $this->loginAs($this->pm);
+
+        $this->request('POST', "/api/stages/$foundation/start", ['actualStart' => '2026-10-15']);
+        $this->request('DELETE', "/api/stages/$foundation");
+        $this->assertError(409, 'stage_already_started');
+
+        $milestone = $this->json('GET', $this->base.'/plan')['stages'][2]['milestones'][0]['id'];
+        $this->request('POST', "/api/milestones/$milestone/complete", ['completedAt' => '2026-10-15']);
+        $this->request('DELETE', "/api/stages/$added");
+        $this->assertError(409, 'stage_in_use');
+
+        $this->loginAs($this->admin);
+        $this->request('POST', "/api/milestones/$milestone/reopen");
+        $this->assertStatus(200);
+        $this->request('POST', $this->base.'/deposits', ['date' => '2026-10-15', 'method' => 'TRANSFER', 'allocations' => [['destination' => 'STAGE', 'stageId' => $structure, 'amount' => '1000']]]);
+        $this->assertStatus(201);
+        self::assertSame([false, false, true], array_column($this->json('GET', $this->base.'/plan')['stages'], 'deletable'));
+        $this->request('DELETE', "/api/stages/$structure");
+        $this->assertError(409, 'stage_in_use');
+
+        $plan = $this->json('DELETE', "/api/stages/$added");
+        $this->assertStatus(200);
+        self::assertSame(['Cimentación', 'Estructura'], array_column($plan['stages'], 'name'));
+        self::assertSame('4437506.25', $plan['budget']['stagesTotal'], 'the approved budget shrinks by the stage');
+        self::assertSame([1], array_column($plan['budget']['amendments'], 'number'), 'an approved addition stays, as history');
+    }
+
     public function testALineCannotUseAnotherProjectsCategory(): void
     {
         $this->loginAs($this->admin);

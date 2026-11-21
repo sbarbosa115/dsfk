@@ -840,6 +840,8 @@ export const es = {
     milestone_not_found: 'El hito ya no existe.',
     category_not_found: 'La categoría ya no existe.',
     stage_already_started: 'La etapa ya fue iniciada.',
+    stage_in_use:
+      'La etapa tiene hitos cumplidos, dinero asignado o gastos y no se puede eliminar.',
     stage_completed: 'La etapa ya finalizó; sus hitos no se reabren.',
     milestone_already_completed: 'El hito ya fue marcado como cumplido.',
     member_not_found: 'Esa persona ya no está en el proyecto.',

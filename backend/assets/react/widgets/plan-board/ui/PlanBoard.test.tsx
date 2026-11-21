@@ -86,6 +86,7 @@ describe('PlanBoard', () => {
         stages: plan.stages.map((s) => ({
           ...s,
           editable: false,
+          deletable: false,
           budgetTotal: null,
           weight: null,
           lines: null,
@@ -183,7 +184,7 @@ describe('PlanBoard', () => {
         addStage: true,
       },
       stages: [
-        {...original, editable: false},
+        {...original, editable: false, deletable: false},
         {
           ...original,
           id: 12,
@@ -247,6 +248,39 @@ describe('PlanBoard', () => {
       screen.getByRole('dialog'),
       'the form says what happens to a stage added now',
     ).toHaveTextContent('se agrega como adición');
+  });
+
+  it('offers to delete an approved stage only when the server says it can go', async () => {
+    const base = planFixture();
+    const original = base.stages[0]!;
+    mockApi({
+      'GET /api/projects/9/plan': planFixture({
+        budgetStatus: 'APPROVED',
+        permissions: {...base.permissions, edit: false, track: true},
+        stages: [
+          {...original, editable: false, deletable: true},
+          {
+            ...original,
+            id: 12,
+            name: 'Estructura',
+            position: 1,
+            status: 'IN_PROGRESS',
+            editable: false,
+            deletable: false,
+          },
+        ],
+      }),
+    });
+    renderWithProviders(<PlanBoard projectId={9} />);
+
+    const pending = await screen.findByRole('region', {name: 'Cimentación'});
+    expect(
+      within(pending).getByRole('button', {name: 'Eliminar etapa'}),
+    ).toBeInTheDocument();
+    const started = screen.getByRole('region', {name: 'Estructura'});
+    expect(
+      within(started).queryByRole('button', {name: 'Eliminar etapa'}),
+    ).not.toBeInTheDocument();
   });
 
   it('shows the weight error under the field when a milestone would pass 100 %', async () => {

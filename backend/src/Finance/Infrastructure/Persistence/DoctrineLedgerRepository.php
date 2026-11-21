@@ -273,4 +273,19 @@ final readonly class DoctrineLedgerRepository implements LedgerRepository, Finan
     {
         return null !== $this->em->getRepository(LedgerEntry::class)->findOneBy(['categoryId' => $categoryId]);
     }
+
+    public function stagesWithMoney(int $projectId): array
+    {
+        /** @var list<int|string> $ids */
+        $ids = $this->em->createQueryBuilder()
+            ->select('DISTINCT e.stageId')
+            ->from(LedgerEntry::class, 'e')
+            ->where('e.projectId = :project')
+            ->andWhere('e.stageId IS NOT NULL')
+            ->setParameter('project', $projectId)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_map(intval(...), $ids);
+    }
 }

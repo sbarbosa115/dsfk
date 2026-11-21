@@ -43,6 +43,8 @@ final readonly class StageOutput
         public bool $approved,
         /** Its dates, lines and milestones can be changed now, by this user. */
         public bool $editable,
+        /** It can be deleted now, by this user: while being written, or approved but never started, with no met milestone and no money on it. */
+        public bool $deletable,
     ) {
     }
 }

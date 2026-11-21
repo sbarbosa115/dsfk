@@ -6,6 +6,7 @@ namespace App\Planning\UI\Http\Presenter;
 
 use App\Planning\Application\Port\People;
 use App\Planning\Application\Port\ProjectCatalog;
+use App\Planning\Application\Port\StageUsage;
 use App\Planning\Domain\Model\Budget;
 use App\Planning\Domain\Model\BudgetAmendment;
 use App\Planning\Domain\Model\BudgetLine;
@@ -28,6 +29,7 @@ use App\Planning\UI\Http\Output\PlanOutput;
 use App\Planning\UI\Http\Output\PlanPermissionsOutput;
 use App\Planning\UI\Http\Output\PlanProjectOutput;
 use App\Planning\UI\Http\Output\StageOutput;
+use App\Shared\Domain\Error\Conflict;
 use App\Shared\Domain\Money\MinorUnits;
 use App\Shared\UI\Http\ProjectGuard;
 use App\Shared\UI\Http\ProjectPermission;
@@ -42,6 +44,7 @@ final readonly class PlanPresenter
         private People $people,
         private ProjectGuard $guard,
         private ClockInterface $clock,
+        private StageUsage $usage,
     ) {
     }
 
@@ -61,7 +64,20 @@ final readonly class PlanPresenter
         // A stage waiting for the Admin (in an open amendment) is shown, but counts in no figure yet.
         $approved = array_values(array_filter($stages, static fn (Stage $s): bool => !$s->isPendingApproval()));
         $open = $budget->isApproved() ? $budget->openAmendment() : null;
-        $editable = static fn (Stage $s): bool => $canPlan && (null === $s->getAmendment() ? $budget->isEditable() : $s->getAmendment()->isEditable());
+        $editable = static fn (Stage $s): bool => $canPlan && $budget->isStageEditable($s);
+        $used = $canPlan ? $this->usage->usedStages($projectId) : [];
+        $deletable = static function (Stage $s) use ($canPlan, $budget, $used): bool {
+            if (!$canPlan) {
+                return false;
+            }
+            try {
+                $budget->assertStageDeletable($s);
+            } catch (Conflict) {
+                return false;
+            }
+
+            return $budget->isStageEditable($s) || !\in_array($s->getId(), $used, true);
+        };
 
         $stageOutputs = array_map(static fn (Stage $s): StageOutput => new StageOutput(
             (int) $s->getId(),
@@ -98,6 +114,7 @@ final readonly class PlanPresenter
             $s->getAmendment()?->getNumber(),
             !$s->isPendingApproval(),
             $editable($s),
+            $deletable($s),
         ), $stages);
 
         $categories = $this->plans->categoriesOf($projectId);

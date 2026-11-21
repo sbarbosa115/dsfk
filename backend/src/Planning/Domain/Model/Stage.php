@@ -125,6 +125,17 @@ class Stage implements Audited
         }
     }
 
+    public function hasMetMilestones(): bool
+    {
+        foreach ($this->milestones as $milestone) {
+            if ($milestone->isCompleted()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function isCompleted(): bool
     {
         return StageStatus::Completed === $this->status;

@@ -71,6 +71,7 @@ Defined per project (e.g. Payroll, Materials, Equipment, Subcontracts). No templ
 - It is sent, returned with a comment and approved like the budget, with the same checks on its own stages, the same history and the same emails (naming the addition).
 - Until approved its stages exist only in the plan: no deposits, fund assignments, contingency draws or expenses; not in Fondos, the dashboards, the totals or the progress; they cannot be started.
 - Once approved they are stages like the others: the budget total and every stage's share grow or shift, and they run in parallel with the rest. The contingency never changes through an addition.
+- A stage of the open addition can be deleted while the addition is `DRAFT` or `RETURNED`; an addition left without stages goes away. Once approved, its stages can be deleted only on the same terms as the budget's (section 10).
 
 ### 3.5 Milestones and progress (weighted)
 - Each stage has milestones: `name, weight, planned_date, completed_at, completed_by, notes, evidence files`.
@@ -216,12 +217,13 @@ Still open: hosting details (PHP version, MySQL or MariaDB, SSH access).
 
 ## 10. Planning rules (implemented in phase 1)
 - The budget can be submitted or approved only when every stage has at least one budget line and its milestone weights add up to exactly 100%.
-- While the budget is `DRAFT` or `RETURNED`, the PM (or Admin) can edit stages, lines, milestones and contingency. While it is `SUBMITTED` or `APPROVED`, nobody can, the Admin included, except the stages of the open addition while it is `DRAFT` or `RETURNED` (3.4a).
+- While the budget is `DRAFT` or `RETURNED`, the PM (or Admin) can edit stages, lines, milestones and contingency. While it is `SUBMITTED` or `APPROVED`, nobody can, the Admin included, except the stages of the open addition while it is `DRAFT` or `RETURNED` (3.4a), and deleting a stage that never started (below).
 - After approval:
   - Stage names can still be corrected. Planned dates, lines, milestone weights and contingency cannot.
   - Categories can still be added, so unplanned costs have somewhere to go.
   - New stages can be added as an addition (3.4a); the stage order is fixed, new stages go last.
   - A category can be deleted only if nothing uses it.
+  - A stage, of the original budget or of an approved addition, can still be deleted by the PM (or Admin) while it is `PENDING`, has no milestone met and no money touches it: no deposit share, fund assignment, contingency draw or expense in any status (`stage_in_use` otherwise; `stage_already_started` once started). Its lines and milestones go with it, the approved budget total shrinks and every stage's share shifts. An approved addition left without stages stays, as history.
 - Milestones can be marked as met only after approval, with a completion date that is not in the future. Only the Admin can reopen a completed milestone.
 - Approving the budget moves the project from `DRAFT` to `ACTIVE`.
 - Team Leads see stages and milestones but no money figures.

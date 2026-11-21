@@ -195,6 +195,20 @@ final readonly class DoctrineExpenseRepository implements ExpenseRepository, Exp
         return null !== $this->em->getRepository(Expense::class)->findOneBy(['categoryId' => $categoryId]);
     }
 
+    public function stagesWithExpenses(int $projectId): array
+    {
+        /** @var list<int|string> $ids */
+        $ids = $this->em->createQueryBuilder()
+            ->select('DISTINCT e.stageId')
+            ->from(Expense::class, 'e')
+            ->where('e.projectId = :project')
+            ->setParameter('project', $projectId)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_map(intval(...), $ids);
+    }
+
     public function byMovements(array $movementIds): array
     {
         if ([] === $movementIds) {
