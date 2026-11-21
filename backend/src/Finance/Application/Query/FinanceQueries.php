@@ -70,4 +70,11 @@ interface FinanceQueries
 
     /** Whether any ledger entry earmarks money for the category (so Planning keeps it). */
     public function usesCategory(int $categoryId): bool;
+
+    /**
+     * The project's stages any ledger entry has touched (so Planning keeps them).
+     *
+     * @return list<int>
+     */
+    public function stagesWithMoney(int $projectId): array;
 }

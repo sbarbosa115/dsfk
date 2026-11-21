@@ -17,6 +17,13 @@ interface ExpenseDirectory
     public function usesCategory(int $categoryId): bool;
 
     /**
+     * The project's stages any expense (in whatever status) is recorded against.
+     *
+     * @return list<int>
+     */
+    public function stagesWithExpenses(int $projectId): array;
+
+    /**
      * Spending (approved and reimbursed) per month from `$from` on, by the expense's date.
      *
      * @return array<string, int> minor units by YYYY-MM

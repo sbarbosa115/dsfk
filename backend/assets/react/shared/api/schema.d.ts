@@ -1648,6 +1648,8 @@ export interface components {
             approved: boolean;
             /** Its dates, lines and milestones can be changed now, by this user. */
             editable: boolean;
+            /** It can be deleted now, by this user: while being written, or approved but never started, with no met milestone and no money on it. */
+            deletable: boolean;
         };
         CategoryOutput: {
             id: number;

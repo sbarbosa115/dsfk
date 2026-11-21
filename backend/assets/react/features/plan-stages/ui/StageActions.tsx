@@ -15,7 +15,8 @@ import {StageFormModal} from './StageFormModal';
 
 /**
  * What can be done to a stage, in the house order: start it (once it is approved), then edit, move (only while the
- * budget is a draft), and delete last (while what it belongs to, the budget or its addition, is being written).
+ * budget is a draft), and delete last (while what it belongs to is being written, or once approved if it never
+ * started and nothing was met or spent on it: the server says so in `deletable`).
  */
 export function StageActions({
   plan,
@@ -40,7 +41,7 @@ export function StageActions({
     void move.run(`/projects/${plan.project.id}/stages/order`, 'PUT', {ids});
   };
 
-  if (!edit && !track && !stage.editable) {
+  if (!edit && !track && !stage.editable && !stage.deletable) {
     return null;
   }
 
@@ -74,7 +75,7 @@ export function StageActions({
           />
         </>
       )}
-      {stage.editable && (
+      {stage.deletable && (
         <ActionButton action="danger" onClick={() => setDialog('delete')}>
           {t('plan.deleteStage')}
         </ActionButton>

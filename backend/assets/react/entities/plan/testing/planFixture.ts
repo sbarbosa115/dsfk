@@ -66,6 +66,7 @@ export function planFixture(overrides: Partial<Plan> = {}): Plan {
         amendment: null,
         approved: true,
         editable: true,
+        deletable: true,
       },
     ],
     categories: [{id: 1, name: 'Materiales'}],

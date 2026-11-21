@@ -176,6 +176,36 @@ class Budget implements Audited
     }
 
     /**
+     * A stage goes while what it belongs to is being written, like any edit. Once approved it can still go if it
+     * never started and no milestone was met; whether money touched it is the caller's to check.
+     *
+     * @throws Conflict budget_locked while it waits for the Admin, stage_already_started, stage_in_use with a met milestone
+     */
+    public function assertStageDeletable(Stage $stage): void
+    {
+        if ($this->isStageEditable($stage)) {
+            return;
+        }
+        $amendment = $stage->getAmendment();
+        if (!(null === $amendment ? $this->isApproved() : $amendment->isApproved())) {
+            throw new Conflict('budget_locked');
+        }
+        if (StageStatus::Pending !== $stage->getStatus()) {
+            throw new Conflict('stage_already_started');
+        }
+        if ($stage->hasMetMilestones()) {
+            throw new Conflict('stage_in_use');
+        }
+    }
+
+    public function isStageEditable(Stage $stage): bool
+    {
+        $amendment = $stage->getAmendment();
+
+        return null === $amendment ? $this->isEditable() : $amendment->isEditable();
+    }
+
+    /**
      * The stages the next submit or approval is about: all of them for the budget, only the open amendment's once
      * it is approved.
      *
