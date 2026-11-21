@@ -74,6 +74,11 @@ interface RowActionsProps {
   toggle?: ToggleAction | false | null;
   /** A control that changes the row in place (a role dropdown), before the main action. */
   lead?: ReactNode;
+  /**
+   * The main action outlined instead of filled, for a list where every row offers the same one (a stage's
+   * milestones): a column of filled buttons drowns out what needs attention.
+   */
+  quiet?: boolean;
 }
 
 // The same width as the phone layout of tables in app.css.
@@ -180,6 +185,7 @@ export function RowActions({
   edit,
   toggle,
   lead,
+  quiet = false,
 }: RowActionsProps) {
   const {main, more} = foldCommon(given, givenMore, {view, edit, toggle});
   const groups = more
@@ -198,12 +204,12 @@ export function RowActions({
       {lead}
       {(main || hasMenu) && (
         <span className={`split${main && hasMenu ? ' is-split' : ''}`}>
-          {main && <MainButton action={main} />}
+          {main && <MainButton action={main} quiet={quiet} />}
           {hasMenu && (
             <button
               ref={trigger}
               type="button"
-              className={`${actionClass(main ? main.action : 'open')} split-toggle${main ? ' is-main' : ' split-more'}`}
+              className={`${actionClass(main ? main.action : 'open')} split-toggle${main ? (quiet ? '' : ' is-main') : ' split-more'}`}
               aria-label={main ? t('rowActions.more', {name}) : undefined}
               aria-haspopup="menu"
               aria-expanded={open}
@@ -249,8 +255,14 @@ function safeHref(href: string): boolean {
 
 const NEW_TAB = {target: '_blank', rel: 'noopener noreferrer'};
 
-function MainButton({action}: {action: RowAction}) {
-  const className = actionClass(action.action, 'is-main');
+function MainButton({
+  action,
+  quiet = false,
+}: {
+  action: RowAction;
+  quiet?: boolean;
+}) {
+  const className = actionClass(action.action, quiet ? '' : 'is-main');
   const icon = action.icon ?? MAIN_ICONS[action.action];
   const content = (
     <>
