@@ -24,6 +24,7 @@ import {
   TabPanel,
   Tabs,
 } from '@/shared/ui';
+import {CategoryBoard} from '@/widgets/category-board';
 import {ExpenseBoard} from '@/widgets/expense-board';
 import {FinanceBoard} from '@/widgets/finance-board';
 import {PettyCashBoard} from '@/widgets/petty-cash-board';
@@ -31,17 +32,29 @@ import {ProjectDashboard} from '@/widgets/project-dashboard';
 import {PlanBoard} from '@/widgets/plan-board';
 
 type Tab =
-  'plan' | 'dashboard' | 'expenses' | 'finance' | 'petty-cash' | 'overview';
+  | 'plan'
+  | 'dashboard'
+  | 'expenses'
+  | 'categories'
+  | 'finance'
+  | 'petty-cash'
+  | 'overview';
 // Team Leads see no project money (only their own expenses): a link to ?tab=finance lands them on the plan.
 const MANAGER_TABS: readonly Tab[] = [
   'plan',
   'dashboard',
   'expenses',
+  'categories',
   'finance',
   'petty-cash',
   'overview',
 ];
-const TEAM_LEAD_TABS: readonly Tab[] = ['plan', 'expenses', 'overview'];
+const TEAM_LEAD_TABS: readonly Tab[] = [
+  'plan',
+  'expenses',
+  'categories',
+  'overview',
+];
 
 /** One project: its plan and budget, its expenses, its money and petty cash (Admins and the PM), then who is in it. */
 export function ProjectDetailPage() {
@@ -126,6 +139,12 @@ function ProjectView({project}: {project: Project}) {
             shortLabel: t('projects.tabsShort.expenses'),
             icon: 'receipt',
           },
+          {
+            value: 'categories',
+            label: t('projects.tabs.categories'),
+            shortLabel: t('projects.tabsShort.categories'),
+            icon: 'tag',
+          },
           ...(manager
             ? [
                 {
@@ -156,6 +175,7 @@ function ProjectView({project}: {project: Project}) {
         {tab === 'expenses' && (
           <ExpenseBoard projectId={project.id} manager={manager} />
         )}
+        {tab === 'categories' && <CategoryBoard projectId={project.id} />}
         {tab === 'finance' && <FinanceBoard projectId={project.id} />}
         {tab === 'petty-cash' && <PettyCashBoard projectId={project.id} />}
         {tab === 'overview' && <Overview project={project} admin={admin} />}

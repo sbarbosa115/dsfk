@@ -205,16 +205,16 @@
     "sections": [
       {
         "body": [
-          "El presupuesto se arma en la pestaña Presupuesto y plan, en este orden: las categorías, las etapas, dentro de cada etapa sus partidas y sus hitos."
+          "Primero las categorías, en la pestaña Categorías. Después, en la pestaña Presupuesto y plan, las etapas y, dentro de cada etapa, sus partidas y sus hitos."
         ]
       },
       {
         "heading": "Categorías",
         "steps": [
-          "En Categorías escribe el nombre en Nueva categoría (por ejemplo Nómina, Materiales o Equipos).",
-          "Presiona Agregar."
+          "En la pestaña Categorías presiona Nueva categoría.",
+          "Escribe el nombre (por ejemplo Nómina, Materiales o Equipos) y presiona Agregar."
         ],
-        "note": "Las categorías agrupan partidas y gastos, y se pueden agregar en cualquier momento, también después de aprobado el presupuesto. Una categoría que usan partidas, gastos o dinero depositado no se puede eliminar."
+        "note": "Las categorías agrupan partidas y gastos, y se pueden agregar en cualquier momento, también después de aprobado el presupuesto. La pestaña muestra lo presupuestado, lo gastado y lo disponible de cada una, y marca en rojo las que se pasaron. Una categoría que usan partidas, gastos o dinero depositado no se puede eliminar."
       },
       {
         "heading": "Etapas",
@@ -226,7 +226,7 @@
         "note": "Varias etapas pueden ir en paralelo; el saldo de una etapa finalizada pasa al fondo del proyecto o a la etapa que elija el administrador. Con el presupuesto aprobado, una etapa nueva entra como adición (ver Enviar el presupuesto a aprobación).",
         "image": {
           "src": "budget-and-plan",
-          "caption": "Pestaña Presupuesto y plan: el presupuesto, las categorías y las etapas."
+          "caption": "Pestaña Presupuesto y plan: el presupuesto y las etapas."
         }
       }
     ],

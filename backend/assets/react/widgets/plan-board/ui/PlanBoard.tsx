@@ -8,7 +8,6 @@ import {
   type PlanStage,
   type StageStatus,
 } from '@/entities/plan';
-import {CategoriesPanel} from '@/features/plan-categories';
 import {StageFormModal} from '@/features/plan-stages';
 import {t} from '@/shared/i18n';
 import {
@@ -77,9 +76,6 @@ export function PlanBoard({projectId}: {projectId: number}) {
           : t('plan.introTeamLead')}
       </TabIntro>
       <BudgetCard plan={p} />
-      {(p.permissions.viewFinancials || p.categories.length > 0) && (
-        <CategoriesPanel plan={p} />
-      )}
       {/* "Agregar etapa" ends the stage list's own header, once, even when the list is empty (QA-0005). */}
       <div className="section-title stage-list-header">
         <div>
