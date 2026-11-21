@@ -330,6 +330,8 @@ const TONES: Record<string, string> = {
   // Milestones: met, or late (their planned date went by). The rest stay plain.
   milestone_done: 'success',
   milestone_overdue: 'danger',
+  // Categories: one that spent more than it budgeted. The rest stay plain.
+  category_over_budget: 'danger',
   // Dashboard indices (CPI, SPI).
   health_good: 'success',
   health_warning: 'warning',

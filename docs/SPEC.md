@@ -274,6 +274,7 @@ Still open: hosting details (PHP version, MySQL or MariaDB, SSH access).
   - The Admin signs closed cycles off. Unsigned cycles are flagged, but they don't block new top-ups.
   - Movements in a closed cycle can't be voided.
 - **Finance view.** Adds spent, remaining budget and % executed per stage, and budget vs actual per category.
+- **Categories tab.** Each project has a Categorías tab: budgeted, spent, available and % executed per category, largest budget first, with categories over budget flagged. The PM (or Admin) adds, renames and removes categories there. Team Leads see the names only, without amounts.
 
 ## 13. Monitoring (implemented in phase 4)
 - **Dashboards.**

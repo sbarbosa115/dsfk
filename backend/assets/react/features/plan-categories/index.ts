@@ -1,1 +1,5 @@
-export {CategoriesPanel} from './ui/CategoriesPanel';
+export {
+  AddCategoryModal,
+  RemoveCategoryModal,
+  RenameCategoryModal,
+} from './ui/CategoryModals';

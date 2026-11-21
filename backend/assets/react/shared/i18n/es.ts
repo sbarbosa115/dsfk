@@ -189,6 +189,7 @@ export const es = {
       expenses: 'Gastos',
       finance: 'Fondos',
       pettyCash: 'Caja',
+      categories: 'Categorías',
       overview: 'Resumen',
     },
     tabs: {
@@ -198,8 +199,30 @@ export const es = {
       expenses: 'Gastos',
       finance: 'Fondos',
       pettyCash: 'Caja menor',
+      categories: 'Categorías',
     },
     overviewIntro: 'Los datos del proyecto y quiénes trabajan en él.',
+  },
+  categories: {
+    title: 'Categorías',
+    intro:
+      'Agrupan partidas y gastos (Nómina, Materiales, Equipos…) para comparar lo presupuestado con lo gastado. Se pueden agregar en cualquier momento; solo se eliminan si nada las usa.',
+    introTeamLead: 'Las categorías del proyecto, para clasificar tus gastos.',
+    count_one: '{{count}} categoría',
+    count_other: '{{count}} categorías',
+    over_one: '{{count}} sobre presupuesto',
+    over_other: '{{count}} sobre presupuesto',
+    overBudget: 'Sobre presupuesto',
+    add: 'Nueva categoría',
+    budgeted: 'Presupuestado',
+    spent: 'Gastado',
+    available: 'Disponible',
+    executed: 'Ejecutado',
+    executedOf: 'Ejecutado de {{name}}',
+    executedTotal: '{{percent}} ejecutado',
+    empty:
+      'Todavía no hay categorías. Agrega la primera (Materiales, Mano de obra…) para poder cargar partidas.',
+    emptyTeamLead: 'El proyecto todavía no tiene categorías.',
   },
   plan: {
     weightsFull:
@@ -284,7 +307,8 @@ export const es = {
     addCategory: 'Agregar',
     renameCategory: 'Renombrar categoría',
     rename: 'Renombrar',
-    noCategories: 'Crea al menos una categoría antes de agregar partidas.',
+    noCategories:
+      'Crea al menos una categoría (pestaña Categorías) antes de agregar partidas.',
     stages: 'Etapas',
     addStage: 'Agregar etapa',
     editStage: 'Editar etapa',
