@@ -2030,22 +2030,214 @@ select.filter-select {
   text-align: right;
 }
 
-/* One stage of a plan: its header (number, name, status, dates, money, progress) over its tables. */
-.stage-header {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(140px, 1fr);
-  gap: 12px;
-  align-items: center;
+/*
+ * One stage of a plan (StageCard): a summary row always in view (number, name, money, progress against time,
+ * milestones, the toggle) that wraps on narrow screens, and its detail (milestones and lines in tabs) on demand.
+ */
+.stage-card {
+  padding: 0;
+  overflow: hidden;
 }
 
-@media (max-width: 720px) {
-  .stage-header {
-    grid-template-columns: minmax(0, 1fr);
+.stage-summary {
+  display: grid;
+  /* Fixed tracks, so the figures of every stage line up down the list. */
+  grid-template-columns: 40px minmax(0, 1fr) 140px 190px 72px 116px;
+  align-items: center;
+  gap: 16px 24px;
+  padding: 18px 20px;
+}
+
+/* Narrower than a laptop: the figures wrap under the name, two by two, then one by one on a phone. */
+@media (max-width: 1100px) {
+  .stage-summary {
+    display: flex;
+    flex-wrap: wrap;
   }
 }
 
-.stage-header .row-actions {
+.stage-number {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.stage-main {
+  flex: 1 1 calc(100% - 64px);
+  min-width: 0;
+}
+
+.stage-main .row-actions {
   margin-top: 8px;
+}
+
+.stage-figure {
+  flex: 1 1 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.stage-progress {
+  flex: 1 1 220px;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stage-pace-behind {
+  color: var(--color-warning);
+  font-weight: 600;
+}
+
+.stage-toggle svg {
+  transition: transform 0.15s ease;
+}
+
+.stage-toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
+.stage-detail {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-sunken);
+  padding: 12px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stage-list-header {
+  align-items: flex-end;
+}
+
+.stage-list-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.stage-counts {
+  margin: 4px 0 0;
+}
+
+/* Where the bar should be by now: a tick across the track (ProgressBar `marker`). */
+.progress-track {
+  position: relative;
+}
+
+.progress-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-warning);
+}
+
+/* A stage's milestones as a checklist: met ones ticked, late ones in red, the next one outlined in blue. */
+.milestone-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.milestone-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.milestone-item-danger {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-soft);
+}
+
+.milestone-item-next {
+  border-color: var(--color-info);
+}
+
+.milestone-check {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.milestone-item-success .milestone-check {
+  border-color: var(--color-success);
+  background: var(--color-success);
+  color: var(--color-on-primary);
+}
+
+.milestone-item-danger .milestone-check {
+  border-color: var(--color-danger);
+}
+
+.milestone-body {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.milestone-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-weight: 600;
+}
+
+.milestone-state {
+  color: var(--color-muted);
+}
+
+.milestone-state-milestone_done {
+  color: var(--color-success);
+}
+
+.milestone-state-milestone_overdue {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.milestone-weight {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--color-neutral-soft);
+  color: var(--color-neutral);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.milestone-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* A section's heading and its note ("Suma de pesos: 100%") read together, its action at the far end. */
@@ -2064,6 +2256,11 @@ select.filter-select {
   font-weight: 600;
 }
 
+.stage-title h4 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
 .section-title {
   display: flex;
   align-items: center;
@@ -2073,8 +2270,13 @@ select.filter-select {
   margin-top: 8px;
 }
 
-.section-title h3 {
+.section-title h3,
+.section-title h5 {
   font-size: 0.95rem;
+}
+
+.section-title h5 {
+  margin: 0;
 }
 
 .table tfoot td {

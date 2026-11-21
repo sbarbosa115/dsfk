@@ -23,8 +23,13 @@ describe('PlanBoard', () => {
     const stage = await screen.findByRole('region', {name: 'Cimentación'});
     expect(text(stage.textContent ?? '')).toContain('$ 1.437.506');
     expect(text(stage.textContent ?? '')).toContain('32,4% del presupuesto');
+    expect(
+      within(stage).getByRole('tab', {name: 'Partidas (1)'}),
+      'a stage being written opens on its lines',
+    ).toHaveAttribute('aria-selected', 'true');
     expect(within(stage).getByText('Concreto')).toBeInTheDocument();
     expect(within(stage).getByText('12,5 m³')).toBeInTheDocument();
+    await userEvent.click(within(stage).getByRole('tab', {name: 'Hitos (2)'}));
     expect(within(stage).getByText('Excavación')).toBeInTheDocument();
     expect(
       text(
@@ -153,7 +158,8 @@ describe('PlanBoard', () => {
     });
     renderWithProviders(<PlanBoard projectId={9} />);
 
-    const row = (await screen.findByText('Excavación')).closest('tr')!;
+    await userEvent.click(await screen.findByRole('tab', {name: 'Hitos (2)'}));
+    const row = screen.getByText('Excavación').closest('li')!;
     await userEvent.click(
       within(row).getByRole('button', {name: 'Marcar cumplido'}),
     );
@@ -305,9 +311,8 @@ describe('PlanBoard', () => {
     });
     renderWithProviders(<PlanBoard projectId={9} />);
 
-    await userEvent.click(
-      await screen.findByRole('button', {name: 'Agregar hito'}),
-    );
+    await userEvent.click(await screen.findByRole('tab', {name: 'Hitos (2)'}));
+    await userEvent.click(screen.getByRole('button', {name: 'Agregar hito'}));
     expect(screen.getByLabelText(/^Peso/)).toHaveValue('40');
     await userEvent.type(screen.getByLabelText('Nombre del hito'), 'Curado');
     await userEvent.clear(screen.getByLabelText(/^Peso/));
@@ -323,5 +328,178 @@ describe('PlanBoard', () => {
         'La suma de los pesos de la etapa no puede superar el 100 %.',
       ),
     ).toBeInTheDocument();
+  });
+
+  describe('the stage list', () => {
+    // 20 nov 2026: Simentación runs 26 oct – 31 dic, so 25 of its 66 days are gone (38 %).
+    const running = () => {
+      const base = planFixture();
+      const original = base.stages[0]!;
+      return planFixture({
+        budgetStatus: 'APPROVED',
+        permissions: {...base.permissions, edit: false, track: true},
+        stages: [
+          {
+            ...original,
+            name: 'Demolición',
+            status: 'COMPLETED',
+            progress: 10000,
+            editable: false,
+            deletable: false,
+            milestones: [
+              {
+                ...original.milestones[0]!,
+                id: 20,
+                name: 'Demolición total',
+                weight: 10000,
+                completedAt: '2026-10-19',
+                completedBy: {id: 5, fullName: 'Eduardo Ruiz'},
+              },
+            ],
+          },
+          {
+            ...original,
+            id: 12,
+            name: 'Simentación',
+            position: 1,
+            status: 'IN_PROGRESS',
+            plannedStart: '2026-10-26',
+            plannedEnd: '2026-12-31',
+            actualStart: '2026-10-26',
+            editable: false,
+            deletable: false,
+            milestones: [
+              {
+                ...original.milestones[0]!,
+                name: 'Replanteo',
+                plannedDate: '2026-10-27',
+                overdue: true,
+              },
+              {
+                ...original.milestones[1]!,
+                name: 'Parrilla de zapata',
+                plannedDate: '2026-11-25',
+              },
+            ],
+          },
+        ],
+      });
+    };
+
+    it('sums the stages up and opens only the running one, on its milestones', async () => {
+      vi.useFakeTimers({
+        now: new Date('2026-11-20T12:00:00'),
+        toFake: ['Date'],
+      });
+      mockApi({'GET /api/projects/9/plan': running()});
+      renderWithProviders(<PlanBoard projectId={9} />);
+
+      const current = await screen.findByRole('region', {name: 'Simentación'});
+      expect(text(screen.getByText(/^2 etapas/).textContent ?? '')).toBe(
+        '2 etapas · 1 en curso · 1 finalizada · 1 hito atrasado',
+      );
+
+      const finished = screen.getByRole('region', {name: 'Demolición'});
+      expect(
+        within(finished).getByRole('button', {name: /Ver detalle/}),
+      ).toHaveAttribute('aria-expanded', 'false');
+      expect(
+        within(finished).queryByText('Demolición total'),
+        'a finished stage shows only its summary',
+      ).not.toBeInTheDocument();
+
+      expect(
+        within(current).getByText(
+          /^Va 0\s?% con el 37,9\s?% del tiempo transcurrido$/,
+        ),
+      ).toBeInTheDocument();
+      expect(within(current).getByText('1 atrasado')).toBeInTheDocument();
+      expect(
+        within(current).getByRole('tab', {name: 'Hitos (2)'}),
+      ).toHaveAttribute('aria-selected', 'true');
+      expect(
+        within(current).getByText(/Atrasado 24 días · era para el/),
+      ).toBeInTheDocument();
+      const next = within(current)
+        .getByText('Parrilla de zapata')
+        .closest('li')!;
+      expect(within(next).getByText('Próximo')).toBeInTheDocument();
+      expect(
+        within(next).getByRole('button', {name: 'Marcar cumplido'}),
+        'every milestone offers it, so it is outlined, not filled',
+      ).not.toHaveClass('is-main');
+
+      await userEvent.click(
+        within(finished).getByRole('button', {name: /Ver detalle/}),
+      );
+      expect(
+        within(finished).getByText(/Cumplido el .* · Eduardo Ruiz/),
+      ).toBeInTheDocument();
+      vi.useRealTimers();
+    });
+
+    it('filters the stages by status', async () => {
+      mockApi({'GET /api/projects/9/plan': running()});
+      renderWithProviders(<PlanBoard projectId={9} />);
+
+      await screen.findByRole('region', {name: 'Simentación'});
+      await userEvent.click(screen.getByRole('tab', {name: 'Finalizadas'}));
+      expect(
+        screen.getByRole('region', {name: 'Demolición'}),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('region', {name: 'Simentación'}),
+      ).not.toBeInTheDocument();
+      expect(
+        text(
+          screen.getByRole('region', {name: 'Demolición'}).textContent ?? '',
+        ),
+        'a stage keeps its number in the whole plan',
+      ).toMatch(/^1/);
+
+      await userEvent.click(screen.getByRole('tab', {name: 'Pendientes'}));
+      expect(
+        screen.getByText('Ninguna etapa en este estado.'),
+      ).toBeInTheDocument();
+    });
+
+    it('lists the lines largest first, with their share of the stage', async () => {
+      const base = planFixture();
+      const stage = base.stages[0]!;
+      mockApi({
+        'GET /api/projects/9/plan': planFixture({
+          stages: [
+            {
+              ...stage,
+              budgetTotal: '1000000.00',
+              lines: [
+                {
+                  ...stage.lines![0]!,
+                  id: 31,
+                  description: 'Lonas',
+                  total: '250000.00',
+                },
+                {
+                  ...stage.lines![0]!,
+                  id: 32,
+                  description: 'Nómina',
+                  total: '750000.00',
+                },
+              ],
+            },
+          ],
+        }),
+      });
+      renderWithProviders(<PlanBoard projectId={9} />);
+
+      const region = await screen.findByRole('region', {name: 'Cimentación'});
+      const rows = within(region).getAllByRole('row').slice(1);
+      expect(
+        rows.map((r) => within(r).getAllByRole('cell')[0]!.textContent),
+      ).toEqual(['NóminaMateriales', 'LonasMateriales']);
+      expect(
+        within(rows[0]!).getByRole('progressbar', {name: /Nómina/}),
+      ).toHaveAttribute('aria-valuenow', '75');
+    });
   });
 });

@@ -24,10 +24,13 @@ export function MilestoneActions({
   plan,
   stage,
   milestone,
+  quiet = false,
 }: {
   plan: Plan;
   stage: PlanStage;
   milestone: PlanMilestone;
+  /** Outlined instead of filled: every milestone of a stage offers the same action. */
+  quiet?: boolean;
 }) {
   const [dialog, setDialog] = useState<'complete' | 'edit' | 'delete' | null>(
     null,
@@ -41,6 +44,7 @@ export function MilestoneActions({
     <>
       <RowActions
         name={milestone.name}
+        quiet={quiet}
         main={
           track && stage.approved && !milestone.completedAt
             ? {
